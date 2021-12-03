@@ -9,7 +9,7 @@ with open(join(this_directory, 'README.md'), encoding='utf-8') as f:
 
 
 setup(
-    name='Configer-lw',
+    name='easy_config',
     version='1.0.3',
     description='A lightweight configer builder by given the config file or config str',
     author='JosefHuang',
@@ -18,7 +18,7 @@ setup(
     long_description_content_type='text/markdown',
     license='MIT',
     url='https://github.com/HuangChiEn/Configer_lw',
-    packages=['Configer_lw'],
+    packages=['easy_config'],
     keywords=["configuration", "commendline argument", "argument"],
     classifiers=[
         'Programming Language :: Python :: 3.7',
