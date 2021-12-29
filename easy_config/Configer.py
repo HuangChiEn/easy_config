@@ -1,7 +1,7 @@
 # Josef, 2021, 06, 27 4:45pm, have fun
 from pathlib import Path
 from .Type_Convertor import Type_Convertor
-
+from .Flag import Flag
 import os
 import sys
 import errno
@@ -14,16 +14,7 @@ class Configer(object):
         the instance of customer class with registered their constructor simply. 
         
         Hope such trivial contribution will let your work become easier ~ ~ God bless you.
-
-        @docstring test :
-        >>> from Configer import Configer
-        >>> cfger = Configer("configer description") 
-        >>> cfger.cfg_from_ini("simple_test.ini")
-        >>> print(cfger)
-        Namespace : 
-        ModelSpecification, ImageSpecification, EnviromentSetting, LearningSetting
     '''
-    
     def __init__(self, description:str = "", cmd_args:bool = False, split_chr:str = " = "):
         '''
             description (option) : 
@@ -43,6 +34,7 @@ class Configer(object):
         self.__split_chr = split_chr
         self.__cmd_args = cmd_args
         self.__cmd_arg_lst = sys.argv[1:]
+        self.__flag = Flag().FLAGS
             
         # print out helper document string
         if cmd_args and "-h" in self.__cmd_arg_lst:
@@ -88,7 +80,14 @@ class Configer(object):
             print(ex) ; raise
         else:
             self.__cfg_parser(raw_cfg_text)
+        
+        # build the flag object 
+        self.__flag.__dict__ = self.__dict__
 
+    
+    # return an absl style flag to store all of the args.
+    def get_cfg_flag(self):
+        return self.__flag
 
     def __cfg_parser(self, raw_cfg_text:str):
         '''
@@ -106,7 +105,8 @@ class Configer(object):
             # add section tag
             if lin[0] == '[':
                 sec_idx = lin.find(']')
-                assert sec_idx != -1, "Invalid section notation missing ']' at end of line"
+                if not sec_idx != -1:
+                    raise Exception("Invalid section notation missing ']' at end of line")
                 sec_key = lin[1:sec_idx]
                 self.__dict__[sec_key] = {}
                 continue
@@ -170,5 +170,4 @@ class Configer(object):
         return self.__split_chr
 
 if __name__ == "__main__":
-    import doctest
-    doctest.testmod(verbose = True)
+    ...
