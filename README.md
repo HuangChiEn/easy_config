@@ -1,10 +1,10 @@
 # Project description
-### Configer in light-weight
-This is a light-weight solution of configurate the python program. <br>
+### Configeruating the program in an easy-way
+This is a light-weight solution for configurating the python program. <br>
 Hope this repository make every user control their large project with easier ~ ~ 
 
 ### Introduction
-With the large python project, a lot of argument will be required to control the business logic, user need a simple way to load configurations through a file eventually. Their exists various package cover part of function with each other, and offer some solution to tackle the mentioned problem. 
+With the large python project, a lot of argument will be required to control the business logic, user may need a simple way to load configurations through a file eventually. Their exists various package cover part of function with each other, and offer some solution to tackle the mentioned problem. 
 
 **But at least I can not find a solution for load & use the argument in simple manner.**   Instead, most of them seems for the specific goal, and cause the code more longer and hard to read.
 
@@ -28,7 +28,7 @@ For example :
     args.lucky_num
     
 
-That's why I packaged my solution to this issue. The configer-lw will have following attribute :
+That's why I packaged my solution to this issue. The easy_config will have following attribute :
 
 1. **simple & customized syntax of declaration (partially support)**
 
@@ -37,6 +37,8 @@ That's why I packaged my solution to this issue. The configer-lw will have follo
 3. **Declare customized class instance in the config file (partially support)**
 
 4. **Commend-line update default value**
+
+5. **Support the absl style FLAGS functionality (latest update!!)** 
 
 And, of course the following attribute will also be supported :
 
@@ -56,7 +58,11 @@ Of course, light-weight solution **do not** contain any 3-rd package complex dep
 The python standard package (such as pathlib, sys, .., etc) is the only source of dependencies, so you don't need to worry about that ~ ~
 
 ### Installation
-In the root directory, type in `pip install .`
+1. **pypi install**
+    simply type the `pip install easy_config`
+2. **install from source code**
+    clone the project from github : `git clone repo-link` 
+    Chage to the root directory of the cloned project, and type `pip install -e .`
 
 ---
 

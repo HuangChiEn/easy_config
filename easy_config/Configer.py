@@ -1,10 +1,10 @@
-# Josef, 2021, 06, 27 4:45pm, have fun
+import errno
+import os
 from pathlib import Path
+import sys
+
 from .Type_Convertor import Type_Convertor
 from .Flag import Flag
-import os
-import sys
-import errno
 
 class Configer(object):
     '''

@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Mar 23 14:05:03 2021
-
-@author: josep
-"""
 from functools import partial
 
 class Type_Convertor():
