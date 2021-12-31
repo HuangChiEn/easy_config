@@ -98,8 +98,10 @@ The python standard package (such as pathlib, sys, .., etc) is the only source o
 #### *quick_start.py in work directory*
     
     # Epilog
-    from Configer_lw import Configer as cfger
-    
+    from easy_config.Configer import Configer
+    # new feature!! suport flag
+    from test_flag import get_n_blk_from_flag
+
     # Of course, you can simple make the config file with the simple string, 
     # which is very suitable for cell-based development enviroment (e.g. jupyter-lab)
     # Do not forgot, always declare cfg_str in global part, not in main_block !!
@@ -115,7 +117,7 @@ The python standard package (such as pathlib, sys, .., etc) is the only source o
     
     # main_block 
     if __name__ == "__main__":
-        cfger = cfger.Configer(description="helper information string in cmdline", cmd_args=True)
+        cfger = Configer(description="helper information string in cmdline", cmd_args=True)
         cfger.regist_cnvtor("test", Test)  # regist customer class 
         
         # Feed 2 different config file into Configer..
@@ -127,10 +129,25 @@ The python standard package (such as pathlib, sys, .., etc) is the only source o
         # Get the flatten argument
         print(cfger.n_blk)
         print( type(cfger.test) )  # chk the type!
+        # test the flag 
+        print(get_n_blk_from_flag())
+        
         # Get the non-flatten argument
         assert cfger.fir_sec['dummy_val'] != cfger.sec_sec['dummy_val']
         
         print( type(cfger.sec_sec['dummy_val']) )
+
+#### In the new feature -- absl style flag, easy_config also support that you can access the 'same' config file in different python file without re-declare the config..
+> test_flag.py under the same work directory
+
+    from easy_config.Configer import Configer
+
+    def get_n_blk_from_flag():
+        new_cfger = Configer()
+        flag = new_cfger.get_cfg_flag()
+        # test to get the pre-defined 'n_blk'
+        return flag.n_blk
+
         
 #### *Finally, cmd-support*
 
