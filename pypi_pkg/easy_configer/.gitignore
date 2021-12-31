@@ -1,2 +1,2 @@
 # tmp file of pypi package
-*.egg-info
+__pycache__
