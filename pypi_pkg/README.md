@@ -59,7 +59,7 @@ The python standard package (such as pathlib, sys, .., etc) is the only source o
 
 ### Installation
 1. **pypi install**
-    simply type the `pip install easy_config`
+    simply type the `pip install easy_configer`
 2. **install from source code**
     clone the project from github : `git clone repo-link` 
     Chage to the root directory of the cloned project, and type `pip install -e .`
