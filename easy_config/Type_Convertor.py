@@ -57,6 +57,5 @@ class Type_Convertor():
         assert callable(cnvt_func), "The converter function should be callable."
         assert isinstance(type_name, str) and len(type_name) > 0, "The cnvt_name should be given"
         
-        func_wrap = lambda val : cnvt_func( eval(val) )
+        func_wrap = lambda dict_str : cnvt_func( **eval(dict_str) )
         self.__default_cnvtor[type_name] = func_wrap
-        
