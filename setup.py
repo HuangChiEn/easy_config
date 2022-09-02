@@ -18,7 +18,7 @@ setup(
     long_description_content_type='text/markdown',
     license='MIT',
     url='https://github.com/HuangChiEn/easy_config',
-    packages=['easy-config'],
+    packages=['easy_config'],
     keywords=["configuration", "commendline argument", "argument"],
     classifiers=[
         'Programming Language :: Python :: 3.7',

@@ -40,7 +40,13 @@ class Type_Convertor():
             cfg_raw_str :
                 The string which declare the arguments with the same syntax used in config file.
         '''    
-        val, typ = cfg_raw_str.split(self.__split_chr)
+        try:
+            val, typ = cfg_raw_str.split(self.__split_chr)
+        except:
+            raise RuntimeError
+        
+        # deal with bool(.) constructor feature, empty str regard as False
+        val = '' if typ == 'bool' and val == 'False' else val
         return self.__default_cnvtor[typ](val)
     
     

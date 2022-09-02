@@ -101,25 +101,32 @@ class Configer(object):
             # skip empty line and comment line 
             if len(lin) == 0 or lin[0] == '#': 
                 continue    
+            # support inline comment line
+            cfg_str = lin.split('#')[0].strip()
 
             # add section tag
-            if lin[0] == '[':
-                sec_idx = lin.find(']')
+            if cfg_str[0] == '[':
+                sec_idx = cfg_str.find(']')
                 if not sec_idx != -1:
-                    raise Exception("Invalid section notation missing ']' at end of line")
-                sec_key = lin[1:sec_idx]
+                    raise RuntimeError("Configuration Error : Invalid section notation, missing ']' at end of line")
+                sec_key = cfg_str[1:sec_idx]
                 self.__dict__[sec_key] = {}
                 continue
-
-            cfg_lst = lin.split(self.__split_chr)
+            
+            cfg_lst = cfg_str.split(self.__split_chr)
+            if len(cfg_lst) < 2:
+                raise RuntimeError(f"Configuration Error : Split character '{self.__split_chr}' not found in '{cfg_str}'")
             var_name, val_str = cfg_lst[0], cfg_lst[-1]
             
-            if sec_key != "":
-                item = ( var_name, self.__typ_cnvt.convert(val_str) )
-                self.__dict__[sec_key].update( [item] )
-            else:
-                self.__dict__[var_name] = self.__typ_cnvt.convert(val_str)
-                
+            try:
+                if sec_key != "":
+                    item = ( var_name, self.__typ_cnvt.convert(val_str) )
+                    self.__dict__[sec_key].update( [item] )
+                else:
+                    self.__dict__[var_name] = self.__typ_cnvt.convert(val_str)
+            except:
+                raise RuntimeError(f"Configuration Error : Invalid config string ' {cfg_str}' ")
+
         # update args from commandline input        
         if self.__cmd_args:
             self.__args_from_cmd()

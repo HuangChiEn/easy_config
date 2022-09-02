@@ -38,7 +38,7 @@ That's why I packaged my solution to this issue. The easy_config will have follo
 
 4. **Commend-line update default value**
 
-5. **Support the absl style FLAGS functionality (latest update!!)** 
+5. **Support the absl style FLAGS functionality** 
 
 And, of course the following attribute will also be supported :
 
@@ -50,7 +50,19 @@ And, of course the following attribute will also be supported :
 
 * add different settings while choosing to overload previous one.
 
+* inline comment '#', now you can write comment in everyline!!
 ---
+
+### Newly update features 🚀
+1. inline comment '#' is now avaliable!!
+
+2. simple unittest can be exec `cd test ; python test_Configer.py`
+
+3. Better error message about the invalid configuration is given by Configer..
+---
+
+### Bug Fixed 🐛
+1. Bug of bool type variable declaration is fixed, now 'False' will give exactly 'False'
 
 ### Dependencies
 This package is written for Python 3.8 (but 3.6+ may be supported).
@@ -77,11 +89,9 @@ The python standard package (such as pathlib, sys, .., etc) is the only source o
 
 #### *test_cfg.ini in work directory*
     
-    # '#' denote comment line, and it should be 
-    # placed at the head of line !! it's important !! or got error 
-    
+    # '#' denote comment line
     # below define default argument, which is called 'flatten' args
-    luck_num = 42@int
+    luck_num = 42@int  # now we also support inline comment.. finally
     name = Harry@str
     even_mk_dict = {'a':123, 'b':'string'}@dict
     
@@ -179,11 +189,9 @@ Especially update **non-flatten argument !!** <br>
 
 ---
 
-### Tests
-Sorry, but i have not build the regular test procedure yet..
-I may releas it at next release version.
-
-python -m unittest discover
+### Simple Unittest
+If you clone this repo and built from source, you can try to run the unittest.
+`cd test && python test_Configer.py`
 
 ### License
 MIT License. More information of each term, please see LICENSE.md
