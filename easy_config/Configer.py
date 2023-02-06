@@ -2,13 +2,14 @@ import errno
 import os
 from pathlib import Path
 import sys
+from dataclasses import dataclass
 
-from .Type_Convertor import Type_Convertor
-from .Flag import Flag
+from .utils.Type_Convertor import Type_Convertor
+from .utils.Flag import Flag
 
 class Configer(object):
     '''
-        The Configer attemtp to make a light-weight solution for configurate your program, 
+        The Configer attemtp to make a light-weight solution for configurating your program, 
         which offer a simple syntax for declare the arguments in the configure file (.ini suffix).
         Moreover, I try to implement a highly customer reader, which allow the user to declare 
         the instance of customer class with registered their constructor simply. 
@@ -28,8 +29,7 @@ class Configer(object):
                 For example, 'a*13@int' which means the argument 'a' contain interger value 13,
                 and the '*' is the declare_split_chr.
         '''
-        
-        self.__doc_str = "Description : \n" + description
+        self.doc_str = "Description : \n" + description
         self.__typ_cnvt = Type_Convertor()
         self.__split_chr = split_chr
         self.__cmd_args = cmd_args
@@ -39,9 +39,8 @@ class Configer(object):
         # print out helper document string
         if cmd_args and "-h" in self.__cmd_arg_lst:
             self.__cmd_arg_lst.remove("-h")
-            print(self.__doc_str)
+            print(self.doc_str)
             
-
     # The cell-base Intereactive Enviroment Support function
     def cfg_from_str(self, raw_cfg_text:str):
         ''' 
@@ -49,8 +48,9 @@ class Configer(object):
                 The string which declare the arguments with the same syntax used in config file. 
         '''
         self.__cfg_parser(raw_cfg_text)
-        
-        
+        # build the flag object 
+        self.__flag.__dict__ = self.__dict__
+         
     def cfg_from_ini(self, cfg_path:str):
         '''
             cfg_path :
@@ -84,54 +84,73 @@ class Configer(object):
         # build the flag object 
         self.__flag.__dict__ = self.__dict__
 
-    
     # return an absl style flag to store all of the args.
     def get_cfg_flag(self):
         return self.__flag
+
+    # utils of config parser
+    def __preproc_cfgstr(self, cfg_str:str) -> str:
+        # eliminate the line full of white-space without any text
+        cfg_str = cfg_str.strip() 
+        # skip empty line and comment line 
+        if len(cfg_str) == 0 or cfg_str[0] == '#': 
+            return ''
+        # strip inline comment's content with strip extra-whitespace
+        return cfg_str.split('#')[0].strip()
+
+    def __get_sec(self, cfg_str:str) -> str:
+        if '[' not in cfg_str:
+            return ''
+        # more robust with Indented section
+        beg, end = cfg_str.find('['), cfg_str.rfind(']')
+        if end == -1:
+            raise RuntimeError("Configuration Error : Invalid section notation, missing ']' at end of line")
+        sec_key = cfg_str[beg+1 : end].strip()
+        return sec_key
+
+    def __get_declr_dict(self, cfg_str:str) -> dict : 
+        if self.__split_chr not in cfg_str:
+            raise RuntimeError(f"Configuration Error : Split character '{self.__split_chr}' not found in '{cfg_str}'")
+        
+        try:
+            var_name, val_str = cfg_str.split(self.__split_chr)
+            # support '$' args interpolation
+            var_val = self.__dict__[ val_str[1:] ]  if val_str[0] == '$' \
+                        else self.__typ_cnvt.convert(val_str)
+        except:
+            raise RuntimeError(f"Configuration Error : Invalid config string ' {cfg_str}' ")
+
+        return { var_name : var_val }
 
     def __cfg_parser(self, raw_cfg_text:str):
         '''
             raw_cfg_text :
                 The string which declare the arguments with the same syntax used in config file.
         '''
-        sec_key = ""
+        cur_sec_key = ''
         for lin in raw_cfg_text.splitlines():
-            lin = lin.strip() # eliminate leading & ending trivial white-space
-
-            # skip empty line and comment line 
-            if len(lin) == 0 or lin[0] == '#': 
-                continue    
-            # support inline comment line
-            cfg_str = lin.split('#')[0].strip()
-
-            # add section tag
-            if cfg_str[0] == '[':
-                sec_idx = cfg_str.find(']')
-                if not sec_idx != -1:
-                    raise RuntimeError("Configuration Error : Invalid section notation, missing ']' at end of line")
-                sec_key = cfg_str[1:sec_idx]
-                self.__dict__[sec_key] = {}
+            # strip empty space and 'skip' empty line in cfgstr
+            cfg_str = self.__preproc_cfgstr(lin)
+            if not cfg_str:
                 continue
-            
-            cfg_lst = cfg_str.split(self.__split_chr)
-            if len(cfg_lst) < 2:
-                raise RuntimeError(f"Configuration Error : Split character '{self.__split_chr}' not found in '{cfg_str}'")
-            var_name, val_str = cfg_lst[0], cfg_lst[-1]
-            
-            try:
-                if sec_key != "":
-                    item = ( var_name, self.__typ_cnvt.convert(val_str) )
-                    self.__dict__[sec_key].update( [item] )
+
+            # get the section key of config string (if there exists)
+            sec_key = self.__get_sec(cfg_str)
+            if sec_key:
+                self.__dict__[sec_key] = {}
+                cur_sec_key = sec_key
+            # parse variable assignment string
+            else:
+                val_dict = self.__get_declr_dict(cfg_str)
+                if cur_sec_key != '':
+                    self.__dict__[cur_sec_key].update( val_dict )
                 else:
-                    self.__dict__[var_name] = self.__typ_cnvt.convert(val_str)
-            except:
-                raise RuntimeError(f"Configuration Error : Invalid config string ' {cfg_str}' ")
+                    self.__dict__.update( val_dict )
 
         # update args from commandline input        
         if self.__cmd_args:
             self.__args_from_cmd()
-     
-    
+        
     # Update the namespace value via commend-line input 
     def __args_from_cmd(self):
         '''
@@ -152,29 +171,24 @@ class Configer(object):
                     arg = item[1:]
                     sec_key = ""
                     
-            else:             # argument value 
+            else:     # argument value 
                 val = item
                 if sec_key == "":
                     self.__dict__[arg] = val
                 else:
                     self.__dict__[sec_key][arg] = val
 
-    
     # Display the namespace which record all of the declared arguments
+    #   for the inner-node structure, iter-call __str__ wrapper !!
     def __str__(self):
         key_str = [ str(key) for key in self.__dict__.keys() if key[0] != '_' ] 
         return "Namespace : \n" + ", ".join(key_str)
 
-    
     # For the declare the instance of user customized class 
     def regist_cnvtor(self, *args:list, **kwargs:dict):
         self.__typ_cnvt.regist_cnvtor(*args, **kwargs)
     
-
     # show split character
     @property
     def split_char(self):
         return self.__split_chr
-
-if __name__ == "__main__":
-    ...
