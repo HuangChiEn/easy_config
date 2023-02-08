@@ -1,5 +1,6 @@
 
 from easy_config.Configer import Configer
+from easy_config.IO_Convertor import IO_Convertor
 
 '''
 new features of easy_configer string, parse toml like format!!
@@ -13,9 +14,15 @@ new features of easy_configer string, parse toml like format!!
 
 
 if __name__ == "__main__":
-    cfg = Configer()
+    cfg = Configer("hello LW cfg", cmd_args=True)
     cfg.cfg_from_ini("./test/test_cfg.ini")
     print(cfg)
 
     breakpoint()
+    io_cnvt = IO_Convertor()
+    tmp = io_cnvt.cnvt_cfg(cfg, 'argparse', parse_arg=False)
+
+    breakpoint()
+    io_cnvt = IO_Convertor()
+    tmp = io_cnvt.cnvt_cfg(cfg, 'argparse', parse_arg=False)
 

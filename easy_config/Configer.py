@@ -1,9 +1,7 @@
 import errno
 import os
 from pathlib import Path
-import sys
-from dataclasses import dataclass
-
+from .Argparser import Argparser
 from .utils.Type_Convertor import Type_Convertor
 from .utils.Flag import Flag
 
@@ -29,17 +27,11 @@ class Configer(object):
                 For example, 'a*13@int' which means the argument 'a' contain interger value 13,
                 and the '*' is the declare_split_chr.
         '''
-        self.doc_str = "Description : \n" + description
+        self._doc_str = "Description : \n" + description
         self.__typ_cnvt = Type_Convertor()
         self.__split_chr = split_chr
-        self.__cmd_args = cmd_args
-        self.__cmd_arg_lst = sys.argv[1:]
         self.__flag = Flag().FLAGS
-            
-        # print out helper document string
-        if cmd_args and "-h" in self.__cmd_arg_lst:
-            self.__cmd_arg_lst.remove("-h")
-            print(self.doc_str)
+        self.__cmd_args = cmd_args
             
     # The cell-base Intereactive Enviroment Support function
     def cfg_from_str(self, raw_cfg_text:str):
@@ -87,6 +79,15 @@ class Configer(object):
     # return an absl style flag to store all of the args.
     def get_cfg_flag(self):
         return self.__flag
+
+    def merge_conf(self, cfg):
+        cfg_dict = cfg.__dict__
+        for sec_key, sec_val in cfg_dict.items():
+            if isinstance(sec_val, dict):
+                for key, val in sec_val:
+                    self.__dict__[key] = val
+            else:
+                self.__dict__[sec_key] = sec_val
 
     # utils of config parser
     def __preproc_cfgstr(self, cfg_str:str) -> str:
@@ -147,36 +148,9 @@ class Configer(object):
                 else:
                     self.__dict__.update( val_dict )
 
-        # update args from commandline input        
+        # Update the namespace value via commend-line input 
         if self.__cmd_args:
-            self.__args_from_cmd()
-        
-    # Update the namespace value via commend-line input 
-    def __args_from_cmd(self):
-        '''
-            Update the arguments by commend line input string
-        '''
-
-        def is_long_flag(flag_str):
-            prefix = flag_str[0:2]
-            return True if prefix == "--" else False
-            
-        for idx, item in enumerate(self.__cmd_arg_lst):
-            if idx % 2 == 0:  # argument flag 
-                if is_long_flag(item):
-                    flag = item[2:]
-                    flag_lst = flag.split('-')
-                    sec_key, arg = flag_lst[0], flag_lst[1]
-                else:
-                    arg = item[1:]
-                    sec_key = ""
-                    
-            else:     # argument value 
-                val = item
-                if sec_key == "":
-                    self.__dict__[arg] = val
-                else:
-                    self.__dict__[sec_key][arg] = val
+            Argparser.args_from_cmd(self.__dict__)
 
     # Display the namespace which record all of the declared arguments
     #   for the inner-node structure, iter-call __str__ wrapper !!
