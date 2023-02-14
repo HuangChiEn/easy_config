@@ -1,11 +1,16 @@
 from .Configer import Configer
-from argparse import ArgumentParser
 
-class IO_Convertor(object):
+from argparse import ArgumentParser
+from omegaconf import OmegaConf
+import yaml
+
+class IO_Converter(object):
     def __init__(self):
         # support package regist :
         self.dispatcher = {
             'argparse' : self.argparse_cnvt,
+            'omegacfg' : self.omegacfg_cvnt,
+            'yaml' : self.yaml_cnvt
         }
 
     def cnvt_cfg(self, cfg: Configer, target_cfg_type:str, **cnvtr_kwarg):
@@ -13,11 +18,10 @@ class IO_Convertor(object):
                                                 Currently, easy_configer only support : {}'''.format(
                                                     target_cfg_type, self.dispatcher.keys()
                                             )
-
         return self.dispatcher[target_cfg_type](cfg, **cnvtr_kwarg)
 
     def argparse_cnvt(self, raw_cfg, parse_arg=True, flatten_args=True):
-        args_template = ArgumentParser(description=raw_cfg._doc_str)
+        args_template = ArgumentParser( description=raw_cfg.get_doc_str() )
         cfg_gen = ( (k, v) for k, v in raw_cfg.__dict__.items() )
         for sec_key, sec_val in raw_cfg.__dict__.items():
             if flatten_args and isinstance(sec_val, dict):
@@ -27,3 +31,10 @@ class IO_Convertor(object):
                 args_template.add_argument(f"--{sec_key}", type=type(sec_val), default=sec_val)
 
         return args_template.parse_args() if parse_arg else args_template
+
+    def yaml_cnvt(self, raw_cfg):
+        return yaml.dump(raw_cfg)
+
+    def omegacfg_cvnt(self, raw_cfg):
+        return OmegaConf.create(raw_cfg.__dict__)
+        

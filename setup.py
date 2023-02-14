@@ -7,7 +7,6 @@ this_directory = abspath(dirname(__file__))
 with open(join(this_directory, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
-
 setup(
     name='easy_config',
     version='1.3.0',
@@ -20,6 +19,7 @@ setup(
     url='https://github.com/HuangChiEn/easy_config',
     packages=['easy_config'],
     keywords=["configuration", "commendline argument", "argument"],
+    python_requires='>=3.6',
     classifiers=[
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',

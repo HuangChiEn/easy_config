@@ -1,5 +1,6 @@
 import errno
 import os
+from copy import deepcopy
 from pathlib import Path
 from .Argparser import Argparser
 from .utils.Type_Convertor import Type_Convertor
@@ -27,7 +28,7 @@ class Configer(object):
                 For example, 'a*13@int' which means the argument 'a' contain interger value 13,
                 and the '*' is the declare_split_chr.
         '''
-        self._doc_str = "Description : \n" + description
+        self.__doc_str = "Description : \n" + description
         self.__typ_cnvt = Type_Convertor()
         self.__split_chr = split_chr
         self.__flag = Flag().FLAGS
@@ -80,14 +81,30 @@ class Configer(object):
     def get_cfg_flag(self):
         return self.__flag
 
-    def merge_conf(self, cfg):
+    def get_doc_str(self):
+        return self.__doc_str
+
+    def merge_conf(self, cfg, override=False):
         cfg_dict = cfg.__dict__
         for sec_key, sec_val in cfg_dict.items():
-            if isinstance(sec_val, dict):
-                for key, val in sec_val:
-                    self.__dict__[key] = val
-            else:
-                self.__dict__[sec_key] = sec_val
+            if not override:
+                # prevent checking private vars
+                if ('_' != sec_key[0]) and (sec_key in self.__dict__):
+                    raise RuntimeError(f"Key '{sec_key}' in input config already exists in merged config!!")
+            
+            # same section exists, just update kv pair
+            if isinstance(sec_val, dict) and sec_key in self.__dict__ :    
+                self.__dict__[sec_key].update(sec_val)
+            # else, directly feed new val or sec_dict to container
+            self.__dict__[sec_key] = sec_val
+
+    def concate_cfg(self, cfg, override=False):
+        cp_cfg = deepcopy(self)
+        cp_cfg.merge_conf(cfg, override)
+        return cp_cfg
+    # operator support..
+    def __add__(self, cfg):
+        return self.concate_cfg(cfg, override=False)
 
     # utils of config parser
     def __preproc_cfgstr(self, cfg_str:str) -> str:
@@ -140,6 +157,7 @@ class Configer(object):
             if sec_key:
                 self.__dict__[sec_key] = {}
                 cur_sec_key = sec_key
+                
             # parse variable assignment string
             else:
                 val_dict = self.__get_declr_dict(cfg_str)
