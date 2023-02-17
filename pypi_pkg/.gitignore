@@ -1,4 +1,3 @@
 # tmp file of pypi package
-build/*
-dist/*
-
+*.egg-info
+/pypi_pkg/*
