@@ -117,7 +117,7 @@ class Configer(object):
         return cfg_str.split('#')[0].strip()
 
     def __get_sec(self, cfg_str:str) -> str:
-        if '[' not in cfg_str:
+        if '[' != cfg_str[0]:
             return ''
         # more robust with Indented section
         beg, end = cfg_str.find('['), cfg_str.rfind(']')
