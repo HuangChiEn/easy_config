@@ -205,8 +205,9 @@ Especially update **non-flatten argument !!** <br>
     # convert easy_config instance into the "yaml string"
     yaml_cfg = cfg_cnvter.cnvt_cfg(self.cfger, 'yaml')
 
+---
 
-> **For more information, please check the document, it maybe release in next version**
+#### **The documentation of easy_configer is also released in read doc** [🔗](https://easy-configer.readthedocs.io/en/latest/)
 
 ---
 
