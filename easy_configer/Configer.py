@@ -85,6 +85,10 @@ class Configer(object):
         return self.__doc_str
 
     def merge_conf(self, cfg, override=False):
+        ''' 
+            raw_cfg_text :
+                The string which declare the arguments with the same syntax used in config file. 
+        '''
         cfg_dict = cfg.__dict__
         for sec_key, sec_val in cfg_dict.items():
             if not override:

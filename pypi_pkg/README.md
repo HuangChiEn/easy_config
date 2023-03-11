@@ -51,23 +51,26 @@ And, of course the following attribute will also be supported :
 * add different settings while choosing to overload previous one.
 
 * inline comment '#', now you can write comment in everyline!!
+
+* support config conversion, which bridge the easy_config into the other config file ~
 ---
 
 ### Newly update features 🚀
-1. inline comment '#' is now avaliable!!
-
-2. simple unittest can be exec `cd test ; python test_Configer.py`
-
-3. Better error message about the invalid configuration is given by Configer..
+#### I have took sometime to accept the truth those famous config-tools have the support from their community and eco-system. For example, torchlightning's Trainer take argparse as input; fb hydra take omegaconf as input. 
+#### **So, easy_configer now provide a converter mechnaism allowing user convert our easy_config into the other famous config-tools (s.t. argparse, omegaconf, and yaml).**  
 ---
 
 ### Bug Fixed 🐛
-1. Bug of bool type variable declaration is fixed, now 'False' will give exactly 'False'
+#### Since the List and Section share the same symbol in config file, the refactor version of easy_config have some trobule with it. Now, the bug should be fixed, feel safe to use. 
+---
 
 ### Dependencies
 This package is written for Python 3.8 (but 3.6+ may be supported).
 Of course, light-weight solution **do not** contain any 3-rd package complex dependencies.
 The python standard package (such as pathlib, sys, .., etc) is the only source of dependencies, so you don't need to worry about that ~ ~
+> However, if you want to use the IO_Converter (config conversion mechnaism), you still need to install omegaconf for integrate with hydra ~
+
+---
 
 ### Installation <br>
 1. **pypi install** <br>
@@ -85,7 +88,7 @@ The python standard package (such as pathlib, sys, .., etc) is the only source o
 
 ### Quick start
 
-#### How to write config file -
+#### **1. How to write config file**
 
 #### *test_cfg.ini in work directory*
     
@@ -161,8 +164,8 @@ The python standard package (such as pathlib, sys, .., etc) is the only source o
         
         print( type(cfger.sec_sec['dummy_val']) )
 
-#### In the new feature -- absl style flag, easy_config also support that you can access the 'same' config file in different python file without re-declare the config..
-> test_flag.py under the same work directory
+#### **2. absl style flag**
+> easy_config also support that you can access the 'same' config file in different python file without re-declare the config. test_flag.py under the same work directory
 
     from easy_configer.Configer import Configer
 
@@ -173,7 +176,7 @@ The python standard package (such as pathlib, sys, .., etc) is the only source o
         return flag.n_blk
 
         
-#### *Finally, cmd-support*
+#### **3. cmd-support**
 
 Execute python program and print out the helper information <br>
 `python quick_start.py -h`
@@ -184,8 +187,26 @@ Update flatten argument and print out the helper information <br>
 Especially update **non-flatten argument !!** <br>
 `python quick_start.py --fir_sec-dummy_val 45 -n_blk 400 -h`
 
+#### **4. IO Converter**
 
-**For more information, please check the document, it maybe release in next version**
+    # first import the IO_converter
+    from easy_config.IO_Converter import IO_Converter
+    cfg_cnvter = IO_Converter()
+
+    # convert easy_config instance into the argparse instance
+    argp_cfg = cfg_cnvter.cnvt_cfg(self.cfger, 'argparse')
+
+    uargp_cfg = cfg_cnvter.cnvt_cfg(self.cfger, 'argparse', parse_arg=False)
+    argp_cfg = uargp_cfg.parse_args()
+
+    # convert easy_config instance into the omegaconf instance
+    ome_cfg = cfg_cnvter.cnvt_cfg(self.cfger, 'omegacfg')
+
+    # convert easy_config instance into the "yaml string"
+    yaml_cfg = cfg_cnvter.cnvt_cfg(self.cfger, 'yaml')
+
+
+> **For more information, please check the document, it maybe release in next version**
 
 ---
 
