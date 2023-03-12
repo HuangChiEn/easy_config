@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Usage &mdash; easy_configer v1.3.4 documentation</title>
+  <title>Quick start &mdash; easy_configer v1.3.4 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -45,11 +45,11 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="About.html">About this project</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Installation.html">Installation</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#how-to-write-config-file"><strong>1. How to write config file</strong></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#absl-style-flag"><strong>2. absl style flag</strong></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#cmd-support"><strong>3. cmd-support</strong></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#io-converter"><strong>4. IO Converter</strong></a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Quick start</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#how-to-write-config-file"><strong>1. How to write config file</strong> 🥂</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#absl-style-flag"><strong>2. Absl style flag</strong> 🏳️</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#commmendline-support"><strong>3. Commmendline Support</strong> ⌨️</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#io-converter"><strong>4. IO Converter</strong> 🐙</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="Metainfo.html">Meta information</a></li>
@@ -69,7 +69,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Usage</li>
+      <li class="breadcrumb-item active">Quick start</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/Usage.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -79,10 +79,10 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="usage">
-<h1>Usage<a class="headerlink" href="#usage" title="Permalink to this heading"></a></h1>
+  <section id="quick-start">
+<h1>Quick start<a class="headerlink" href="#quick-start" title="Permalink to this heading"></a></h1>
 <section id="how-to-write-config-file">
-<h2><strong>1. How to write config file</strong><a class="headerlink" href="#how-to-write-config-file" title="Permalink to this heading"></a></h2>
+<h2><strong>1. How to write config file</strong> 🥂<a class="headerlink" href="#how-to-write-config-file" title="Permalink to this heading"></a></h2>
 <p><em>test_cfg.ini in work directory</em></p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># &#39;#&#39; denote comment line</span>
 <span class="c1"># below define default argument, which is called &#39;flatten&#39; args</span>
@@ -104,7 +104,6 @@
 <span class="c1"># So, 2 dummy_val will not conflict with different section.</span>
 </pre></div>
 </div>
-<p><span class="raw-html-m2r"><br></span></p>
 <p><em>quick_start.py in work directory</em></p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span># Epilog
 from easy_configer.Configer import Configer
@@ -156,9 +155,38 @@ if __name__ == &quot;__main__&quot;:
     print( type(cfger.sec_sec[&#39;dummy_val&#39;]) )
 </pre></div>
 </div>
+<p><em>config interpolation with $ symbol</em></p>
+<blockquote>
+<div><p>Currently we support simple interpolation mechnaism, which only allow the <em>intepolated args</em> be putted in the <strong>flatten section</strong>. (you <strong>cannot</strong> interpolate args from <strong>non-flatten section</strong>)</p>
+</div></blockquote>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_str_cfg</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        # flatten section, you can put shared args</span>
+<span class="sd">        shr_port = 5566@int</span>
+
+<span class="sd">        [sec_A]</span>
+<span class="sd">            inner_port = $shr_port</span>
+<span class="sd">        [sec_B]</span>
+<span class="sd">            outter_port = $shr_port</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+<span class="c1"># main_block</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">cfger</span> <span class="o">=</span> <span class="n">Configer</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;sample for arguments interpolation&quot;</span><span class="p">)</span>
+
+    <span class="n">cfg_str</span> <span class="o">=</span> <span class="n">get_str_cfg</span><span class="p">()</span>
+    <span class="n">cfger</span><span class="o">.</span><span class="n">cfg_from_str</span><span class="p">(</span><span class="n">cfg_str</span><span class="p">)</span>
+
+    <span class="c1"># Shared port</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">cfger</span><span class="o">.</span><span class="n">shr_port</span><span class="p">)</span>
+    <span class="c1"># Assert</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">cfger</span><span class="o">.</span><span class="n">sec_A</span><span class="p">[</span><span class="s1">&#39;inner_port&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">cfger</span><span class="o">.</span><span class="n">shr_port</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">cfger</span><span class="o">.</span><span class="n">sec_A</span><span class="p">[</span><span class="s1">&#39;inner_port&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">cfger</span><span class="o">.</span><span class="n">sec_B</span><span class="p">[</span><span class="s1">&#39;outter_port&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
 </section>
 <section id="absl-style-flag">
-<h2><strong>2. absl style flag</strong><a class="headerlink" href="#absl-style-flag" title="Permalink to this heading"></a></h2>
+<h2><strong>2. Absl style flag</strong> 🏳️<a class="headerlink" href="#absl-style-flag" title="Permalink to this heading"></a></h2>
 <blockquote>
 <div><p>easy_config also support that you can access the ‘same’ config file in different python file without re-declare the config. test_flag.py under the same work directory</p>
 </div></blockquote>
@@ -172,8 +200,8 @@ if __name__ == &quot;__main__&quot;:
 </pre></div>
 </div>
 </section>
-<section id="cmd-support">
-<h2><strong>3. cmd-support</strong><a class="headerlink" href="#cmd-support" title="Permalink to this heading"></a></h2>
+<section id="commmendline-support">
+<h2><strong>3. Commmendline Support</strong> ⌨️<a class="headerlink" href="#commmendline-support" title="Permalink to this heading"></a></h2>
 <p>Execute python program and print out the helper information <span class="raw-html-m2r"><br></span>
 <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">quick_start.py</span> <span class="pre">-h</span></code></p>
 <p>Update flatten argument and print out the helper information <span class="raw-html-m2r"><br></span>
@@ -182,7 +210,7 @@ if __name__ == &quot;__main__&quot;:
 <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">quick_start.py</span> <span class="pre">--fir_sec-dummy_val</span> <span class="pre">45</span> <span class="pre">-n_blk</span> <span class="pre">400</span> <span class="pre">-h</span></code></p>
 </section>
 <section id="io-converter">
-<h2><strong>4. IO Converter</strong><a class="headerlink" href="#io-converter" title="Permalink to this heading"></a></h2>
+<h2><strong>4. IO Converter</strong> 🐙<a class="headerlink" href="#io-converter" title="Permalink to this heading"></a></h2>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># first import the IO_converter</span>
 <span class="kn">from</span> <span class="nn">easy_config.IO_Converter</span> <span class="kn">import</span> <span class="n">IO_Converter</span>
 <span class="n">cfg_cnvter</span> <span class="o">=</span> <span class="n">IO_Converter</span><span class="p">()</span>

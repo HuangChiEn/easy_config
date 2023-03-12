@@ -1,10 +1,11 @@
 .. role:: raw-html-m2r(raw)
    :format: html
 
-Usage
-======
 
-**1. How to write config file**
+Quick start
+============
+
+**1. How to write config file** 🥂
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 *test_cfg.ini in work directory*
@@ -30,8 +31,6 @@ Usage
    # to store the values with the corresponding section name.
    # So, 2 dummy_val will not conflict with different section.
 
-
-:raw-html-m2r:`<br>`
 
 *quick_start.py in work directory*
 
@@ -87,7 +86,42 @@ Usage
        print( type(cfger.sec_sec['dummy_val']) )
 
 
-**2. absl style flag**
+*config interpolation with $ symbol*
+
+..
+
+   Currently we support simple interpolation mechnaism, which only allow the *intepolated args* be putted in the **flatten section**. (you **cannot** interpolate args from **non-flatten section**\ )
+
+
+.. code-block::
+
+   def get_str_cfg():
+       '''
+           # flatten section, you can put shared args
+           shr_port = 5566@int
+
+           [sec_A]
+               inner_port = $shr_port
+           [sec_B]
+               outter_port = $shr_port
+       '''
+
+   # main_block 
+   if __name__ == "__main__":
+       cfger = Configer(description="sample for arguments interpolation")
+
+       cfg_str = get_str_cfg()
+       cfger.cfg_from_str(cfg_str)
+
+       # Shared port
+       print(cfger.shr_port)
+       # Assert
+       print(cfger.sec_A['inner_port'] == cfger.shr_port)
+       print(cfger.sec_A['inner_port'] == cfger.sec_B['outter_port'])
+
+
+
+**2. Absl style flag** 🏳️
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ..
@@ -107,8 +141,8 @@ Usage
 
 
 
-**3. cmd-support**
-~~~~~~~~~~~~~~~~~~~~~~
+**3. Commmendline Support** ⌨️
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Execute python program and print out the helper information :raw-html-m2r:`<br>`
 ``python quick_start.py -h``
@@ -119,7 +153,7 @@ Update flatten argument and print out the helper information :raw-html-m2r:`<br>
 Especially update **non-flatten argument !!** :raw-html-m2r:`<br>`
 ``python quick_start.py --fir_sec-dummy_val 45 -n_blk 400 -h``
 
-**4. IO Converter**
+**4. IO Converter** 🐙
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block::

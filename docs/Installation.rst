@@ -2,10 +2,11 @@
    :format: html
 
 Installation
-==============
+=============
 
-How to install ?
-^^^^^^^^^^^^^^^^^^
+
+How to install ? ⚙️\ :raw-html-m2r:`<br>`
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 #. **pypi install** :raw-html-m2r:`<br>`
     simply type the ``pip install easy_configer`` (due to name conflict of pypi pkg, we use different pkg name)
@@ -20,8 +21,8 @@ How to install ?
 
 ----
 
-Dependencies
-^^^^^^^^^^^^
+Dependencies 🏗️
+^^^^^^^^^^^^^^^^^^
 
 This package is written for Python 3.8 (but 3.6+ may be supported).
 Of course, light-weight solution **do not** contain any 3-rd package complex dependencies.
@@ -31,3 +32,5 @@ The python standard package (such as pathlib, sys, .., etc) is the only source o
 
    However, if you want to use the IO_Converter (config conversion mechnaism), you still need to install omegaconf for integrate with hydra ~
 
+
+----

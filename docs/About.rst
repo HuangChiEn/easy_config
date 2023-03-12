@@ -1,14 +1,20 @@
+.. role:: raw-html-m2r(raw)
+   :format: html
+
 About this project
-==================
+=====================
 
-Configeruating the program in an easy-way
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Preface ✨
+^^^^^^^^^^^^
 
-This is a light-weight solution for configurating the python program. 
+easy_configer version : 1.3.4
+Configeruating the program in an easy-way 
+
+This is a light-weight solution for configurating the python program. :raw-html-m2r:`<br>`
 Hope this repository make every user control their large project with easier ~ ~ 
 
-Introduction
-^^^^^^^^^^^^
+Introduction 📝
+^^^^^^^^^^^^^^^
 
 With the large python project, a lot of argument will be required to control the business logic, user may need a simple way to load configurations through a file eventually. Their exists various package cover part of function with each other, and offer some solution to tackle the mentioned problem. 
 
@@ -71,9 +77,10 @@ And, of course the following attribute will also be supported :
   add different settings while choosing to overload previous one.
 
 * 
-  inline comment '#', now you can write comment in everyline!!
+  inline comment '#', now you can write comment in everyline ~
+
+* 
+  support arguments (flatten) interpolation!!
 
 * 
   support config conversion, which bridge the easy_config into the other config file ~
-
-----

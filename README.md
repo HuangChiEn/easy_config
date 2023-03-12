@@ -1,9 +1,11 @@
 # Project description
-### Configeruating the program in an easy-way
+#### easy_configer version : 1.3.4
+
+### Configeruating the program in an easy-way 
 This is a light-weight solution for configurating the python program. <br>
 Hope this repository make every user control their large project with easier ~ ~ 
 
-### Introduction
+### Introduction 📝
 With the large python project, a lot of argument will be required to control the business logic, user may need a simple way to load configurations through a file eventually. Their exists various package cover part of function with each other, and offer some solution to tackle the mentioned problem. 
 
 **But at least I can not find a solution for load & use the argument in simple manner.**   Instead, most of them seems for the specific goal, and cause the code more longer and hard to read.
@@ -50,21 +52,25 @@ And, of course the following attribute will also be supported :
 
 * add different settings while choosing to overload previous one.
 
-* inline comment '#', now you can write comment in everyline!!
+* inline comment '#', now you can write comment in everyline ~
+
+* support arguments (flatten) interpolation!!
 
 * support config conversion, which bridge the easy_config into the other config file ~
 ---
 
 ### Newly update features 🚀
-#### I have took sometime to accept the truth those famous config-tools have the support from their community and eco-system. For example, torchlightning's Trainer take argparse as input; fb hydra take omegaconf as input. 
-#### **So, easy_configer now provide a converter mechnaism allowing user convert our easy_config into the other famous config-tools (s.t. argparse, omegaconf, and yaml).**  
+1. I have took sometime to accept the truth those famous config-tools have the support from their community and eco-system. For example, torchlightning's Trainer take argparse as input; fb hydra take omegaconf as input. **So, easy_configer now provide a converter mechnaism allowing user convert our easy_config into the other famous config-tools (s.t. argparse, omegaconf, and yaml).**  
+
+2. There's an common usage case that the pre-defined arguments may be reused in the other section. So, we also support the argument interpolation. However, the **shared arguments** are only allowed be putted in **faltten section**. Since share the args defined in section is sick www ~   
+
 ---
 
 ### Bug Fixed 🐛
 #### Since the List and Section share the same symbol in config file, the refactor version of easy_config have some trobule with it. Now, the bug should be fixed, feel safe to use. 
 ---
 
-### Dependencies
+### Dependencies 🏗️
 This package is written for Python 3.8 (but 3.6+ may be supported).
 Of course, light-weight solution **do not** contain any 3-rd package complex dependencies.
 The python standard package (such as pathlib, sys, .., etc) is the only source of dependencies, so you don't need to worry about that ~ ~
@@ -72,7 +78,7 @@ The python standard package (such as pathlib, sys, .., etc) is the only source o
 
 ---
 
-### Installation <br>
+### Installation ⚙️<br>
 1. **pypi install** <br>
     simply type the `pip install easy_configer` (due to name conflict of pypi pkg, we use different pkg name)
 2. **install from source code** <br>
@@ -86,7 +92,7 @@ The python standard package (such as pathlib, sys, .., etc) is the only source o
     
 ---
 
-### Quick start
+### Quick start 🥂
 
 #### **1. How to write config file**
 
@@ -164,7 +170,37 @@ The python standard package (such as pathlib, sys, .., etc) is the only source o
         
         print( type(cfger.sec_sec['dummy_val']) )
 
-#### **2. absl style flag**
+<br>
+
+#### *config interpolation with $ symbol*
+> Currently we support simple interpolation mechnaism, which only allow the *intepolated args* be putted in the **flatten section**. (you **cannot** interpolate args from **non-flatten section**)
+
+    def get_str_cfg():
+        '''
+            # flatten section, you can put shared args
+            shr_port = 5566@int
+
+            [sec_A]
+                inner_port = $shr_port
+            [sec_B]
+                outter_port = $shr_port
+        '''
+
+    # main_block 
+    if __name__ == "__main__":
+        cfger = Configer(description="sample for arguments interpolation")
+
+        cfg_str = get_str_cfg()
+        cfger.cfg_from_str(cfg_str)
+        
+        # Shared port
+        print(cfger.shr_port)
+        # Assert
+        print(cfger.sec_A['inner_port'] == cfger.shr_port)
+        print(cfger.sec_A['inner_port'] == cfger.sec_B['outter_port'])
+
+
+#### **2. Absl style flag**
 > easy_config also support that you can access the 'same' config file in different python file without re-declare the config. test_flag.py under the same work directory
 
     from easy_configer.Configer import Configer
@@ -176,7 +212,7 @@ The python standard package (such as pathlib, sys, .., etc) is the only source o
         return flag.n_blk
 
         
-#### **3. cmd-support**
+#### **3. Commmendline Support**
 
 Execute python program and print out the helper information <br>
 `python quick_start.py -h`
@@ -211,9 +247,16 @@ Especially update **non-flatten argument !!** <br>
 
 ---
 
-### Simple Unittest
+### Simple Unittest 🧪
 If you clone this repo and built from source, you can try to run the unittest.
 `cd test && python test_Configer.py`
+
+---
+
+### TODO list (next version released features v 1.4.0 )
+#### 1. hierachical container and dot-access
+#### 2. dynamic config loading with hierachical manner
+#### 3. Works like omegaconf with few code to write ~
 
 ### License
 MIT License. More information of each term, please see LICENSE.md
