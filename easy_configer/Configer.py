@@ -84,31 +84,49 @@ class Configer(object):
     def get_doc_str(self):
         return self.__doc_str
 
-    def merge_conf(self, cfg, override=False):
-        ''' 
-            raw_cfg_text :
-                The string which declare the arguments with the same syntax used in config file. 
-        '''
-        cfg_dict = cfg.__dict__
-        for sec_key, sec_val in cfg_dict.items():
-            if not override:
-                # prevent checking private vars
-                if ('_' != sec_key[0]) and (sec_key in self.__dict__):
-                    raise RuntimeError(f"Key '{sec_key}' in input config already exists in merged config!!")
-            
-            # same section exists, just update kv pair
-            if isinstance(sec_val, dict) and sec_key in self.__dict__ :    
-                self.__dict__[sec_key].update(sec_val)
-            # else, directly feed new val or sec_dict to container
-            self.__dict__[sec_key] = sec_val
+    # merge conf suppose 2 config have overlap section, otherwise use 'concate' method!
+    def merge_conf(self, cfg, override=True):
+        
+        def hier_merge(sf_dict, cfg_dict):
+            for sec_key, sec_val in cfg_dict.items():
+                # same section exists
+                if sec_key in sf_dict.keys():
+                    if not override:
+                        raise RuntimeError(f"Key '{sec_key}' in input config already exists in merged config!!")
+                    
+                    # if both self-dict and cfg_dict are dict, merge it hierachically!
+                    if isinstance(sec_val, dict) and isinstance(sf_dict[sec_key], dict):
+                        hier_merge(sf_dict[sec_key], sec_val)
+                    else:
+                        sf_dict[sec_key] = sec_val
 
-    def concate_cfg(self, cfg, override=False):
+                # directly feed new val
+                else:
+                    sf_dict[sec_key] = sec_val
+
+        # prevent checking private vars
+        cfg_dict = { k:v for k, v in cfg.__dict__.copy().items() \
+                                    if '_' != k[0] }
+        hier_merge(self.__dict__, cfg_dict)
+    
+    # concate just means merge2conf "without" any override!!
+    def concate_cfg(self, cfg):
         cp_cfg = deepcopy(self)
-        cp_cfg.merge_conf(cfg, override)
+        cp_cfg.merge_conf(cfg, override=False)
         return cp_cfg
-    # operator support..
+
+    ## Configuration operator support :
+    #  all of operator will be forced to return value!!
+    # 1. merge operator, force to override!
+    def __or__(self, cfg):
+        cp_cfg = deepcopy(self)
+        cp_cfg.merge_conf(cfg, override=True)
+        return cp_cfg
+
+    # 2. concate operator 
     def __add__(self, cfg):
         return self.concate_cfg(cfg, override=False)
+
 
     # utils of config parser
     def __preproc_cfgstr(self, cfg_str:str) -> str:
@@ -127,8 +145,26 @@ class Configer(object):
         beg, end = cfg_str.find('['), cfg_str.rfind(']')
         if end == -1:
             raise RuntimeError("Configuration Error : Invalid section notation, missing ']' at end of line")
-        sec_key = cfg_str[beg+1 : end].strip()
-        return sec_key
+        sec_key_str = cfg_str[beg+1 : end].strip()
+        return sec_key_str
+    
+    def __idx_sec_by_dot(self, sec_keys_str:str) -> [dict, str]:
+        sec_name_lst = sec_keys_str.split('.')
+        # Before easy_configer 1.3.4 ver, all section is builded upon this level
+        if len(sec_name_lst) == 1:
+            return self.__dict__, sec_keys_str
+
+        ## Support toml like 'hierachical' format!!
+        #  dynamically search the hierachical section begin from the 'next layer' of self.__dict__
+        idx_sec = self.__dict__[ sec_name_lst.pop(0) ]
+        #  keep the index point to the node "parent", since the child node will be init as dict!
+        try:
+            for sec in sec_name_lst[:-1]:
+                idx_sec = idx_sec[sec]
+        except:
+            raise RuntimeError(f"The parent node of {sec} is not defined yet, it's invalid for directly made the child node")
+
+        return idx_sec, sec_name_lst[-1]
 
     def __get_declr_dict(self, cfg_str:str) -> dict : 
         if self.__split_chr not in cfg_str:
@@ -149,7 +185,7 @@ class Configer(object):
             raw_cfg_text :
                 The string which declare the arguments with the same syntax used in config file.
         '''
-        cur_sec_key = ''
+        cur_sec_keys = ''
         for lin in raw_cfg_text.splitlines():
             # strip empty space and 'skip' empty line in cfgstr
             cfg_str = self.__preproc_cfgstr(lin)
@@ -157,22 +193,26 @@ class Configer(object):
                 continue
 
             # get the section key of config string (if there exists)
-            sec_key = self.__get_sec(cfg_str)
-            if sec_key:
-                self.__dict__[sec_key] = {}
-                cur_sec_key = sec_key
+            sec_keys_str = self.__get_sec(cfg_str)
+            if sec_keys_str:
+                idx_sec, idx_sec_key = self.__idx_sec_by_dot(sec_keys_str)
+                if idx_sec_key in idx_sec.keys():
+                    raise RuntimeError(f'Re-defined config, {sec_keys_str} section will be overrided!!')
+                idx_sec[idx_sec_key] = {}
+                cur_sec_keys = sec_keys_str
                 
             # parse variable assignment string
             else:
                 val_dict = self.__get_declr_dict(cfg_str)
-                if cur_sec_key != '':
-                    self.__dict__[cur_sec_key].update( val_dict )
+                if cur_sec_keys != '':
+                    idx_sec, idx_sec_key = self.__idx_sec_by_dot(cur_sec_keys)
+                    idx_sec[idx_sec_key].update( val_dict )
                 else:
                     self.__dict__.update( val_dict )
 
         # Update the namespace value via commend-line input 
         if self.__cmd_args:
-            Argparser.args_from_cmd(self.__dict__)
+            Argparser.args_from_cmd(self.__idx_sec_by_dot)
 
     # Display the namespace which record all of the declared arguments
     #   for the inner-node structure, iter-call __str__ wrapper !!

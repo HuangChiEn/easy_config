@@ -1,39 +1,31 @@
 import sys
+from .utils.Type_Convertor import Type_Convertor
 
 class Argparser:
 
     # Update the namespace value via commend-line input 
     @staticmethod
-    def args_from_cmd(cfg_dict):
-
-        def is_long_flag(flag_str):
-            prefix = flag_str[0:2]
-            return True if prefix == "--" else False
-            
+    def args_from_cmd(idx_sec_by_dot):   
         '''
             Update the arguments by commend line input string
         '''
+        typ_cnvt = Type_Convertor()
+
         # remove file name from args
         cmd_arg_lst = sys.argv[1:]
-
+        
         # print out helper document string
         if "-h" in cmd_arg_lst:
             cmd_arg_lst.remove("-h")
             print(cfg_dict['_doc_str'])
 
+        sec_ptr, sec_key = None, None
         for idx, item in enumerate(cmd_arg_lst):
             if idx % 2 == 0:  # argument flag 
-                if is_long_flag(item):
-                    flag = item[2:]
-                    flag_lst = flag.split('-')
-                    sec_key, arg = flag_lst[0], flag_lst[1]
-                else:
-                    arg = item[1:]
-                    sec_key = ""
-                    
-            else:     # argument value 
-                val = item
-                if sec_key == "":
-                    cfg_dict[arg] = val
-                else:
-                    cfg_dict[sec_key][arg] = val
+                sec_keys_str = item
+                sec_ptr, sec_key = \
+                    idx_sec_by_dot(sec_keys_str)       
+            else:             # argument value 
+                val_str = item
+                sec_ptr[sec_key] = typ_cnvt.convert(val_str)
+                
