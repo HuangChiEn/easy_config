@@ -240,31 +240,100 @@ The python standard package (such as pathlib, sys, .., etc) is the only source o
         some_dataloader_func(**cfger.dataset['loader'])
 
         print(cfger.model['backbone']['optimizer'])
-        
-        
-#### **3. Absl style flag**
-> easy_config also support that you can access the 'same' config file in different python file without re-declare the config. test_flag.py under the same work directory
+
+
+#### **3. Commmend-line Support**
+> We also take `hier_cfg.ini` as example!
+
+    # hier_cfg.ini
+    glb_var = 42@int
+    [dataset]         
+        sample_seed = $glb_var
+        path = {'root':'/data/kitti'}@Path
+        [dataset.loader]
+            batch_size = 32@int
+
+    [model]
+        [model.backbone]
+             = 32@int
+            [model.backbone.optimizer]
+                lay_seed = $glb_var   # intepolation to any sub-section!
+                lr = 1e-4@float
+
+    # Hier-Cell cfg written by Josef-Huang..
+
+Execute python program and print out the helper information <br>
+`python quick_hier.py -h`
+
+Update flatten argument and print out the helper information <br>
+`python quick_hier.py -glb_var 404 -h`
+
+Especially update **non-flatten argument**, you can access any argument at any level by dot-access in commend-line!! (with combining any argument update)<br>
+`python quick_start.py -model.backbone.optimizer.lr "{'yeah':'success'}@dict" -dataset.sample_seed 578@int -h`
+
+#### **4. Config Operation**
+Config operation is one of the core technique for dynamic configuration system!!
+In the following example, you can see that the merging config system already provided a impressive hierachical merging funtionality! 
+
+> For example, `ghyu.opop.add` in cfg_a can be replaced by the cfg_b in **same** section with the same variable name, while the different namespace keep their variable safely ~ so the value of `ghyu.opop.add` will be 67 and `ghyu.opop.tueo.inpo` refer the flatten variable `inpo` and the value will be 46.
 
     from easy_configer.Configer import Configer
 
-    def get_n_blk_from_flag():
-        new_cfger = Configer()
-        flag = new_cfger.get_cfg_flag()
-        # test to get the pre-defined 'n_blk'
-        return flag.n_blk
+    def build_cfg_text_a():
+        return '''
+        # Initial config file :
+        inpo = 46@int
+        [test]         
+            mrg_var_tst = [1, 3, 5]@list
+            [test.ggap]
+                gtgt = haha@str
 
+        [ghyu]
+            [ghyu.opop]
+                add = 32@int
+                [ghyu.opop.tueo]
+                    salt = $inpo
+
+        # Cell cfg written by Josef-Huang..
+        '''
+
+    def build_cfg_text_b():
+        return '''
+        # Initial config file :
+        inop = 32@int
+        [test]         
+            mrg_var_tst = [1, 3, 5]@list
+            [test.ggap]
+                gtgt = overrides@str
+                [test.ggap.conf]
+                    secert = 42@int
+
+        [ghyu]
+            [ghyu.opop]
+                add = 67@int
+                div = 1e-4@float
+
+        [new]
+            [new.new]
+                newsec = wpeo@str
+        # Cell cfg written by Josef-Huang..
+        '''
+
+    if __name__ == "__main__":
+        cfg_a = Configer(cmd_args=True)
+        cfg_a.cfg_from_str(build_cfg_text_a())  
         
-#### **4. Commmendline Support**
 
-Execute python program and print out the helper information <br>
-`python quick_start.py -h`
+        cfg_b = Configer()
+        cfg_b.cfg_from_str(build_cfg_text_b())
+        
+        # default, override falg is turn off ~
+        cfg_a.merge_conf(cfg_b, override=True)
+        # operator support : cfg_b |= cfg_a
 
-Update flatten argument and print out the helper information <br>
-`python quick_start.py -n_blk 400 -h`
+---
 
-Especially update **non-flatten argument !!** <br>
-`python quick_start.py --fir_sec-dummy_val 45 -n_blk 400 -h`
-
+### **Miscellnous features**
 #### **5. IO Converter**
 
     # first import the IO_converter
@@ -283,6 +352,19 @@ Especially update **non-flatten argument !!** <br>
     # convert easy_config instance into the "yaml string"
     yaml_cfg = cfg_cnvter.cnvt_cfg(self.cfger, 'yaml')
 
+
+#### **6. Absl style flag**
+> easy_config also support that you can access the 'same' config file in different python file without re-declare the config. test_flag.py under the same work directory
+
+    from easy_configer.Configer import Configer
+
+    def get_n_blk_from_flag():
+        new_cfger = Configer()
+        flag = new_cfger.get_cfg_flag()
+        # test to get the pre-defined 'n_blk'
+        return flag.n_blk
+
+
 ---
 
 #### **The documentation of easy_configer is also released in read doc** [🔗](https://easy-configer.readthedocs.io/en/latest/)
@@ -294,11 +376,6 @@ If you clone this repo and built from source, you can try to run the unittest.
 `cd test && python test_Configer.py`
 
 ---
-
-### TODO list (next version released features v 1.4.0 )
-#### 1. hierachical container and dot-access
-#### 2. dynamic config loading with hierachical manner
-#### 3. Works like omegaconf with few code to write ~
 
 ### License
 MIT License. More information of each term, please see LICENSE.md
