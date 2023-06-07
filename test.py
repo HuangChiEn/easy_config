@@ -6,7 +6,7 @@ def build_cfg_text_a():
     inpo = 46@int
     [test]         
         mrg_var_tst = [1, 3, 5]
-        tst_var = {'kk':56, 'pp':'josef'}@tst_cls
+        tst_var = ''@tst_cls
         [test.ggap]
             gtgt = 'haha'
 
@@ -42,7 +42,7 @@ def build_cfg_text_b():
     '''
 
 class Tst_cls:
-    def __init__(self, kk, pp):
+    def __init__(self, kk=15, pp='josef'):
         self.kk = kk
         self.pp = pp
     

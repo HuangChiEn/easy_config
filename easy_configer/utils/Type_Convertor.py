@@ -2,6 +2,12 @@ from functools import partial
 import ast
 import re
 
+import warnings
+def warning_on_one_line(message, category, filename, lineno, file=None, line=None):
+    return "{}:{}: {}: {}\n".format(filename, lineno, category.__name__, message)
+warnings.formatwarning = warning_on_one_line
+
+
 class Type_Convertor(object):
     '''
         As the name implies, this helper class of Configer will convert the raw string of config file
@@ -53,19 +59,27 @@ class Type_Convertor(object):
             val_str, typ = cfg_raw_str.split(self.__split_chr)
         except:
             raise RuntimeError
-            
+        
         if typ in self.__customized_cnvtor.keys():
-            return self.__customized_cnvtor[typ](val_str)
+            args = ast.literal_eval(val_str)
+            # For init customized class, we provide args, kwargs or default init  
+            if isinstance(args, dict):
+                return self.__customized_cnvtor[typ](**args)
+            elif isinstance(args, list):
+                return self.__customized_cnvtor[typ](*args)
+            else:  # invalid type of args is considered as default init  
+                warnings.warn(f"You're initialized class '{typ}' with default arguments!")
+                return self.__customized_cnvtor[typ]()
+        
         # support 'None' placeholder and [], {} eval, instead of define '@type'
         elif (val_str == 'None') or (not typ):  
             return ast.literal_eval(val_str)
+        
         # type-validator : we use ast.literal_eval and it need to \
         else:  # strip '[', ']', '{', '}' notation before feeding into 'default' type-conveter
             stripped_val_str = re.sub(r"[\[\]\{\}]", "", val_str)
         return self.__default_cnvtor[typ](stripped_val_str)
     
-    # HACK : new cnvt_func can not consider arguments as non-str type
-    #  so, currently we use {'key':val} str to map to the registered class!
     def regist_cnvtor(self, type_name:str = None, cnvt_func:callable = None):
         '''
             type_name :
@@ -77,5 +91,5 @@ class Type_Convertor(object):
         assert callable(cnvt_func), "The converter function should be callable."
         assert isinstance(type_name, str) and len(type_name) > 0, "The cnvt_name should be given"
         
-        func_wrap = lambda dict_str : cnvt_func( **ast.literal_eval(dict_str) )
+        func_wrap = lambda *args, **kwargs : cnvt_func(*args, **kwargs)
         self.__customized_cnvtor[type_name] = func_wrap
