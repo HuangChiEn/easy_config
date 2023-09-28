@@ -39,11 +39,23 @@ def build_cfg_text_b():
             newsec = wpeo@str
     # Cell cfg written by Josef-Huang..
     '''
+def hi():
+    import pdb
+    print('in hi')
+    pdb.set_trace()
+    print(sys._getframe())
+    print(sys._getframe().f_back)
+    return 15
 
 if __name__ == "__main__":
+    import sys
+    
+
     cfg_a = Configer(cmd_args=True)
     cfg_a.cfg_from_str(build_cfg_text_a())  
-    
+    tmp = hi()
+    print(sys._getframe())
+    print(sys._getframe().f_back)
 
     cfg_b = Configer()
     cfg_b.cfg_from_str(build_cfg_text_b())
@@ -55,4 +67,4 @@ if __name__ == "__main__":
     #   python test.py test.mrg_var_tst "{'yeah':'success'}@dict" 
     #   to change the any default value in commend-line!!
     print(cfg_a)
-    breakpoint()
+    

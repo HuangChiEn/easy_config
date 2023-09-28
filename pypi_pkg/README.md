@@ -1,14 +1,13 @@
 # Project description
-#### easy_configer version : 1.3.4
+#### easy_configer version : 2.0.1
 
 ### Configeruating the program in an easy-way 
-This is a light-weight solution for configurating the python program. <br>
-Hope this repository make every user control their large project with easier ~ ~ 
+I'm willing to provide a light-weight solution for configurating your python program. Hope this repository make every user control their large project more easier ~ ~ 
 
 ### Introduction 📝
-With the large python project, a lot of argument will be required to control the business logic, user may need a simple way to load configurations through a file eventually. Their exists various package cover part of function with each other, and offer some solution to tackle the mentioned problem. 
+With the python project go into large-scale, a lot of argument will be required to control the complex business logic, user may need a simple way to load configurations through a file eventually. Their exists various package cover part of function and offer some solution to tackle the mentioned problem. 
 
-**But at least I can not find a solution for load & use the argument in simple manner.**   Instead, most of them seems for the specific goal, and cause the code more longer and hard to read.
+**Unfortunately, I can not find a solution for load & use the argument in simple manner at least.**   Instead, most of the config-tools seems only works for the specific goal, then cause the code more longer and hard to read.
 
 For example :
     
@@ -30,17 +29,19 @@ For example :
     args.lucky_num
     
 
-That's why I packaged my solution to this issue. The easy_config will have following attribute :
+That leverage me to package my solution for solving this issue. The easy_config will cover the following attributes :
 
 1. **simple & customized syntax of declaration (partially support)**
 
 2. **Accept multiple config file with dynamic style**
 
-3. **Declare customized class instance in the config file (partially support)**
+3. **Declare customized class instance in the config file**
 
-4. **Commend-line update default value**
+4. **Commend-line update all declared-value wherever it belong**
 
 5. **Support the absl style FLAGS functionality** 
+
+6. **Omegaconf like hierachical config**
 
 And, of course the following attribute will also be supported :
 
@@ -57,17 +58,20 @@ And, of course the following attribute will also be supported :
 * support arguments (flatten) interpolation!!
 
 * support config conversion, which bridge the easy_config into the other config file ~
+
+* support hierachical configurating system with dynamic override ~
 ---
 
 ### Newly update features 🚀
-1. I have took sometime to accept the truth those famous config-tools have the support from their community and eco-system. For example, torchlightning's Trainer take argparse as input; fb hydra take omegaconf as input. **So, easy_configer now provide a converter mechnaism allowing user convert our easy_config into the other famous config-tools (s.t. argparse, omegaconf, and yaml).**  
+1. Eventually, we have support hierachical configuration. **So, you can define hierachical config (beyond two-level) with toml-like section. Easy_configer now support this feature and convert your hierachical declearation into the hierachical dict structure.** Have a look at documentation!! 
 
-2. There's an common usage case that the pre-defined arguments may be reused in the other section. So, we also support the argument interpolation. However, the **shared arguments** are only allowed be putted in **faltten section**. Since share the args defined in section is sick www ~   
+2. Along with the new feature : hierachical config, we also support the commend-line override with any value declared in any layer of config!! **it's not easy, but we did it www.** Have a look at documentation!!
 
+3. Config merging mechnaism is a common technique in dynamic configuration. **So, we also support config merging in this version!!** yeah ~ feel free to merg, concat, and then override the config to make your python program more controllable!!
 ---
 
 ### Bug Fixed 🐛
-#### Since the List and Section share the same symbol in config file, the refactor version of easy_config have some trobule with it. Now, the bug should be fixed, feel safe to use. 
+#### No bug report in previous version, feel free to report the bug via issue on github.
 ---
 
 ### Dependencies 🏗️
@@ -130,8 +134,7 @@ The python standard package (such as pathlib, sys, .., etc) is the only source o
     # which is very suitable for cell-based development enviroment (e.g. jupyter-lab)
     # Do not forgot, always declare cfg_str in global part, not in main_block 
     # By the way, you're allowed to define section-params in the cfg-str,
-    #   however, it's not recommend due to it's readibility..
-    !!
+    #   however, it's not recommend due to it's readibility!!
     cfg_str = '''
     lr = 1e-4@float
     n_blk = 5@int
@@ -199,31 +202,139 @@ The python standard package (such as pathlib, sys, .., etc) is the only source o
         print(cfger.sec_A['inner_port'] == cfger.shr_port)
         print(cfger.sec_A['inner_port'] == cfger.sec_B['outter_port'])
 
+#### **2. How to declare hierachical config**
 
-#### **2. Absl style flag**
-> easy_config also support that you can access the 'same' config file in different python file without re-declare the config. test_flag.py under the same work directory
+#### *hier_cfg.ini in work directory*
+    glb_var = 42@int
+    [dataset]         
+        sample_seed = $glb_var
+        path = {'root':'/data/kitti'}@Path
+        [dataset.loader]
+            batch_size = 32@int
+
+    [model]
+        [model.backbone]
+             = 32@int
+            [model.backbone.optimizer]
+                lay_seed = $glb_var   # intepolation to any sub-section!
+                lr = 1e-4@float
+
+    # Hier-Cell cfg written by Josef-Huang..
+
+#### *quick_hier.py in work directory*
+
+    from easy_configer.Configer import Configer
+    from pathlib import Path
+    
+    if __name__ == "__main__":
+        cfger = Configer(cmd_args=True)
+        cfger.regist_cnvtor("Path", Path)
+        
+        # omit cfg_from_str, hier-config also could be declared in str though ~
+        cfger.cfg_from_ini("./hier_cfg.ini")
+        
+        # Display the Namespace 
+        print(cfger)
+        print(cfger.dataset)
+        
+        some_dataloader_func(**cfger.dataset['loader'])
+
+        print(cfger.model['backbone']['optimizer'])
+
+
+#### **3. Commmend-line Support**
+> We also take `hier_cfg.ini` as example!
+
+    # hier_cfg.ini
+    glb_var = 42@int
+    [dataset]         
+        sample_seed = $glb_var
+        path = {'root':'/data/kitti'}@Path
+        [dataset.loader]
+            batch_size = 32@int
+
+    [model]
+        [model.backbone]
+             = 32@int
+            [model.backbone.optimizer]
+                lay_seed = $glb_var   # intepolation to any sub-section!
+                lr = 1e-4@float
+
+    # Hier-Cell cfg written by Josef-Huang..
+
+Execute python program and print out the helper information <br>
+`python quick_hier.py -h`
+
+Update flatten argument and print out the helper information <br>
+`python quick_hier.py -glb_var 404 -h`
+
+Especially update **non-flatten argument**, you can access any argument at any level by dot-access in commend-line!! (with combining any argument update)<br>
+`python quick_start.py -model.backbone.optimizer.lr "{'yeah':'success'}@dict" -dataset.sample_seed 578@int -h`
+
+#### **4. Config Operation**
+Config operation is one of the core technique for dynamic configuration system!!
+In the following example, you can see that the merging config system already provided a impressive hierachical merging funtionality! 
+
+> For example, `ghyu.opop.add` in cfg_a can be replaced by the cfg_b in **same** section with the same variable name, while the different namespace keep their variable safely ~ so the value of `ghyu.opop.add` will be 67 and `ghyu.opop.tueo.inpo` refer the flatten variable `inpo` and the value will be 46.
 
     from easy_configer.Configer import Configer
 
-    def get_n_blk_from_flag():
-        new_cfger = Configer()
-        flag = new_cfger.get_cfg_flag()
-        # test to get the pre-defined 'n_blk'
-        return flag.n_blk
+    def build_cfg_text_a():
+        return '''
+        # Initial config file :
+        inpo = 46@int
+        [test]         
+            mrg_var_tst = [1, 3, 5]@list
+            [test.ggap]
+                gtgt = haha@str
 
+        [ghyu]
+            [ghyu.opop]
+                add = 32@int
+                [ghyu.opop.tueo]
+                    salt = $inpo
+
+        # Cell cfg written by Josef-Huang..
+        '''
+
+    def build_cfg_text_b():
+        return '''
+        # Initial config file :
+        inop = 32@int
+        [test]         
+            mrg_var_tst = [1, 3, 5]@list
+            [test.ggap]
+                gtgt = overrides@str
+                [test.ggap.conf]
+                    secert = 42@int
+
+        [ghyu]
+            [ghyu.opop]
+                add = 67@int
+                div = 1e-4@float
+
+        [new]
+            [new.new]
+                newsec = wpeo@str
+        # Cell cfg written by Josef-Huang..
+        '''
+
+    if __name__ == "__main__":
+        cfg_a = Configer(cmd_args=True)
+        cfg_a.cfg_from_str(build_cfg_text_a())  
         
-#### **3. Commmendline Support**
 
-Execute python program and print out the helper information <br>
-`python quick_start.py -h`
+        cfg_b = Configer()
+        cfg_b.cfg_from_str(build_cfg_text_b())
+        
+        # default, override falg is turn off ~
+        cfg_a.merge_conf(cfg_b, override=True)
+        # operator support : cfg_b |= cfg_a
 
-Update flatten argument and print out the helper information <br>
-`python quick_start.py -n_blk 400 -h`
+---
 
-Especially update **non-flatten argument !!** <br>
-`python quick_start.py --fir_sec-dummy_val 45 -n_blk 400 -h`
-
-#### **4. IO Converter**
+### **Miscellnous features**
+#### **5. IO Converter**
 
     # first import the IO_converter
     from easy_config.IO_Converter import IO_Converter
@@ -241,6 +352,19 @@ Especially update **non-flatten argument !!** <br>
     # convert easy_config instance into the "yaml string"
     yaml_cfg = cfg_cnvter.cnvt_cfg(self.cfger, 'yaml')
 
+
+#### **6. Absl style flag**
+> easy_config also support that you can access the 'same' config file in different python file without re-declare the config. test_flag.py under the same work directory
+
+    from easy_configer.Configer import Configer
+
+    def get_n_blk_from_flag():
+        new_cfger = Configer()
+        flag = new_cfger.get_cfg_flag()
+        # test to get the pre-defined 'n_blk'
+        return flag.n_blk
+
+
 ---
 
 #### **The documentation of easy_configer is also released in read doc** [🔗](https://easy-configer.readthedocs.io/en/latest/)
@@ -252,11 +376,6 @@ If you clone this repo and built from source, you can try to run the unittest.
 `cd test && python test_Configer.py`
 
 ---
-
-### TODO list (next version released features v 1.4.0 )
-#### 1. hierachical container and dot-access
-#### 2. dynamic config loading with hierachical manner
-#### 3. Works like omegaconf with few code to write ~
 
 ### License
 MIT License. More information of each term, please see LICENSE.md
