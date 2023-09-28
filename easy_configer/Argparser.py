@@ -30,7 +30,7 @@ class Argparser:
         for idx, item in enumerate(cmd_arg_lst):
             if is_arg_key(item):  # argument flag 
                 sec_keys_str = item.split('-')[-1]   # strip - symbol, and get argument key
-                sec_ptr, sec_key = idx_sec_by_dot(sec_keys_str)       
+                sec_ptr, sec_key = idx_sec_by_dot(sec_keys_str, allow_init=True)       
             else:                # argument value 
                 if idx % 2 == 0:
                     raise RuntimeError('Commendline argument missing the argument key, note that argument key should begin with - symbol!')

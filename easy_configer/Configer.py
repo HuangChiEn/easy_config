@@ -148,21 +148,29 @@ class Configer(object):
         sec_key_str = cfg_str[beg+1 : end].strip()
         return sec_key_str
     
-    def __idx_sec_by_dot(self, sec_keys_str:str) -> [dict, str]:
+    def __idx_sec_by_dot(self, sec_keys_str:str, allow_init:bool = False) -> [dict, str]:
         sec_name_lst = sec_keys_str.split('.')
         # Before easy_configer 1.3.4 ver, all section is builded upon this level
         if len(sec_name_lst) == 1:
             return self.__dict__, sec_keys_str
 
+        root_key = sec_name_lst.pop(0)
+        if root_key not in self.__dict__:
+            if not allow_init:
+                raise RuntimeError(f"The parent node of {root_key} is not defined yet, it's invalid for directly made the child node")
+            self.__dict__[root_key] = {}
+
         ## Support toml like 'hierachical' format!!
         #  dynamically search the hierachical section begin from the 'next layer' of self.__dict__
-        idx_sec = self.__dict__[ sec_name_lst.pop(0) ]
+        idx_sec = self.__dict__[root_key]
         #  keep the index point to the node "parent", since the child node will be init as dict!
-        try:
-            for sec in sec_name_lst[:-1]:
-                idx_sec = idx_sec[sec]
-        except:
-            raise RuntimeError(f"The parent node of {sec} is not defined yet, it's invalid for directly made the child node")
+        for sec in sec_name_lst[:-1]:
+            tmp = idx_sec.get(sec, '__UNDEFINE_VAL')
+            if tmp == '__UNDEFINE_VAL':
+                if not allow_init:
+                    raise RuntimeError(f"The parent node '{sec}' is not defined yet, it's invalid for directly made the child node")
+                idx_sec[sec] = {}
+            idx_sec = idx_sec[sec]
 
         return idx_sec, sec_name_lst[-1]
 

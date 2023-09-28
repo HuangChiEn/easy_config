@@ -7,8 +7,8 @@ with open(join(this_directory, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
     
 setup(
-    name='easy_configer', 
-    version='2.0.0',
+    name='easy_configer',
+    version='2.1.1',
     description='An easy way for configurating python program by the given config file or config str',
     author='JosefHuang',
     author_email='a3285556aa@gmail.com',
