@@ -7,9 +7,6 @@ this_directory = abspath(dirname(__file__))
 with open(join(this_directory, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
-
-
-
 setup(
     name='easy_configer',
     version='1.3.4',
