@@ -4,7 +4,7 @@ import re
 
 import warnings
 def warning_on_one_line(message, category, filename, lineno, file=None, line=None):
-    return "{}:{}: {}: {}\n".format(filename, lineno, category.__name__, message)
+    return "{0}:{1}: {2}: {3}\n".format(filename, lineno, category.__name__, message)
 warnings.formatwarning = warning_on_one_line
 
 
@@ -68,7 +68,7 @@ class Type_Convertor(object):
             elif isinstance(args, list):
                 return self.__customized_cnvtor[typ](*args)
             else:  # invalid type of args is considered as default init  
-                warnings.warn(f"You're initialized class '{typ}' with default arguments!")
+                warnings.warn("You're initialized class '{0}' with default arguments!".format(typ))
                 return self.__customized_cnvtor[typ]()
         
         # support 'None' placeholder and [], {} eval, instead of define '@type'

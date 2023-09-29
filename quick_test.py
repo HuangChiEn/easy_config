@@ -14,7 +14,7 @@ def build_cfg_text_a():
         [ghyu.opop]
             add = 32
             [ghyu.opop.tueo]
-                salt = $inpo
+                salt = $test.ggap.gtgt
 
     # Cell cfg written by Josef-Huang..
     '''
@@ -37,7 +37,15 @@ def build_cfg_text_b():
 
     [new]
         [new.new]
-            newsec = 'wpeo'
+            newsec = wpeo@str 
+            os_env = $ENV.test_env
+            #    ? this variable is for testing the identical section name is whatever valid \
+            #        for their nested section name
+
+            inp_var = $ghyu.opop.add
+            #    ? this variable is for testing the identical section name is whatever valid for their nested \
+            #        section name and the intepolated variable could be show in here or not !!
+
     # Cell cfg written by Josef-Huang..
     '''
 
@@ -50,12 +58,13 @@ class Tst_cls:
         return self.pp * 2
 
 if __name__ == "__main__":
-    cfg_a = Configer(cmd_args=True)
-    cfg_a.regist_cnvtor("tst_cls", Tst_cls)  # regist customer class
-    cfg_a.cfg_from_str(build_cfg_text_a())  
-    
-    #cfg_b = Configer()
-    #cfg_b.cfg_from_str(build_cfg_text_b())
+    from easy_configer.IO_Converter import IO_Converter
+    #cfg_a = Configer(cmd_args=False)
+    #cfg_a.regist_cnvtor("tst_cls", Tst_cls)  # regist customer class
+    #cfg_a.cfg_from_cli()  
+    #cfg_a.cfg_from_str(build_cfg_text_a())
+    cfg_b = Configer()
+    cfg_b.cfg_from_str(build_cfg_text_b())
 
     #cfg_a.merge_conf(cfg_b, override=True)
     #cfg_b |= cfg_a
@@ -63,5 +72,28 @@ if __name__ == "__main__":
     # Note that you can use :
     #   python test.py test.mrg_var_tst "{'yeah':'success'}@dict" 
     #   to change the any default value in commend-line!!
-    print(cfg_a)
+    cnvt = IO_Converter()
+    #tmp = cnvt.cnvt_cfg_to(cfg_b, 'yaml')
+
+    '''
+    from argparse import ArgumentParser
+    parser = ArgumentParser(description='This is test!!')
+    parser.add_argument("--pos1", default=42, help="positional argument 1")
+    parser.add_argument("--pos2", default={'kk':42, 'aa':{'bb':44}}, help="positional argument 1")
+    parser.add_argument("--pos3", default=False, help="positional argument 1")
+    #args = parser.parse_args()
+    '''
+
+    tmp = cnvt.cnvt_cfg_to(cfg_b, 'omegaconf')
+    print(f"convert to yaml-str : \n{tmp}\n\n")
+    tst = cnvt.cnvt_cfg_from(tmp, 'omegaconf')
+    print(tst)
     breakpoint()
+    
+
+
+
+# DEV TODO List:
+# 1. rewrite exception for __get_declr_dict     ()
+# 2. support masked_copy    ()
+# 3. support dataclasses config for static type chking ()

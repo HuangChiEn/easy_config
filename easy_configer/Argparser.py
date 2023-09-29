@@ -24,7 +24,8 @@ class Argparser:
         # print out helper document string
         if "-h" in cmd_arg_lst:
             cmd_arg_lst.remove("-h")
-            print(cfg_dict['_doc_str'])
+            cfg_dct, _ = idx_sec_by_dot('')
+            print(cfg_dct['_doc_str'])
 
         sec_ptr, sec_key = None, None
         for idx, item in enumerate(cmd_arg_lst):
