@@ -4,17 +4,19 @@ def build_cfg_text_a():
     return '''
     # Initial config file :
     inpo = 46@int
+    > ./test/test_cfg_a.ini
+
     [test]         
         mrg_tst_var = [1, 3, 5]
         tst_var = ''@tst_cls
         [test.ggap]
-            gtgt = 'haha'
-
+            gtgt = $Section_test_A.tst_ext_var
     [ghyu]
         [ghyu.opop]
             add = 32
             [ghyu.opop.tueo]
                 salt = $test.ggap.gtgt
+        
 
     # Cell cfg written by Josef-Huang..
     '''
@@ -85,11 +87,12 @@ if __name__ == "__main__":
     cfg_a.regist_cnvtor("tst_cls", Tst_cls)  # regist customer class
     #cfg_a.cfg_from_cli()  
     cfg_a.cfg_from_str(build_cfg_text_a())
-    cfg_b = Configer()
-    cfg_b.cfg_from_str(build_cfg_text_b())
+    #cfg_b = Configer()
+    #cfg_b.cfg_from_str(build_cfg_text_b())
 
     #cfg_a.merge_conf(cfg_b, override=True)
     #cfg_b |= cfg_a
+
     breakpoint()
     #tmp = cfg_b + cfg_a
     

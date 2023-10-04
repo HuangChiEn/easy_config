@@ -1,4 +1,3 @@
-from .Configer import Configer
 from argparse import ArgumentParser
 
 class IO_Converter(object):
@@ -19,7 +18,7 @@ class IO_Converter(object):
             'dict' : self._from_dict
         }
 
-    def cnvt_cfg_to(self, cfg: Configer, target_cfg_type:str, **cnvtr_kwarg):
+    def cnvt_cfg_to(self, cfg, target_cfg_type:str, **cnvtr_kwarg):
         assert target_cfg_type in self.output_dispatcher.keys(), '''Unfortunately, {0} config is not supported yet\n
                                                 Currently, easy_configer only support : {1}'''.format(
                                                     target_cfg_type, self.output_dispatcher.keys()
@@ -104,6 +103,7 @@ class IO_Converter(object):
         return self._from_dict(datacls_dict)
 
     def _from_dict(self, cfg_dict):
+        from .Configer import Configer
         cfg = Configer()
         for k, v in cfg_dict.items():
             cfg.__dict__[k] = v

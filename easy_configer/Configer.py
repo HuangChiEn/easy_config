@@ -11,6 +11,7 @@ warnings.formatwarning = warning_on_one_line
 from .Argparser import Argparser
 from .utils.Type_Convertor import Type_Convertor
 from .utils.Flag import Flag
+from .IO_Converter import IO_Converter
 
 class Configer(object):
     '''
@@ -241,10 +242,21 @@ class Configer(object):
                     raise RuntimeError('Re-defined config, {0} section will be overrided!!'.format(sec_keys_str))
                 idx_sec[idx_sec_key] = {}
                 cur_sec_keys = sec_keys_str
-                
+            
             # parse variable assignment string
             else:
-                val_dict = self.__get_declr_dict(cfg_str)
+                # parse the value string into value dict
+                if cfg_str[0] == '>':
+                    # import other .ini config as value dict
+                    cfg_path = cfg_str.split('>')[-1].strip()
+                    sub_cfg, cnvt = Configer(cmd_args=False), IO_Converter()
+                    sub_cfg.cfg_from_ini(cfg_path)
+                    val_dict = cnvt.cnvt_cfg_to(sub_cfg, 'dict')
+                else:
+                    # normal value string
+                    val_dict = self.__get_declr_dict(cfg_str)
+
+                # assign the val_dict into the corresponding section!
                 if cur_sec_keys != '':
                     idx_sec, idx_sec_key = self.__idx_sec_by_dot(cur_sec_keys)
                     idx_sec[idx_sec_key].update( val_dict )
