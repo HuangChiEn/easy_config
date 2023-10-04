@@ -140,8 +140,8 @@ class Configer(object):
 
     # 2. concate operator 
     def __add__(self, cfg):
-        return self.concate_cfg(cfg, override=False)
-
+        return self.concate_cfg(cfg)
+        
 
     # utils of config parser
     def __preproc_cfgstr(self, cfg_str:str) -> str:
@@ -164,6 +164,12 @@ class Configer(object):
         return sec_key_str
     
     def __idx_sec_by_dot(self, sec_keys_str:str, allow_init:bool = False) -> [dict, str]:
+        '''
+            Core function to manage the hierachical arguments. 
+            Store args is simple, just add it in dict. But dynamically search argument in specific section is non-trivial!
+            Therefore, i wrote this function to deal with searching and return the "pointer" point to the section.
+            It's sync with self.__dict__, so use it wiselly & carefully!!
+        '''
         sec_name_lst = sec_keys_str.split('.')
         # Before easy_configer 1.3.4 ver, all section is builded upon this level
         if len(sec_name_lst) == 1:

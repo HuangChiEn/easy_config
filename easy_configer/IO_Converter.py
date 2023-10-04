@@ -15,6 +15,7 @@ class IO_Converter(object):
             'argparse' : self._from_argparse,
             'omegaconf' : self._from_omegacfg,
             'yaml' : self._from_yaml,
+            'dataclass' : self._from_dataclass,
             'dict' : self._from_dict
         }
 
@@ -36,7 +37,8 @@ class IO_Converter(object):
     def __imp_pkg(self, pkg_path):
         pypi_name = {
             'yaml' : 'pyyaml',
-            'omegaconf' : 'omegaconf'
+            'omegaconf' : 'omegaconf',
+            'dataclasses' : 'dataclasses'
         }
         try:
             import importlib
@@ -95,6 +97,11 @@ class IO_Converter(object):
         mod = self.__imp_pkg('omegaconf.omegaconf')
         omg_dict = mod.OmegaConf.to_container(omg_cfg)
         return self._from_dict(omg_dict)
+
+    def _from_dataclass(self, datacls_cfg):
+        mod = self.__imp_pkg('dataclasses')
+        datacls_dict = mod.asdict(datacls_cfg)
+        return self._from_dict(datacls_dict)
 
     def _from_dict(self, cfg_dict):
         cfg = Configer()

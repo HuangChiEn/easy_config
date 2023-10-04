@@ -24,7 +24,7 @@ def build_cfg_text_b():
     # Initial config file :
     inop = 32@int
     [test]         
-        mrg_var_tst = [1, 3, 5]
+        mrg_tst_var = [2, 4, 6]
         [test.ggap]
             gtgt = 'overrides'
             [test.ggap.conf]
@@ -59,15 +59,39 @@ class Tst_cls:
 
 if __name__ == "__main__":
     from easy_configer.IO_Converter import IO_Converter
-    #cfg_a = Configer(cmd_args=False)
-    #cfg_a.regist_cnvtor("tst_cls", Tst_cls)  # regist customer class
+
+    from dataclasses import dataclass
+    from typing import Optional
+
+    @dataclass
+    class TableConfig:
+        rows: int = 1
+
+    @dataclass
+    class DatabaseConfig:
+        table_cfg: TableConfig = TableConfig()
+
+    @dataclass
+    class ModelConfig:
+        data_source: Optional[TableConfig] = None
+
+    @dataclass
+    class ServerConfig:
+        db: DatabaseConfig
+        model: ModelConfig
+
+
+    cfg_a = Configer(cmd_args=False)
+    cfg_a.regist_cnvtor("tst_cls", Tst_cls)  # regist customer class
     #cfg_a.cfg_from_cli()  
-    #cfg_a.cfg_from_str(build_cfg_text_a())
+    cfg_a.cfg_from_str(build_cfg_text_a())
     cfg_b = Configer()
     cfg_b.cfg_from_str(build_cfg_text_b())
 
     #cfg_a.merge_conf(cfg_b, override=True)
     #cfg_b |= cfg_a
+    breakpoint()
+    #tmp = cfg_b + cfg_a
     
     # Note that you can use :
     #   python test.py test.mrg_var_tst "{'yeah':'success'}@dict" 
@@ -75,7 +99,7 @@ if __name__ == "__main__":
     cnvt = IO_Converter()
     #tmp = cnvt.cnvt_cfg_to(cfg_b, 'yaml')
 
-    '''
+    ''' # test subgroup feature..
     from argparse import ArgumentParser
     parser = ArgumentParser(description='This is test!!')
     parser.add_argument("--pos1", default=42, help="positional argument 1")
@@ -95,5 +119,4 @@ if __name__ == "__main__":
 
 # DEV TODO List:
 # 1. rewrite exception for __get_declr_dict     ()
-# 2. support masked_copy    ()
-# 3. support dataclasses config for static type chking ()
+# 2. better flag syntax for cmdline support, refer to sweeper ~ ()
