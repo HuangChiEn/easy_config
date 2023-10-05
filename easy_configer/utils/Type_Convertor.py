@@ -77,7 +77,8 @@ class Type_Convertor(object):
         
         # type-validator : we use ast.literal_eval and it need to \
         else:  # strip '[', ']', '{', '}' notation before feeding into 'default' type-conveter
-            stripped_val_str = re.sub(r"[\[\]\{\}]", "", val_str)
+            stripped_val_str = re.sub(r"[\[\]\{\}\(\) ]", "", val_str)
+            breakpoint()
         return self.__default_cnvtor[typ](stripped_val_str)
     
     def regist_cnvtor(self, type_name:str = None, cnvt_func:callable = None):

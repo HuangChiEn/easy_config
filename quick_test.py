@@ -3,6 +3,7 @@ from easy_configer.Configer import Configer
 def build_cfg_text_a():
     return '''
     # Initial config file :
+    tst = False @bool
     inpo = 46@int
     > ./test/test_cfg_a.ini
 
@@ -81,7 +82,6 @@ if __name__ == "__main__":
     class ServerConfig:
         db: DatabaseConfig
         model: ModelConfig
-
 
     cfg_a = Configer(cmd_args=False)
     cfg_a.regist_cnvtor("tst_cls", Tst_cls)  # regist customer class
