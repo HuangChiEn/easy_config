@@ -9,7 +9,7 @@
 project = 'easy_configer'
 copyright = '2023, JosefHuang'
 author = 'JosefHuang'
-release = 'v1.3.4'
+release = 'v2.1.2'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -20,5 +20,6 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_theme = 'sphinx_rtd_theme'
+#html_theme = 'sphinx_rtd_theme'
+html_theme = 'renku'
 html_static_path = ['_static']

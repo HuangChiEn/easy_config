@@ -1,12 +1,14 @@
 ### Newly update features 🚀
-1. I have took sometime to accept the truth those famous config-tools have the support from their community and eco-system. For example, torchlightning's Trainer take argparse as input; fb hydra take omegaconf as input. **So, easy_configer now provide a converter mechnaism allowing user convert our easy_config into the other famous config-tools (s.t. argparse, omegaconf, and yaml).**  
+1. Eventually, we have support **hierachical configuration**. So, you can define hierachical config (beyond two-level) with **toml-like** section. Easy_configer now support this feature and convert your hierachical declearation into the hierachical dict structure. Have a look at documentation!!
 
-2. There's an common usage case that the pre-defined arguments may be reused in the other section. So, we also support the argument interpolation. However, the **shared arguments** are only allowed be putted in **faltten section**. Since share the args defined in section is sick www ~   
+2. Along with the new feature : hierachical config, we also support the **commend-line override** with any value declared in any layer of config!! it's not easy, but we did it www. Have a look at documentation!!
+
+3. **Config merging mechnaism** is a common technique in dynamic configuration. So, we also support config merging in this version!! yeah ~ feel free to merg, concat, and then override the config to make your python program more controllable!!  
 
 ---
 
 ### Bug Fixed 🐛
-#### Since the List and Section share the same symbol in config file, the refactor version of easy_config have some trobule with it. Now, the bug should be fixed, feel safe to use. 
+#### Boolean string hot-patch is released in v 2.1.2, empty space in config string will be omit. 
 ---
 
 ### Simple Unittest 🧪
