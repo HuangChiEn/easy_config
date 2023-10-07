@@ -1,5 +1,5 @@
 # Project description
-#### easy_configer version : 2.1.2
+#### easy_configer version : 2.2.0
 
 ![easy-configer logo](assets/logo.png)
 
@@ -37,11 +37,11 @@ That leverage me to package my solution for solving this issue. The easy_config 
 
 1. **simple & customized syntax of declaration (partially support)**
 
-2. **Accept multiple config file with dynamic style**
+2. **Accept multiple config file in dynamic loading manner**
 
 3. **Declare customized class instance in the config file**
 
-4. **Commend-line update all declared-value wherever it belong**
+4. **Commend-line update all declared-value wherever it belong, even in hierachical section**
 
 5. **Support the absl style FLAGS functionality** 
 
