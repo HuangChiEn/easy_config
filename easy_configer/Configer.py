@@ -1,5 +1,6 @@
 import errno
 import os
+import sys
 from copy import deepcopy
 from pathlib import Path
 
@@ -8,7 +9,6 @@ def warning_on_one_line(message, category, filename, lineno, file=None, line=Non
     return "{0}:{1}: {2}: {3}\n".format(filename, lineno, category.__name__, message)
 warnings.formatwarning = warning_on_one_line
 
-from .Argparser import Argparser
 from .utils.Type_Convertor import Type_Convertor
 from .utils.Flag import Flag
 from .IO_Converter import IO_Converter
@@ -35,22 +35,25 @@ class Configer(object):
                 For example, 'a*13@int' which means the argument 'a' contain interger value 13,
                 and the '*' is the declare_split_chr.
         '''
-        self._doc_str = "Description : \n" + description
+        self.__doc_str = "Description : \n" + description
         self.__typ_cnvt = Type_Convertor()
+        self.__cfg_cnvt = IO_Converter()
         self.__split_chr = split_chr
         self.__flag = Flag().FLAGS
         self.__cmd_args = cmd_args
 
-    # The commendline-based configuration
+    ## Main interface for configuration : 
+    # Support commendline config
     def cfg_from_cli(self):
         ''' 
-            The commendline-based configuration, only recommend for very lightweight config. 
+            The commendline-based configuration, specific arguments from commend-line only.
+            ( only recommend for very lightweight config ) 
         '''
         if not self.__cmd_args:
             warnings.warn("'cfg_from_cli' is called, the settings 'cmd_args=False' will be ignored!")
-        Argparser.args_from_cmd(self.__idx_sec_by_dot)
+        self.args_from_cmd()
             
-    # The cell-base Intereactive Enviroment Support function
+    # Support string config in cell-based intereactive enviroment
     def cfg_from_str(self, raw_cfg_text:str):
         ''' 
             raw_cfg_text :
@@ -59,7 +62,8 @@ class Configer(object):
         self.__cfg_parser(raw_cfg_text)
         # build the flag object 
         self.__flag.__dict__ = self.__dict__
-         
+    
+    # Load .ini config from the given path
     def cfg_from_ini(self, cfg_path:str):
         '''
             cfg_path :
@@ -92,59 +96,9 @@ class Configer(object):
         
         # build the flag object 
         self.__flag.__dict__ = self.__dict__
-
-    # return an absl style flag to store all of the args.
-    def get_cfg_flag(self):
-        return self.__flag
-
-    def get_doc_str(self):
-        return self._doc_str
-
-    # merge conf suppose 2 config have overlap section, otherwise use 'concate' method!
-    def merge_conf(self, cfg, override=True):
-        
-        def hier_merge(sf_dict, cfg_dict):
-            for sec_key, sec_val in cfg_dict.items():
-                # same section exists
-                if sec_key in sf_dict.keys():
-                    if not override:
-                        raise RuntimeError("Key '{0}' in input config already exists in merged config!!".format(sec_key))
-                    
-                    # if both self-dict and cfg_dict are dict, merge it hierachically!
-                    if isinstance(sec_val, dict) and isinstance(sf_dict[sec_key], dict):
-                        hier_merge(sf_dict[sec_key], sec_val)
-                    else:
-                        sf_dict[sec_key] = sec_val
-
-                # directly feed new val
-                else:
-                    sf_dict[sec_key] = sec_val
-
-        # prevent checking private vars
-        cfg_dict = { k:v for k, v in cfg.__dict__.copy().items() \
-                                    if '_' != k[0] }
-        hier_merge(self.__dict__, cfg_dict)
     
-    # concate just means merge2conf "without" any override!!
-    def concate_cfg(self, cfg):
-        cp_cfg = deepcopy(self)
-        cp_cfg.merge_conf(cfg, override=False)
-        return cp_cfg
-
-    ## Configuration operator support :
-    #  all of operator will be forced to return value!!
-    # 1. merge operator, force to override!
-    def __or__(self, cfg):
-        cp_cfg = deepcopy(self)
-        cp_cfg.merge_conf(cfg, override=True)
-        return cp_cfg
-
-    # 2. concate operator 
-    def __add__(self, cfg):
-        return self.concate_cfg(cfg)
-        
-
-    # utils of config parser
+    ## Core implementation of config parser : 
+    #  utils of config parser
     def __preproc_cfgstr(self, cfg_str:str) -> str:
         # eliminate the line full of white-space without any text
         cfg_str = cfg_str.strip() 
@@ -222,11 +176,23 @@ class Configer(object):
 
         return { var_name : var_val }
 
+    # core function of config parser
     def __cfg_parser(self, raw_cfg_text:str):
         '''
             raw_cfg_text :
                 The string which declare the arguments with the same syntax used in config file.
         '''
+
+        def parse_sub_config(sub_cfg_path:str):
+            '''
+                sub_cfg_path :
+                    The path of interpolated config. 
+                    The sub-config path is parsed from the .ini file with split '>' symbol.
+            '''
+            sub_cfg = Configer(cmd_args=False)
+            sub_cfg.cfg_from_ini(sub_cfg_path)
+            return self.__cfg_cnvt.cnvt_cfg_to(sub_cfg, 'dict')
+
         cur_sec_keys = ''
         for lin in raw_cfg_text.splitlines():
             # strip empty space and 'skip' empty line in cfgstr
@@ -248,10 +214,8 @@ class Configer(object):
                 # parse the value string into value dict
                 if cfg_str[0] == '>':
                     # import other .ini config as value dict
-                    cfg_path = cfg_str.split('>')[-1].strip()
-                    sub_cfg, cnvt = Configer(cmd_args=False), IO_Converter()
-                    sub_cfg.cfg_from_ini(cfg_path)
-                    val_dict = cnvt.cnvt_cfg_to(sub_cfg, 'dict')
+                    sub_cfg_path = cfg_str.split('>')[-1].strip()
+                    val_dict = parse_sub_config(sub_cfg_path)
                 else:
                     # normal value string
                     val_dict = self.__get_declr_dict(cfg_str)
@@ -265,7 +229,74 @@ class Configer(object):
 
         # Update the namespace value via commend-line input 
         if self.__cmd_args:
-            Argparser.args_from_cmd(self.__idx_sec_by_dot)
+            self.args_from_cmd()
+
+    def args_from_cmd(self):   
+        '''
+            Update the arguments by commend line input string
+        '''
+        # remove file name from args
+        cmd_arg_lst = sys.argv[1:]
+        
+        # print out helper document string
+        if "-h" in cmd_arg_lst:
+            cmd_arg_lst.remove("-h")
+            print(self.__doc_str)
+
+        # ' = ' -> '=', eliminate white space
+        cmd_sp_chr = self.split_char.strip()
+        sec_ptr, sec_key = None, None
+        for item in cmd_arg_lst:
+            itm_lst = [ itm for itm in item.split(cmd_sp_chr) if itm != '']
+            if len(itm_lst) != 2:
+                raise RuntimeError(f"Invalid commendline input : the split char '{cmd_sp_chr}' should only present once and the value should be given!")
+            
+            sec_keys_str, val_str = itm_lst
+            sec_ptr, sec_key = self.__idx_sec_by_dot(sec_keys_str, allow_init=True)
+            sec_ptr[sec_key] = self.__typ_cnvt.convert(val_str)
+
+    ## Configuration operator support :
+    #  all of operator will be forced to return value!!
+    #   merge operator, force to override!
+    def __or__(self, cfg):
+        cp_cfg = deepcopy(self)
+        cp_cfg.merge_conf(cfg, override=True)
+        return cp_cfg
+
+    #   concate operator 
+    def __add__(self, cfg):
+        return self.concate_cfg(cfg)
+
+    # concate just means merge2conf "without" any override!!
+    def concate_cfg(self, cfg):
+        cp_cfg = deepcopy(self)
+        cp_cfg.merge_conf(cfg, override=False)
+        return cp_cfg
+        
+    #   merge conf suppose 2 config have overlap section, otherwise use 'concate' method!
+    def merge_conf(self, cfg, override=True):
+        
+        def hier_merge(sf_dict, cfg_dict):
+            for sec_key, sec_val in cfg_dict.items():
+                # same section exists
+                if sec_key in sf_dict.keys():
+                    if not override:
+                        raise RuntimeError("Key '{0}' in input config already exists in merged config!!".format(sec_key))
+                    
+                    # if both self-dict and cfg_dict are dict, merge it hierachically!
+                    if isinstance(sec_val, dict) and isinstance(sf_dict[sec_key], dict):
+                        hier_merge(sf_dict[sec_key], sec_val)
+                    else:
+                        sf_dict[sec_key] = sec_val
+
+                # directly feed new val
+                else:
+                    sf_dict[sec_key] = sec_val
+
+        # prevent checking private vars
+        cfg_dict = { k:v for k, v in cfg.__dict__.copy().items() \
+                                    if '_' != k[0] }
+        hier_merge(self.__dict__, cfg_dict)
 
     # Display the namespace which record all of the declared arguments
     #   for the inner-node structure, iter-call __str__ wrapper !!
@@ -274,6 +305,14 @@ class Configer(object):
         return "Namespace : \n" + ", ".join(key_str)
     # override default __repr__ to view configer in debugger
     __repr__ = __str__
+    
+    ## Miscellnous functionality : 
+    # return an absl style flag to store all of the args.
+    def get_cfg_flag(self):
+        return self.__flag
+
+    def get_doc_str(self):
+        return self.__doc_str
 
     # For the declare the instance of user customized class 
     def regist_cnvtor(self, *args:list, **kwargs:dict):
