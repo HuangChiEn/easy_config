@@ -1,5 +1,9 @@
 # Project description
-#### easy_configer version : 2.0.1
+#### easy_configer version : 2.1.2
+
+![easy-configer logo](assets/logo.png)
+
+---
 
 ### Configeruating the program in an easy-way 
 I'm willing to provide a light-weight solution for configurating your python program. Hope this repository make every user control their large project more easier ~ ~ 
@@ -63,11 +67,7 @@ And, of course the following attribute will also be supported :
 ---
 
 ### Newly update features 🚀
-1. Eventually, we have support hierachical configuration. **So, you can define hierachical config (beyond two-level) with toml-like section. Easy_configer now support this feature and convert your hierachical declearation into the hierachical dict structure.** Have a look at documentation!! 
-
-2. Along with the new feature : hierachical config, we also support the commend-line override with any value declared in any layer of config!! **it's not easy, but we did it www.** Have a look at documentation!!
-
-3. Config merging mechnaism is a common technique in dynamic configuration. **So, we also support config merging in this version!!** yeah ~ feel free to merg, concat, and then override the config to make your python program more controllable!!
+1. same as 2.1.1, but update the document on pypi and add a new logo ~
 ---
 
 ### Bug Fixed 🐛

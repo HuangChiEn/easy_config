@@ -117,7 +117,3 @@ if __name__ == "__main__":
     print(tst)
     breakpoint()
     
-
-# DEV TODO List:
-# 1. rewrite exception for __get_declr_dict     ()
-# 2. better flag syntax for cmdline support, refer to sweeper ~ ()
