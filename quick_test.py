@@ -84,9 +84,12 @@ if __name__ == "__main__":
         model: ModelConfig
 
     cfg_a = Configer(cmd_args=True)
+    
     cfg_a.regist_cnvtor("tst_cls", Tst_cls)  # regist customer class
     #cfg_a.cfg_from_cli()  
     cfg_a.cfg_from_str(build_cfg_text_a())
+    breakpoint()
+    
     #cfg_b = Configer()
     #cfg_b.cfg_from_str(build_cfg_text_b())
 
