@@ -134,10 +134,9 @@ The python standard package (such as pathlib, sys, .., etc) is the only source o
     x = 15
     print( f"Linear equation with x={x} : { lin_equ(x) }" )
 
-<br>
 
-#### In larger project, we may write a config file to control the program, so that the config will become easy to trace, check and debug. In here, we first prepare an config called `test_cfg.ini` in the working directory.
-#### For easy-config file, there're two type of argument : flatten argument, hierachical argument. You can see that flatten argument is placed in first shallow level, and the argument could be easily accessed by dot operator. Besides flatten argument, all of hierachical argument will be placed in python dict object, thus accessing each argument by key string! 
+#### In larger project, we may write a config file to control the program, so that the config will become easy to trace, check and debug. In here, we first prepare an config called `test_cfg.ini` in the working directory. 
+For easy-config file, there're two type of argument : flatten argument, hierachical argument. You can see that flatten argument is placed in first shallow level, and the argument could be easily accessed by dot operator. Besides flatten argument, all of hierachical argument will be placed in python dict object, thus accessing each argument by key string! 
     
     # ./test_cfg.ini
     # '#' denote comment line, the inline comment is also supported!
@@ -168,8 +167,8 @@ The python standard package (such as pathlib, sys, .., etc) is the only source o
     
 <br>
 
-#### Now, we're free to launch the chatbot via `python quick_start.py` (*quick_start.py in work directory*)!
-#### However, you can also override the arguemnts via commendline `python quick_start.py serv_port=7894`
+Now, we're free to launch the chatbot via `python quick_start.py` (*quick_start.py in work directory*)!
+However, you can also override the arguemnts via commendline `python quick_start.py serv_port=7894`
     
     import sys
     
@@ -213,7 +212,8 @@ The python standard package (such as pathlib, sys, .., etc) is the only source o
 ### More detail tutorial about each topic is as follows :
 
 #### **2. How to declare hierachical config**
-#### There have two kind of way to prepare the arguments in easy-config : we can either define flatten argument or groupping the multiple arguments in an hierachical manner (begin from second level). In most of time, we define the flatten argument as global setup, and arrange the rest of arguments into the corresponding dictionary for easy to assign it to the subroutine.    
+There have two kind of way to prepare the arguments in easy-config : we can either define flatten argument or groupping the multiple arguments in an hierachical manner (begin from second level). In most of time, we define the flatten argument as global setup, and arrange the rest of arguments into the corresponding dictionary for easy to assign it to the subroutine.  
+
 #### Let's give a deep-learning example ~
 #### *hier_cfg.ini in work directory*
 
@@ -264,7 +264,7 @@ The python standard package (such as pathlib, sys, .., etc) is the only source o
         ... # get torch Trainer
         Trainer(mod).fit(ds)
 
-#### However, the syntax of above config file could be improved, isn't it !? For example, the batch_size is defined twice under `dataset.loader` and `train_cfg`, so as layer seed. Moreover, path is defined as python string, it need to be further converted by Path object in python standard package. Could we regist our customized data type for easy-config ?
+However, the syntax of above config file could be improved, isn't it !? For example, the batch_size is defined twice under `dataset.loader` and `train_cfg`, so as layer seed. Moreover, path is defined as python string, it need to be further converted by Path object in python standard package. Could we regist our customized data type for easy-config ?
 #### Glade to say : Yes! it's possible to elegantly deal with above mentioned issue. We can solve the first issue by using argument interpolation, and solve the second issue by using the customized register!!
 
 #### *config interpolation with $ symbol* and  *customized register method `regist_cnvtor`*
@@ -336,7 +336,35 @@ Especially update **non-flatten argument**, you can access any argument at any l
 ( Note that the commendline declaration for string is tricky, but currently we only support two way for that : 
     `dataset.ds_type="'kitti'"` or `dataset.ds_type=kitti@str`, pick up one of you like ~ )
 
-#### **4. Config Operation**
+#### **4. Import Sub-Config**
+Like `omegaconf`, most of user expect to seperate the config based on their type and dynamically merge it in runtime. It's a rational requirement and the previous version of easy-config provide two way to conduct it, but both have it's limit : 
+1. you can call the `cfg_from_ini` twice, for example, `cfg.cfg_from_ini('./base_cfg') ; cfg.cfg_from_ini('./override_cfg')`. But it's not explicitly load the config thus reducing readability.
+2. you can use the config merging, for example, `new_cfg = base_cfg | override_cfg`. But it's not elegant solution while you  have to merge several config..
+
+#### Now, we provide the thrid way : **sub-config**. you can import the sub-config in any depth of hierachical config by simply placing the `>` symbol at the beginning of line.
+    # ./base_cfg.ini
+    glb_seed = 42@int
+    [dataset]         
+        > ./config/ds_config.ini
+    
+    [model]
+        > ./root/config/model_config.ini
+    
+    # ./config/ds_config.ini
+    ds_type = None
+    path = {'root':'/data/kitti'}@Path
+    [dataset.loader]
+        batch_size = 32@int
+    
+    # ./root/config/model_config.ini
+    [model.backbone]
+        mod_typ = 'resnet'
+        [model.backbone.optimizer]
+        # and yes, interpolation is still valid "after" the reference argument is declared!
+            lay_seed = $glb_seed  
+
+
+#### **5. Config Operation**
 Config operation is one of the core technique for dynamic configuration system!!
 In the following example, you can see that the merging config system already provided a impressive hierachical merging funtionality! 
 
@@ -402,26 +430,60 @@ In the following example, you can see that the merging config system already pro
 ---
 
 ### **Miscellnous features**
-#### **5. IO Converter**
+#### **6. IO Converter**
+    from dataclasses import dataclass
+    from typing import Optional
 
-    # first import the IO_converter
-    from easy_config.IO_Converter import IO_Converter
-    cfg_cnvter = IO_Converter()
+    @dataclass
+    class TableConfig:
+        rows: int = 1
 
-    # convert easy_config instance into the argparse instance
-    argp_cfg = cfg_cnvter.cnvt_cfg(self.cfger, 'argparse')
+    @dataclass
+    class DatabaseConfig:
+        table_cfg: TableConfig = TableConfig()
 
-    uargp_cfg = cfg_cnvter.cnvt_cfg(self.cfger, 'argparse', parse_arg=False)
-    argp_cfg = uargp_cfg.parse_args()
+    @dataclass
+    class ModelConfig:
+        data_source: Optional[TableConfig] = None
 
-    # convert easy_config instance into the omegaconf instance
-    ome_cfg = cfg_cnvter.cnvt_cfg(self.cfger, 'omegacfg')
+    @dataclass
+    class ServerConfig:
+        db: DatabaseConfig
+        model: ModelConfig
 
-    # convert easy_config instance into the "yaml string"
-    yaml_cfg = cfg_cnvter.cnvt_cfg(self.cfger, 'yaml')
+    if __name__ == '__main__':
+        from easy_configer.IO_Converter import IO_Converter
+
+        # first import the IO_converter
+        from easy_config.IO_Converter import IO_Converter
+        cnvt = IO_Converter()
+
+        # convert easy_config instance into the argparse instance
+        argp_cfg = cnvt.cnvt_cfg_to(cfger, 'argparse')
+
+        uargp_cfg = cnvt.cnvt_cfg_to(cfger, 'argparse', parse_arg=False)
+        argp_cfg = uargp_cfg.parse_args()
+
+        ## convert config INTO..
+        # convert easy_config instance into the omegaconf instance
+        ome_cfg = cnvt.cnvt_cfg_to(cfger, 'omegaconf')
+
+        # convert easy_config instance into the "yaml string"
+        yaml_cfg = cnvt.cnvt_cfg_to(cfger, 'yaml')
+
+        # convert easy_config instance into the "dict"
+        yaml_cfg = cnvt.cnvt_cfg_to(cfger, 'dict')
+
+        ## convert into easy-config FROM..
+        # argparse, omegaconf, yaml, dict ... is supported
+        ez_cfg = cnvt.cnvt_cfg_from(argp_cfg, 'omegaconf')
+
+        # Especially, it support "dataclass"!
+        ds_cfg = ServerConfig()
+        ez_cfg = cnvt.cnvt_cfg_from(ds_cfg, 'dataclass')
 
 
-#### **6. Absl style flag**
+#### **7. Absl style flag**
 > easy_config also support that you can access the 'same' config file in different python file without re-declare the config. test_flag.py under the same work directory
 
     from easy_configer.Configer import Configer
