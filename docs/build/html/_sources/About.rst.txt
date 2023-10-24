@@ -13,10 +13,10 @@ About this project
 Preface ✨
 ^^^^^^^^^^^^
 
-easy_configer version : 2.1.2
+easy_configer version : 2.2.0
 Configeruating the program in an easy-way 
 
-This is a light-weight solution for configurating the python program. :raw-html-m2r:`<br>`
+I'm willing to provide a light-weight solution for configurating your python program.:raw-html-m2r:`<br>`
 Hope this repository make every user control their large project with easier ~ ~ 
 
 Introduction 📝

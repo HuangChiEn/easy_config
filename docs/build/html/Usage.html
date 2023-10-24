@@ -13,8 +13,7 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="_static/jquery.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
@@ -49,10 +48,13 @@
 <li class="toctree-l1"><a class="reference internal" href="About.html">About this project</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Quick start</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#how-to-write-config-file">1. How to write config file 🥂</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#absl-style-flag">2. Absl style flag 🏳️</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#commmendline-support">3. Commmendline Support ⌨️</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#io-converter">4. IO Converter 🐙</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#handy-example-of-config-file">1. Handy example of config file 🥂</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-to-declare-hierachical-config">2. How to declare hierachical config 🖋️</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#commmend-line-support">3. Commmend-line Support ⌨️</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#import-sub-config">4. Import Sub-Config 🎎</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#config-operation">5. Config Operation ⛩️</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#io-converter">6. IO Converter 🐙</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#absl-style-flag">7. Absl style flag 🏳️</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="Metainfo.html">Meta information</a></li>
@@ -84,111 +86,397 @@
              
   <section id="quick-start">
 <h1>Quick start<a class="headerlink" href="#quick-start" title="Permalink to this heading"></a></h1>
-<section id="how-to-write-config-file">
-<h2>1. How to write config file 🥂<a class="headerlink" href="#how-to-write-config-file" title="Permalink to this heading"></a></h2>
-<p><em>test_cfg.ini in work directory</em></p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># &#39;#&#39; denote comment line</span>
-<span class="c1"># below define default argument, which is called &#39;flatten&#39; args</span>
-<span class="n">luck_num</span> <span class="o">=</span> <span class="mi">42</span><span class="nd">@int</span>  <span class="c1"># now we also support inline comment.. finally</span>
-<span class="n">name</span> <span class="o">=</span> <span class="n">Harry</span><span class="nd">@str</span>
-<span class="n">even_mk_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;a&#39;</span><span class="p">:</span><span class="mi">123</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">:</span><span class="s1">&#39;string&#39;</span><span class="p">}</span><span class="nd">@dict</span>
-
-<span class="c1"># Well-define config file may use &#39;section&#39; to split the args</span>
-<span class="c1"># and the section can be defined as follows :</span>
-<span class="p">[</span><span class="n">fir_sec</span><span class="p">]</span>
-<span class="n">dummy_val</span> <span class="o">=</span> <span class="mf">78.5</span><span class="nd">@float</span>
-
-<span class="c1"># and then define second section</span>
-<span class="p">[</span><span class="n">sec_sec</span><span class="p">]</span>
-<span class="n">dummy_val</span> <span class="o">=</span> <span class="mi">45</span><span class="nd">@int</span>
-
-<span class="c1"># finall, you will find that, configer isolate the namespace</span>
-<span class="c1"># to store the values with the corresponding section name.</span>
-<span class="c1"># So, 2 dummy_val will not conflict with different section.</span>
-</pre></div>
-</div>
-<p><em>quick_start.py in work directory</em></p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Epilog</span>
-<span class="kn">from</span> <span class="nn">easy_configer.Configer</span> <span class="kn">import</span> <span class="n">Configer</span>
-<span class="c1"># new feature!! suport flag</span>
-<span class="kn">from</span> <span class="nn">test_flag</span> <span class="kn">import</span> <span class="n">get_n_blk_from_flag</span>
-
-<span class="c1"># Of course, you can simple make the config file with the simple string,</span>
-<span class="c1"># which is very suitable for cell-based development enviroment (e.g. jupyter-lab)</span>
-<span class="c1"># Do not forgot, always declare cfg_str in global part, not in main_block</span>
-<span class="c1"># By the way, you&#39;re allowed to define section-params in the cfg-str,</span>
-<span class="c1">#   however, it&#39;s not recommend due to it&#39;s readibility!!</span>
+<section id="handy-example-of-config-file">
+<h2>1. Handy example of config file 🥂<a class="headerlink" href="#handy-example-of-config-file" title="Permalink to this heading"></a></h2>
+<p>Let’s say we have an easy-config for development enviroment on jupyter notebook. <em>we want to define several variable for configurating a simple math calculation.</em></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># config string</span>
 <span class="n">cfg_str</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;</span>
-<span class="s1">    lr = 1e-4@float</span>
-<span class="s1">    n_blk = 5@int</span>
-<span class="s1">    tst_var = {&#39;num&#39;:3, &#39;name&#39;:&#39;joseph&#39;}@tst_cls</span>
+<span class="s1">title = &#39;math calculation&#39;@str</span>
+<span class="s1">coef = 1e-3@float</span>
+<span class="s1">with_intercept = True@bool</span>
+<span class="s1">intercept = 3@int</span>
 <span class="s1">&#39;&#39;&#39;</span>
 
-<span class="k">class</span> <span class="nc">Test</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">num</span> <span class="o">=</span> <span class="n">num</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+<span class="c1"># look&#39;s good, let&#39;s get the config!</span>
+<span class="kn">from</span> <span class="nn">easy_configer.Config</span> <span class="kn">import</span> <span class="n">Config</span>
+<span class="n">cfg</span> <span class="o">=</span> <span class="n">Config</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;math calculation config!&quot;</span><span class="p">,</span> <span class="n">cmd_args</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">cfg</span><span class="o">.</span><span class="n">cfg_from_str</span><span class="p">(</span><span class="n">cfg_str</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">num_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">num</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+<span class="c1"># oh.. wait, could we do it more easier ?</span>
+<span class="n">ez_cfg_str</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;</span>
+<span class="s1"># opps.. let&#39;s change some value</span>
+<span class="s1">title = &#39;linear equation&#39;</span>
+<span class="s1">coef = 15</span>
+<span class="s1">&#39;&#39;&#39;</span>
+<span class="c1"># Note : every time you load the config, if you have the same variable name,</span>
+<span class="c1">#        it will override the value of the variable!</span>
+<span class="n">cfg</span><span class="o">.</span><span class="n">cfg_from_str</span><span class="p">(</span><span class="n">ez_cfg_str</span><span class="p">)</span>
+
+<span class="n">lin_equ</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span> <span class="p">:</span> <span class="n">cfg</span><span class="o">.</span><span class="n">coef</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="n">cfg</span><span class="o">.</span><span class="n">intercept</span> <span class="k">if</span> <span class="n">cfg</span><span class="o">.</span><span class="n">with_intercept</span> <span class="k">else</span> <span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">coef</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span>
+<span class="n">x</span> <span class="o">=</span> <span class="mi">15</span>
+<span class="nb">print</span><span class="p">(</span> <span class="sa">f</span><span class="s2">&quot;Linear equation with x=</span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2"> : </span><span class="si">{</span><span class="w"> </span><span class="n">lin_equ</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="si">}</span><span class="s2">&quot;</span> <span class="p">)</span>
+</pre></div>
+</div>
+<p>In larger project, we may write a config file to control the program, so that the config will become easy to trace, check and debug. In here, we first prepare an config called <code class="docutils literal notranslate"><span class="pre">test_cfg.ini</span></code> in the working directory.
+<em>For easy-config file, there’re two type of argument : flatten argument, hierachical argument.</em> You can see that flatten argument is placed in first shallow level, and the argument could be easily accessed by dot operator. Besides flatten argument, all of hierachical argument will be placed in python dict object, thus accessing each argument by key string!</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span># ./test_cfg.ini
+# &#39;#&#39; denote comment line, the inline comment is also supported!
+
+# define &#39;flatten&#39; arguments :
+serv_host = &#39;127.0.0.1&#39;
+serv_port = 9478@int    # specific type is also allowed!!
+api_keys = {&#39;TW_REGION&#39;:&#39;SV92VS92N20&#39;, &#39;US_REGION&#39;:&#39;W92N8WN029N2&#39;}
+
+# define &#39;hierachical&#39; arguments :
+# the &#39;section&#39; is the key of accessing dict value and could be defined as follows :
+[db_setup]
+    db_host = $serv_host
+    # first `export mongo_port=5566` in your bash, then support os.env interpolation!
+    db_port = $Env.mongo_port
+    snap_shot = True
+
+# and then define second section for backend server..
+[bknd_srv]
+    load_8bit = True
+    async_req = True
+    chat_mode = &#39;inference&#39;
+    model_type = &#39;LlaMa2.0&#39;
+    [bknd_srv.mod_params]
+        log_hist = False
+        tempeture = 1e-4
+        model_mode = $bknd_srv.chat_mode  # hierachical args interpolation
+</pre></div>
+</div>
+<p><span class="raw-html-m2r"><br></span></p>
+<p>Now, we’re free to launch the chatbot via <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">quick_start.py</span></code> (<em>quick_start.py in work directory</em>)!
+However, you can also override the arguemnts via commendline <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">quick_start.py</span> <span class="pre">serv_port=7894</span></code></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
 
 <span class="c1"># main_block</span>
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="n">cfger</span> <span class="o">=</span> <span class="n">Configer</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;helper information string in cmdline&quot;</span><span class="p">,</span> <span class="n">cmd_args</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">cfger</span><span class="o">.</span><span class="n">regist_cnvtor</span><span class="p">(</span><span class="s2">&quot;tst_cls&quot;</span><span class="p">,</span> <span class="n">Test</span><span class="p">)</span>  <span class="c1"># regist customer class</span>
+    <span class="kn">from</span> <span class="nn">easy_configer.Configer</span> <span class="kn">import</span> <span class="n">Configer</span>
 
-    <span class="c1"># Feed 2 different config file into Configer..</span>
-    <span class="n">cfger</span><span class="o">.</span><span class="n">cfg_from_str</span><span class="p">(</span><span class="n">cfg_str</span><span class="p">)</span>
+    <span class="n">cfger</span> <span class="o">=</span> <span class="n">Configer</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;chat-bot configuration&quot;</span><span class="p">,</span> <span class="n">cmd_args</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># we have defined a config file, let&#39;s try to load it!</span>
     <span class="n">cfger</span><span class="o">.</span><span class="n">cfg_from_ini</span><span class="p">(</span><span class="s2">&quot;./test_cfg.ini&quot;</span><span class="p">)</span>
 
-    <span class="c1"># Display the Namespace</span>
+    <span class="c1"># Display the Namespace, it will display all flatten arguemnts and first-level sections</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">cfger</span><span class="p">)</span>
-    <span class="c1"># Get the flatten argument</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">cfger</span><span class="o">.</span><span class="n">n_blk</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span> <span class="nb">type</span><span class="p">(</span><span class="n">cfger</span><span class="o">.</span><span class="n">test</span><span class="p">)</span> <span class="p">)</span>  <span class="c1"># chk the type!</span>
-    <span class="c1"># test the customized class</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">cfger</span><span class="o">.</span><span class="n">tst_var</span><span class="o">.</span><span class="n">num_name</span><span class="p">())</span>
-    <span class="c1"># test the flag</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">get_n_blk_from_flag</span><span class="p">())</span>
 
-    <span class="c1"># Get the non-flatten argument</span>
-    <span class="k">assert</span> <span class="n">cfger</span><span class="o">.</span><span class="n">fir_sec</span><span class="p">[</span><span class="s1">&#39;dummy_val&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">cfger</span><span class="o">.</span><span class="n">sec_sec</span><span class="p">[</span><span class="s1">&#39;dummy_val&#39;</span><span class="p">]</span>
+    <span class="o">...</span> <span class="c1"># for building chat-bot instance `Chat_server`</span>
+    <span class="n">chat_serv</span> <span class="o">=</span> <span class="n">Chat_server</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="n">cfger</span><span class="o">.</span><span class="n">serv_host</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">cfger</span><span class="o">.</span><span class="n">serv_port</span><span class="p">,</span> <span class="n">api_keys</span><span class="o">=</span><span class="n">cfger</span><span class="o">.</span><span class="n">api_keys</span><span class="p">)</span>
 
-    <span class="nb">print</span><span class="p">(</span> <span class="nb">type</span><span class="p">(</span><span class="n">cfger</span><span class="o">.</span><span class="n">sec_sec</span><span class="p">[</span><span class="s1">&#39;dummy_val&#39;</span><span class="p">])</span> <span class="p">)</span>
+    <span class="o">...</span> <span class="c1"># build mongo-db instance `mongo_serv` for logging chat history..</span>
+    <span class="n">mongo_serv</span><span class="o">.</span><span class="n">init_setup</span><span class="p">(</span> <span class="o">**</span><span class="n">cfger</span><span class="o">.</span><span class="n">db_setup</span> <span class="p">)</span>
+
+    <span class="o">...</span> <span class="c1"># loading llm model instance `Llama` ~</span>
+    <span class="n">llm_mod</span> <span class="o">=</span> <span class="n">Llama</span><span class="p">(</span>
+        <span class="n">ld_8bit</span><span class="o">=</span><span class="n">cfger</span><span class="o">.</span><span class="n">bknd_srv</span><span class="o">.</span><span class="n">load_8bit</span><span class="p">,</span>
+        <span class="n">chat_mode</span><span class="o">=</span><span class="n">cfger</span><span class="o">.</span><span class="n">chat_mode</span><span class="p">,</span>
+        <span class="n">model_type</span><span class="o">=</span><span class="n">cfger</span><span class="o">.</span><span class="n">model_type</span>
+    <span class="p">)</span>
+    <span class="n">llm_mod</span><span class="o">.</span><span class="n">init_mod_param</span><span class="p">(</span> <span class="o">**</span><span class="n">cfger</span><span class="o">.</span><span class="n">bknd_srv</span><span class="p">[</span><span class="s1">&#39;mod_params&#39;</span><span class="p">]</span> <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">cfger</span><span class="o">.</span><span class="n">bknd_srv</span><span class="p">[</span><span class="s1">&#39;async_req&#39;</span><span class="p">]:</span>
+        <span class="n">chat_serv</span><span class="o">.</span><span class="n">chat_mod</span> <span class="o">=</span> <span class="n">llm_mod</span>
+        <span class="n">chat_serv</span><span class="o">.</span><span class="n">hist_db</span> <span class="o">=</span> <span class="n">mongo_serv</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="o">...</span> <span class="c1"># write sync conversation by yourself..</span>
+
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span> <span class="n">chat_serv</span><span class="o">.</span><span class="n">server_forever</span><span class="p">()</span> <span class="p">)</span>
 </pre></div>
 </div>
-<p><em>config interpolation with $ symbol</em></p>
-<blockquote>
-<div><p>Currently we support simple interpolation mechnaism, which only allow the <em>intepolated args</em> be putted in the <strong>flatten section</strong>. (you <strong>cannot</strong> interpolate args from <strong>non-flatten section</strong>)</p>
-</div></blockquote>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_str_cfg</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">        # flatten section, you can put shared args</span>
-<span class="sd">        shr_port = 5566@int</span>
+<p><span class="raw-html-m2r"><br></span></p>
+<hr class="docutils" />
+<p>More detail tutorial about each topic is as follows :</p>
+</section>
+<section id="how-to-declare-hierachical-config">
+<h2>2. How to declare hierachical config 🖋️<a class="headerlink" href="#how-to-declare-hierachical-config" title="Permalink to this heading"></a></h2>
+<p>There have two kind of way to prepare the arguments in easy-config : we can either define flatten argument or groupping the multiple arguments in an hierachical manner (begin from second level). In most of time, we define the flatten argument as global setup, and arrange the rest of arguments into the corresponding dictionary for easy to assign it to the subroutine.
+Let’s give a deep-learning example ~</p>
+<p><em>hier_cfg.ini in work directory</em></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">glb_seed</span> <span class="o">=</span> <span class="mi">42</span>
+<span class="n">exp_id</span> <span class="o">=</span> <span class="s1">&#39;0001&#39;</span>
 
-<span class="sd">        [sec_A]</span>
-<span class="sd">            inner_port = $shr_port</span>
-<span class="sd">        [sec_B]</span>
-<span class="sd">            outter_port = $shr_port</span>
+<span class="c1"># we call &#39;...&#39; in [...] as section name,</span>
+<span class="c1"># i.e. we can assign dict dataset to subroutine by `build_dataset(**cfg.dataset)`, just such easy!!</span>
+<span class="p">[</span><span class="n">dataset</span><span class="p">]</span>
+    <span class="n">service_port</span> <span class="o">=</span> <span class="mi">65536</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="s1">&#39;/data/kitti&#39;</span>
+    <span class="c1"># of course, nested dict is also supported! it just the native python dictionary in dictionary!</span>
+    <span class="p">[</span><span class="n">dataset</span><span class="o">.</span><span class="n">loader</span><span class="p">]</span>
+        <span class="n">batch_size</span> <span class="o">=</span> <span class="mi">32</span>
+
+<span class="p">[</span><span class="n">model</span><span class="p">]</span>
+    <span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">backbone</span><span class="p">]</span>
+        <span class="n">mod_typ</span> <span class="o">=</span> <span class="s1">&#39;resnet&#39;</span>
+        <span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">backbone</span><span class="o">.</span><span class="n">optimizer</span><span class="p">]</span>
+            <span class="n">lay_seed</span> <span class="o">=</span> <span class="mi">42</span>
+
+<span class="p">[</span><span class="n">train_cfg</span><span class="p">]</span>
+    <span class="n">batch_size</span> <span class="o">=</span> <span class="mi">32</span>
+    <span class="p">[</span><span class="n">train_cfg</span><span class="o">.</span><span class="n">opt</span><span class="p">]</span>
+        <span class="n">opt_typ</span> <span class="o">=</span> <span class="s1">&#39;Adam&#39;</span>
+        <span class="n">lr</span> <span class="o">=</span> <span class="mf">1e-4</span>
+        <span class="n">sched</span> <span class="o">=</span> <span class="s1">&#39;cos_anneal&#39;</span>
+</pre></div>
+</div>
+<p>We have defined the config file, now let’s see how to access any agruments! Execute <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">quick_hier.py</span></code> in work directory*.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">easy_configer.Configer</span> <span class="kn">import</span> <span class="n">Configer</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">cfger</span> <span class="o">=</span> <span class="n">Configer</span><span class="p">(</span><span class="n">cmd_args</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># omit cfg_from_str, hier-config also could be declared in str though ~</span>
+    <span class="n">cfger</span><span class="o">.</span><span class="n">cfg_from_ini</span><span class="p">(</span><span class="s2">&quot;./hier_cfg.ini&quot;</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="n">cfger</span><span class="o">.</span><span class="n">dataset</span><span class="p">)</span>
+    <span class="c1"># output nested dict : { &#39;service_port&#39;:65536, &#39;path&#39;:&#39;/data/kitti&#39;, &#39;loader&#39;:{&#39;batch_size&#39;:32} }</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="n">cfger</span><span class="o">.</span><span class="n">dataset</span><span class="p">[</span><span class="s1">&#39;loader&#39;</span><span class="p">][</span><span class="s1">&#39;batch_size&#39;</span><span class="p">])</span>
+    <span class="c1"># output : 32</span>
+
+    <span class="c1"># we usually conduct initialization such simple &amp; elegant!</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">build_dataset</span><span class="p">(</span><span class="o">**</span><span class="n">cfger</span><span class="o">.</span><span class="n">dataset</span><span class="p">)</span>
+    <span class="n">mod</span> <span class="o">=</span> <span class="n">build_model</span><span class="p">(</span><span class="o">**</span><span class="n">cfger</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
+    <span class="o">...</span> <span class="c1"># get torch Trainer</span>
+    <span class="n">Trainer</span><span class="p">(</span><span class="n">mod</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>However, the syntax of above config file could be improved, isn’t it !? For example, the batch_size is defined twice under <code class="docutils literal notranslate"><span class="pre">dataset.loader</span></code> and <code class="docutils literal notranslate"><span class="pre">train_cfg</span></code>, so as layer seed. Moreover, path is defined as python string, it need to be further converted by Path object in python standard package. Could we regist our customized data type for easy-config ?
+Glade to say : Yes! it’s possible to elegantly deal with above mentioned issue. We can solve the first issue by using argument interpolation, and solve the second issue by using the customized register!!</p>
+<p><em>config interpolation with $ symbol</em> and  customized register method <code class="docutils literal notranslate"><span class="pre">regist_cnvtor</span></code></p>
+<blockquote>
+<div><p>Currently we support interpolation mechnaism to interpolate <strong>ANY</strong> arguemnts belong the different level of nested dictionary. Moreover, we also support <strong>$Env</strong> for accessing enviroment variables exported in bash!!</p>
+</div></blockquote>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># For convience, we define string-config!</span>
+<span class="k">def</span> <span class="nf">get_str_cfg</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39; # `export glb_seed=42` in bash!!</span>
+<span class="sd">        glb_seed = $Env.glb_seed</span>
+<span class="sd">        exp_id = &#39;0001&#39;</span>
+
+<span class="sd">        [dataset]</span>
+<span class="sd">            service_port = 65536</span>
+
+<span class="sd">            # Don&#39;t forgot to regist Path object first and the typename will be the given name!!</span>
+<span class="sd">            path = {&#39;path&#39;:&#39;/data/kitti&#39;}@pyPath</span>
+
+<span class="sd">            [dataset.loader]</span>
+<span class="sd">                batch_size = 32</span>
+
+<span class="sd">        [model]</span>
+<span class="sd">            [model.backbone]</span>
+<span class="sd">                mod_typ = &#39;resnet&#39;</span>
+<span class="sd">                [model.backbone.optimizer]</span>
+<span class="sd">                    lay_seed = $glb_seed</span>
+
+<span class="sd">        [train_cfg]</span>
+<span class="sd">            batch_size = $dataset.loader.batch_size</span>
+<span class="sd">            [train_cfg.opt]</span>
+<span class="sd">                opt_typ = &#39;Adam&#39;</span>
+<span class="sd">                lr = 1e-4</span>
+<span class="sd">                sched = &#39;cos_anneal&#39;</span>
 <span class="sd">    &#39;&#39;&#39;</span>
 
 <span class="c1"># main_block</span>
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
     <span class="n">cfger</span> <span class="o">=</span> <span class="n">Configer</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;sample for arguments interpolation&quot;</span><span class="p">)</span>
+    <span class="n">cfger</span><span class="o">.</span><span class="n">regist_cnvtor</span><span class="p">(</span><span class="s2">&quot;pyPath&quot;</span><span class="p">,</span> <span class="n">Path</span><span class="p">)</span>  <span class="c1"># regist customer class &#39;Path&#39;</span>
 
     <span class="n">cfg_str</span> <span class="o">=</span> <span class="n">get_str_cfg</span><span class="p">()</span>
     <span class="n">cfger</span><span class="o">.</span><span class="n">cfg_from_str</span><span class="p">(</span><span class="n">cfg_str</span><span class="p">)</span>
+    <span class="c1"># do whatever you want to do!</span>
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="commmend-line-support">
+<h2>3. Commmend-line Support ⌨️<a class="headerlink" href="#commmend-line-support" title="Permalink to this heading"></a></h2>
+<blockquote>
+<div><p>We also take <code class="docutils literal notranslate"><span class="pre">hier_cfg.ini</span></code> as example!</p>
+</div></blockquote>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># hier_cfg.ini</span>
+<span class="n">glb_var</span> <span class="o">=</span> <span class="mi">42</span><span class="nd">@int</span>
+<span class="p">[</span><span class="n">dataset</span><span class="p">]</span>
+    <span class="n">ds_type</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;root&#39;</span><span class="p">:</span><span class="s1">&#39;/data/kitti&#39;</span><span class="p">}</span><span class="nd">@Path</span>
+    <span class="p">[</span><span class="n">dataset</span><span class="o">.</span><span class="n">loader</span><span class="p">]</span>
+        <span class="n">batch_size</span> <span class="o">=</span> <span class="mi">32</span><span class="nd">@int</span>
 
-    <span class="c1"># Shared port</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">cfger</span><span class="o">.</span><span class="n">shr_port</span><span class="p">)</span>
-    <span class="c1"># Assert</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">cfger</span><span class="o">.</span><span class="n">sec_A</span><span class="p">[</span><span class="s1">&#39;inner_port&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">cfger</span><span class="o">.</span><span class="n">shr_port</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">cfger</span><span class="o">.</span><span class="n">sec_A</span><span class="p">[</span><span class="s1">&#39;inner_port&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">cfger</span><span class="o">.</span><span class="n">sec_B</span><span class="p">[</span><span class="s1">&#39;outter_port&#39;</span><span class="p">])</span>
+<span class="c1"># Hier-Cell cfg written by Josef-Huang..</span>
+</pre></div>
+</div>
+<p>Execute python program and print out the helper information <span class="raw-html-m2r"><br></span>
+<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">quick_hier.py</span> <span class="pre">-h</span></code></p>
+<p>Update flatten argument and print out the helper information <span class="raw-html-m2r"><br></span>
+<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">quick_hier.py</span> <span class="pre">glb_var=404</span> <span class="pre">-h</span></code></p>
+<p>Especially update <strong>non-flatten argument</strong>, you can access any argument at any level by dot-access in commend-line!! (with combining any argument update). Now, try to change any nested argument <span class="raw-html-m2r"><br></span>
+<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">quick_hier.py</span> <span class="pre">dataset.ds_type=&quot;'kitti'&quot;</span> <span class="pre">dataset.path=&quot;{'path':'/root/ds'}&quot;</span> <span class="pre">dataset.loader.batch_size=48</span></code></p>
+<dl class="simple">
+<dt>( Note that the commendline declaration for string is tricky, but currently we only support two way for that :</dt><dd><p><code class="docutils literal notranslate"><span class="pre">dataset.ds_type=&quot;'kitti'&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">dataset.ds_type=kitti&#64;str</span></code>, pick up one of you like ~ )</p>
+</dd>
+</dl>
+</section>
+<hr class="docutils" />
+<section id="import-sub-config">
+<h2>4. Import Sub-Config 🎎<a class="headerlink" href="#import-sub-config" title="Permalink to this heading"></a></h2>
+<p>Like <code class="docutils literal notranslate"><span class="pre">omegaconf</span></code>, most of user expect to seperate the config based on their type and dynamically merge it in runtime. It’s a rational requirement and the previous version of easy-config provide two way to conduct it, but both have it’s limit :</p>
+<ol class="arabic simple">
+<li><p>you can call the <code class="docutils literal notranslate"><span class="pre">cfg_from_ini</span></code> twice, for example, <code class="docutils literal notranslate"><span class="pre">cfg.cfg_from_ini('./base_cfg')</span> <span class="pre">;</span> <span class="pre">cfg.cfg_from_ini('./override_cfg')</span></code>. But it’s not explicitly load the config thus reducing readability.</p></li>
+<li><p>you can use the config merging, for example, <code class="docutils literal notranslate"><span class="pre">new_cfg</span> <span class="pre">=</span> <span class="pre">base_cfg</span> <span class="pre">|</span> <span class="pre">override_cfg</span></code>. But it’s not elegant solution while you  have to merge several config..</p></li>
+</ol>
+<p>Now, we provide the thrid way : <strong>sub-config</strong>. you can import the sub-config in any depth of hierachical config by simply placing the <code class="docutils literal notranslate"><span class="pre">&gt;</span></code> symbol at the beginning of line.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span># ./base_cfg.ini
+glb_seed = 42@int
+[dataset]
+    &gt; ./config/ds_config.ini
+
+[model]
+    &gt; ./root/config/model_config.ini
+
+# ./config/ds_config.ini
+ds_type = None
+path = {&#39;root&#39;:&#39;/data/kitti&#39;}@Path
+[dataset.loader]
+    batch_size = 32@int
+
+# ./root/config/model_config.ini
+[model.backbone]
+    mod_typ = &#39;resnet&#39;
+    [model.backbone.optimizer]
+    # and yes, interpolation is still valid &quot;after&quot; the reference argument is declared!
+        lay_seed = $glb_seed
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="config-operation">
+<h2>5. Config Operation ⛩️<a class="headerlink" href="#config-operation" title="Permalink to this heading"></a></h2>
+<p>Config operation is one of the core technique for dynamic configuration system!!
+In the following example, you can see that the merging config system already provided a impressive hierachical merging funtionality!</p>
+<blockquote>
+<div><p>For example, <code class="docutils literal notranslate"><span class="pre">ghyu.opop.add</span></code> in cfg_a can be replaced by the cfg_b in <strong>same</strong> section with the same variable name, while the different namespace keep their variable safely ~ so the value of <code class="docutils literal notranslate"><span class="pre">ghyu.opop.add</span></code> will be 67 and <code class="docutils literal notranslate"><span class="pre">ghyu.opop.tueo.inpo</span></code> refer the flatten variable <code class="docutils literal notranslate"><span class="pre">inpo</span></code> and the value will be 46.</p>
+</div></blockquote>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">easy_configer.Configer</span> <span class="kn">import</span> <span class="n">Configer</span>
+
+<span class="k">def</span> <span class="nf">build_cfg_text_a</span><span class="p">():</span>
+    <span class="k">return</span> <span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">    # Initial config file :</span>
+<span class="s1">    inpo = 46@int</span>
+<span class="s1">    [test]</span>
+<span class="s1">        mrg_var_tst = [1, 3, 5]@list</span>
+<span class="s1">        [test.ggap]</span>
+<span class="s1">            gtgt = haha@str</span>
+
+<span class="s1">    [ghyu]</span>
+<span class="s1">        [ghyu.opop]</span>
+<span class="s1">            add = 32@int</span>
+<span class="s1">            [ghyu.opop.tueo]</span>
+<span class="s1">                salt = $inpo</span>
+
+<span class="s1">    # Cell cfg written by Josef-Huang..</span>
+<span class="s1">    &#39;&#39;&#39;</span>
+
+<span class="k">def</span> <span class="nf">build_cfg_text_b</span><span class="p">():</span>
+    <span class="k">return</span> <span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">    # Initial config file :</span>
+<span class="s1">    inop = 32@int</span>
+<span class="s1">    [test]</span>
+<span class="s1">        mrg_var_tst = [1, 3, 5]@list</span>
+<span class="s1">        [test.ggap]</span>
+<span class="s1">            gtgt = overrides@str</span>
+<span class="s1">            [test.ggap.conf]</span>
+<span class="s1">                secert = 42@int</span>
+
+<span class="s1">    [ghyu]</span>
+<span class="s1">        [ghyu.opop]</span>
+<span class="s1">            add = 67@int</span>
+<span class="s1">            div = 1e-4@float</span>
+
+<span class="s1">    [new]</span>
+<span class="s1">        [new.new]</span>
+<span class="s1">            newsec = wpeo@str</span>
+<span class="s1">    # Cell cfg written by Josef-Huang..</span>
+<span class="s1">    &#39;&#39;&#39;</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">cfg_a</span> <span class="o">=</span> <span class="n">Configer</span><span class="p">(</span><span class="n">cmd_args</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">cfg_a</span><span class="o">.</span><span class="n">cfg_from_str</span><span class="p">(</span><span class="n">build_cfg_text_a</span><span class="p">())</span>
+
+
+    <span class="n">cfg_b</span> <span class="o">=</span> <span class="n">Configer</span><span class="p">()</span>
+    <span class="n">cfg_b</span><span class="o">.</span><span class="n">cfg_from_str</span><span class="p">(</span><span class="n">build_cfg_text_b</span><span class="p">())</span>
+
+    <span class="c1"># default, override falg is turn off ~</span>
+    <span class="n">cfg_a</span><span class="o">.</span><span class="n">merge_conf</span><span class="p">(</span><span class="n">cfg_b</span><span class="p">,</span> <span class="n">override</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># `cfg_b = cfg_b | cfg_a`, operator support, warn to decrease the read-ability...</span>
+    <span class="c1"># cfg_a will override the argument of cfg_b which share the identitical variable name in cfg_b!</span>
+    <span class="c1"># operator support : `cfg_b |= cfg_a` == `cfg_b = cfg_b | cfg_a`</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+<p><strong>Miscellnous features</strong></p>
+</section>
+<section id="io-converter">
+<h2>6. IO Converter 🐙<a class="headerlink" href="#io-converter" title="Permalink to this heading"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">TableConfig</span><span class="p">:</span>
+    <span class="n">rows</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">DatabaseConfig</span><span class="p">:</span>
+    <span class="n">table_cfg</span><span class="p">:</span> <span class="n">TableConfig</span> <span class="o">=</span> <span class="n">TableConfig</span><span class="p">()</span>
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">ModelConfig</span><span class="p">:</span>
+    <span class="n">data_source</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TableConfig</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">ServerConfig</span><span class="p">:</span>
+    <span class="n">db</span><span class="p">:</span> <span class="n">DatabaseConfig</span>
+    <span class="n">model</span><span class="p">:</span> <span class="n">ModelConfig</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">easy_configer.IO_Converter</span> <span class="kn">import</span> <span class="n">IO_Converter</span>
+
+    <span class="c1"># first import the IO_converter</span>
+    <span class="kn">from</span> <span class="nn">easy_config.IO_Converter</span> <span class="kn">import</span> <span class="n">IO_Converter</span>
+    <span class="n">cnvt</span> <span class="o">=</span> <span class="n">IO_Converter</span><span class="p">()</span>
+
+    <span class="c1"># convert easy_config instance into the argparse instance</span>
+    <span class="n">argp_cfg</span> <span class="o">=</span> <span class="n">cnvt</span><span class="o">.</span><span class="n">cnvt_cfg_to</span><span class="p">(</span><span class="n">cfger</span><span class="p">,</span> <span class="s1">&#39;argparse&#39;</span><span class="p">)</span>
+
+    <span class="n">uargp_cfg</span> <span class="o">=</span> <span class="n">cnvt</span><span class="o">.</span><span class="n">cnvt_cfg_to</span><span class="p">(</span><span class="n">cfger</span><span class="p">,</span> <span class="s1">&#39;argparse&#39;</span><span class="p">,</span> <span class="n">parse_arg</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">argp_cfg</span> <span class="o">=</span> <span class="n">uargp_cfg</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+    <span class="c1">## convert config INTO..</span>
+    <span class="c1"># convert easy_config instance into the omegaconf instance</span>
+    <span class="n">ome_cfg</span> <span class="o">=</span> <span class="n">cnvt</span><span class="o">.</span><span class="n">cnvt_cfg_to</span><span class="p">(</span><span class="n">cfger</span><span class="p">,</span> <span class="s1">&#39;omegaconf&#39;</span><span class="p">)</span>
+
+    <span class="c1"># convert easy_config instance into the &quot;yaml string&quot;</span>
+    <span class="n">yaml_cfg</span> <span class="o">=</span> <span class="n">cnvt</span><span class="o">.</span><span class="n">cnvt_cfg_to</span><span class="p">(</span><span class="n">cfger</span><span class="p">,</span> <span class="s1">&#39;yaml&#39;</span><span class="p">)</span>
+
+    <span class="c1"># convert easy_config instance into the &quot;dict&quot;</span>
+    <span class="n">yaml_cfg</span> <span class="o">=</span> <span class="n">cnvt</span><span class="o">.</span><span class="n">cnvt_cfg_to</span><span class="p">(</span><span class="n">cfger</span><span class="p">,</span> <span class="s1">&#39;dict&#39;</span><span class="p">)</span>
+
+    <span class="c1">## convert into easy-config FROM..</span>
+    <span class="c1"># argparse, omegaconf, yaml, dict ... is supported</span>
+    <span class="n">ez_cfg</span> <span class="o">=</span> <span class="n">cnvt</span><span class="o">.</span><span class="n">cnvt_cfg_from</span><span class="p">(</span><span class="n">argp_cfg</span><span class="p">,</span> <span class="s1">&#39;omegaconf&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Especially, it support &quot;dataclass&quot;!</span>
+    <span class="n">ds_cfg</span> <span class="o">=</span> <span class="n">ServerConfig</span><span class="p">()</span>
+    <span class="n">ez_cfg</span> <span class="o">=</span> <span class="n">cnvt</span><span class="o">.</span><span class="n">cnvt_cfg_from</span><span class="p">(</span><span class="n">ds_cfg</span><span class="p">,</span> <span class="s1">&#39;dataclass&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
 <section id="absl-style-flag">
-<h2>2. Absl style flag 🏳️<a class="headerlink" href="#absl-style-flag" title="Permalink to this heading"></a></h2>
+<h2>7. Absl style flag 🏳️<a class="headerlink" href="#absl-style-flag" title="Permalink to this heading"></a></h2>
 <blockquote>
 <div><p>easy_config also support that you can access the ‘same’ config file in different python file without re-declare the config. test_flag.py under the same work directory</p>
 </div></blockquote>
@@ -199,35 +487,6 @@
     <span class="n">flag</span> <span class="o">=</span> <span class="n">new_cfger</span><span class="o">.</span><span class="n">get_cfg_flag</span><span class="p">()</span>
     <span class="c1"># test to get the pre-defined &#39;n_blk&#39;</span>
     <span class="k">return</span> <span class="n">flag</span><span class="o">.</span><span class="n">n_blk</span>
-</pre></div>
-</div>
-</section>
-<section id="commmendline-support">
-<h2>3. Commmendline Support ⌨️<a class="headerlink" href="#commmendline-support" title="Permalink to this heading"></a></h2>
-<p>Execute python program and print out the helper information <span class="raw-html-m2r"><br></span>
-<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">quick_start.py</span> <span class="pre">-h</span></code></p>
-<p>Update flatten argument and print out the helper information <span class="raw-html-m2r"><br></span>
-<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">quick_start.py</span> <span class="pre">-n_blk</span> <span class="pre">400</span> <span class="pre">-h</span></code></p>
-<p>Especially update <strong>non-flatten argument !!</strong> <span class="raw-html-m2r"><br></span>
-<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">quick_start.py</span> <span class="pre">--fir_sec-dummy_val</span> <span class="pre">45</span> <span class="pre">-n_blk</span> <span class="pre">400</span> <span class="pre">-h</span></code></p>
-</section>
-<section id="io-converter">
-<h2>4. IO Converter 🐙<a class="headerlink" href="#io-converter" title="Permalink to this heading"></a></h2>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># first import the IO_converter</span>
-<span class="kn">from</span> <span class="nn">easy_config.IO_Converter</span> <span class="kn">import</span> <span class="n">IO_Converter</span>
-<span class="n">cfg_cnvter</span> <span class="o">=</span> <span class="n">IO_Converter</span><span class="p">()</span>
-
-<span class="c1"># convert easy_config instance into the argparse instance</span>
-<span class="n">argp_cfg</span> <span class="o">=</span> <span class="n">cfg_cnvter</span><span class="o">.</span><span class="n">cnvt_cfg</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfger</span><span class="p">,</span> <span class="s1">&#39;argparse&#39;</span><span class="p">)</span>
-
-<span class="n">uargp_cfg</span> <span class="o">=</span> <span class="n">cfg_cnvter</span><span class="o">.</span><span class="n">cnvt_cfg</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfger</span><span class="p">,</span> <span class="s1">&#39;argparse&#39;</span><span class="p">,</span> <span class="n">parse_arg</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="n">argp_cfg</span> <span class="o">=</span> <span class="n">uargp_cfg</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
-
-<span class="c1"># convert easy_config instance into the omegaconf instance</span>
-<span class="n">ome_cfg</span> <span class="o">=</span> <span class="n">cfg_cnvter</span><span class="o">.</span><span class="n">cnvt_cfg</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfger</span><span class="p">,</span> <span class="s1">&#39;omegacfg&#39;</span><span class="p">)</span>
-
-<span class="c1"># convert easy_config instance into the &quot;yaml string&quot;</span>
-<span class="n">yaml_cfg</span> <span class="o">=</span> <span class="n">cfg_cnvter</span><span class="o">.</span><span class="n">cnvt_cfg</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfger</span><span class="p">,</span> <span class="s1">&#39;yaml&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>

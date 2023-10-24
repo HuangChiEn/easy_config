@@ -30,5 +30,4 @@ The python standard package (such as pathlib, sys, .., etc) is the only source o
 
 ..
 
-   However, if you want to use the IO_Converter (config conversion mechnaism), you still need to install omegaconf for integrate with hydra ~
-
+   However, if you want to use the IO_Converter for converting config into omegaconf, you still need to install omegaconf for this functionality ~

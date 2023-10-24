@@ -1,10 +1,9 @@
-#### easy_configer version : 2.1.2
+#### easy_configer version : 2.2.0
 
 ![easy-configer logo](assets/logo.png)
 
 ### Configeruating the program in an easy-way ✨
-This is a light-weight solution for configurating the python program. <br>
-Hope this repository make every user control their large project with easier ~ ~ 
+I'm willing to provide a light-weight solution for configurating your python program. Hope this repository make every user control their large project more easier ~ ~ 
 
 ### Introduction 📝
 With the python project go into large-scale, a lot of argument will be required to control the complex business logic, user may need a simple way to load configurations through a file eventually. Their exists various package cover part of function and offer some solution to tackle the mentioned problem. 

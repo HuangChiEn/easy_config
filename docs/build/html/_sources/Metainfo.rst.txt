@@ -7,20 +7,31 @@ Meta information
 Newly update features 🚀
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
+#. 
+   Better syntax for **override argument via commendline**
 
 #. 
-   Eventually, we have support **hierachical configuration**. So, you can define hierachical config (beyond two-level) with **toml-like** section. Easy_configer now support this feature and convert your hierachical declearation into the hierachical dict structure. Have a look at documentation!!
+   Better syntax for declare the config file ~
 
 #. 
-   Along with the new feature : hierachical config, we also support the **commend-line override** with any value declared in any layer of config!! it's not easy, but we did it www. Have a look at documentation!!
+   Various support of **config conversion**, including omegaconf, dataclasses, dict, ..., etc.  
 
 #. 
-   **Config merging mechnaism** is a common technique in dynamic configuration. So, we also support config merging in this version!! yeah ~ feel free to merg, concat, and then override the config to make your python program more controllable!!  
+   Support enviroment variable (os.Env) **interpolation**!!
+
+#. 
+   Dynamic **sub-config** loading..
+
+#. 
+   Also update document and some handy examples ~  
 
 ----
 
 TODO List 🔨
 ^^^^^^^^^^^^^^
+
+#. 
+   Better **exception mechniasm** in easy-config ~
 
 .. 
 
@@ -39,7 +50,7 @@ TODO List 🔨
 Bug Fixed 🐛
 ^^^^^^^^^^^^^^
 
-*Since the List and Section share the same symbol in config file, the refactor version of easy_config have some trobule with it. Now, the bug should be fixed, feel safe to use.*
+*config string with extra space caused config error, and it's fixed in this version..*
 
 ----
 
