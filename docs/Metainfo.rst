@@ -37,15 +37,6 @@ TODO List 🔨
 
     next version released features v 2.2.0
 
-#. 
-    better commend-line syntax for override the hierachical arguments
-#. 
-    dynamic loading sub-config with hierachical manner
-#. 
-    common config converter is avaliable, including omegaconf, argparse, dataclasses, ..., etc
-#. 
-    support os.ENV interpolation
-
 
 Bug Fixed 🐛
 ^^^^^^^^^^^^^^
