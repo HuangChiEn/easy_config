@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Quick start &mdash; easy_configer v2.1.2 documentation</title>
+  <title>Common Usage &mdash; easy_configer v2.1.2 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -21,7 +21,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Meta information" href="Metainfo.html" />
-    <link rel="prev" title="Installation" href="Installation.html" /> 
+    <link rel="prev" title="Quick start" href="Quick.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -47,14 +47,14 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="About.html">About this project</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Installation.html">Installation</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Quick start</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#handy-example-of-config-file">1. Handy example of config file 🥂</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#how-to-declare-hierachical-config">2. How to declare hierachical config 🖋️</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#commmend-line-support">3. Commmend-line Support ⌨️</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#import-sub-config">4. Import Sub-Config 🎎</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#config-operation">5. Config Operation ⛩️</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#io-converter">6. IO Converter 🐙</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#absl-style-flag">7. Absl style flag 🏳️</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Quick.html">Quick start</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Common Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#how-to-declare-hierachical-config">1. How to declare hierachical config 🖋️</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#commmend-line-support">2. Commmend-line Support ⌨️</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#import-sub-config">3. Import Sub-Config 🎎</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#config-operation">4. Config Operation ⛩️</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#io-converter">5. IO Converter 🐙</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#absl-style-flag">6. Absl style flag 🏳️</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="Metainfo.html">Meta information</a></li>
@@ -74,7 +74,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Quick start</li>
+      <li class="breadcrumb-item active">Common Usage</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/Usage.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -84,145 +84,41 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="quick-start">
-<h1>Quick start<a class="headerlink" href="#quick-start" title="Permalink to this heading"></a></h1>
-<section id="handy-example-of-config-file">
-<h2>1. Handy example of config file 🥂<a class="headerlink" href="#handy-example-of-config-file" title="Permalink to this heading"></a></h2>
-<p>Let’s say we have an easy-config for development enviroment on jupyter notebook. <em>we want to define several variable for configurating a simple math calculation.</em></p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># config string</span>
-<span class="n">cfg_str</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;</span>
-<span class="s1">title = &#39;math calculation&#39;@str</span>
-<span class="s1">coef = 1e-3@float</span>
-<span class="s1">with_intercept = True@bool</span>
-<span class="s1">intercept = 3@int</span>
-<span class="s1">&#39;&#39;&#39;</span>
-
-<span class="c1"># look&#39;s good, let&#39;s get the config!</span>
-<span class="kn">from</span> <span class="nn">easy_configer.Config</span> <span class="kn">import</span> <span class="n">Config</span>
-<span class="n">cfg</span> <span class="o">=</span> <span class="n">Config</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;math calculation config!&quot;</span><span class="p">,</span> <span class="n">cmd_args</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="n">cfg</span><span class="o">.</span><span class="n">cfg_from_str</span><span class="p">(</span><span class="n">cfg_str</span><span class="p">)</span>
-
-<span class="c1"># oh.. wait, could we do it more easier ?</span>
-<span class="n">ez_cfg_str</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;</span>
-<span class="s1"># opps.. let&#39;s change some value</span>
-<span class="s1">title = &#39;linear equation&#39;</span>
-<span class="s1">coef = 15</span>
-<span class="s1">&#39;&#39;&#39;</span>
-<span class="c1"># Note : every time you load the config, if you have the same variable name,</span>
-<span class="c1">#        it will override the value of the variable!</span>
-<span class="n">cfg</span><span class="o">.</span><span class="n">cfg_from_str</span><span class="p">(</span><span class="n">ez_cfg_str</span><span class="p">)</span>
-
-<span class="n">lin_equ</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span> <span class="p">:</span> <span class="n">cfg</span><span class="o">.</span><span class="n">coef</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="n">cfg</span><span class="o">.</span><span class="n">intercept</span> <span class="k">if</span> <span class="n">cfg</span><span class="o">.</span><span class="n">with_intercept</span> <span class="k">else</span> <span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">coef</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span>
-<span class="n">x</span> <span class="o">=</span> <span class="mi">15</span>
-<span class="nb">print</span><span class="p">(</span> <span class="sa">f</span><span class="s2">&quot;Linear equation with x=</span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2"> : </span><span class="si">{</span><span class="w"> </span><span class="n">lin_equ</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="si">}</span><span class="s2">&quot;</span> <span class="p">)</span>
-</pre></div>
-</div>
-<p>In larger project, we may write a config file to control the program, so that the config will become easy to trace, check and debug. In here, we first prepare an config called <code class="docutils literal notranslate"><span class="pre">test_cfg.ini</span></code> in the working directory.
-<em>For easy-config file, there’re two type of argument : flatten argument, hierachical argument.</em> You can see that flatten argument is placed in first shallow level, and the argument could be easily accessed by dot operator. Besides flatten argument, all of hierachical argument will be placed in python dict object, thus accessing each argument by key string!</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span># ./test_cfg.ini
-# &#39;#&#39; denote comment line, the inline comment is also supported!
-
-# define &#39;flatten&#39; arguments :
-serv_host = &#39;127.0.0.1&#39;
-serv_port = 9478@int    # specific type is also allowed!!
-api_keys = {&#39;TW_REGION&#39;:&#39;SV92VS92N20&#39;, &#39;US_REGION&#39;:&#39;W92N8WN029N2&#39;}
-
-# define &#39;hierachical&#39; arguments :
-# the &#39;section&#39; is the key of accessing dict value and could be defined as follows :
-[db_setup]
-    db_host = $serv_host
-    # first `export mongo_port=5566` in your bash, then support os.env interpolation!
-    db_port = $Env.mongo_port
-    snap_shot = True
-
-# and then define second section for backend server..
-[bknd_srv]
-    load_8bit = True
-    async_req = True
-    chat_mode = &#39;inference&#39;
-    model_type = &#39;LlaMa2.0&#39;
-    [bknd_srv.mod_params]
-        log_hist = False
-        tempeture = 1e-4
-        model_mode = $bknd_srv.chat_mode  # hierachical args interpolation
-</pre></div>
-</div>
-<p><span class="raw-html-m2r"><br></span></p>
-<p>Now, we’re free to launch the chatbot via <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">quick_start.py</span></code> (<em>quick_start.py in work directory</em>)!
-However, you can also override the arguemnts via commendline <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">quick_start.py</span> <span class="pre">serv_port=7894</span></code></p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
-
-<span class="c1"># main_block</span>
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">easy_configer.Configer</span> <span class="kn">import</span> <span class="n">Configer</span>
-
-    <span class="n">cfger</span> <span class="o">=</span> <span class="n">Configer</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;chat-bot configuration&quot;</span><span class="p">,</span> <span class="n">cmd_args</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="c1"># we have defined a config file, let&#39;s try to load it!</span>
-    <span class="n">cfger</span><span class="o">.</span><span class="n">cfg_from_ini</span><span class="p">(</span><span class="s2">&quot;./test_cfg.ini&quot;</span><span class="p">)</span>
-
-    <span class="c1"># Display the Namespace, it will display all flatten arguemnts and first-level sections</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">cfger</span><span class="p">)</span>
-
-    <span class="o">...</span> <span class="c1"># for building chat-bot instance `Chat_server`</span>
-    <span class="n">chat_serv</span> <span class="o">=</span> <span class="n">Chat_server</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="n">cfger</span><span class="o">.</span><span class="n">serv_host</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">cfger</span><span class="o">.</span><span class="n">serv_port</span><span class="p">,</span> <span class="n">api_keys</span><span class="o">=</span><span class="n">cfger</span><span class="o">.</span><span class="n">api_keys</span><span class="p">)</span>
-
-    <span class="o">...</span> <span class="c1"># build mongo-db instance `mongo_serv` for logging chat history..</span>
-    <span class="n">mongo_serv</span><span class="o">.</span><span class="n">init_setup</span><span class="p">(</span> <span class="o">**</span><span class="n">cfger</span><span class="o">.</span><span class="n">db_setup</span> <span class="p">)</span>
-
-    <span class="o">...</span> <span class="c1"># loading llm model instance `Llama` ~</span>
-    <span class="n">llm_mod</span> <span class="o">=</span> <span class="n">Llama</span><span class="p">(</span>
-        <span class="n">ld_8bit</span><span class="o">=</span><span class="n">cfger</span><span class="o">.</span><span class="n">bknd_srv</span><span class="o">.</span><span class="n">load_8bit</span><span class="p">,</span>
-        <span class="n">chat_mode</span><span class="o">=</span><span class="n">cfger</span><span class="o">.</span><span class="n">chat_mode</span><span class="p">,</span>
-        <span class="n">model_type</span><span class="o">=</span><span class="n">cfger</span><span class="o">.</span><span class="n">model_type</span>
-    <span class="p">)</span>
-    <span class="n">llm_mod</span><span class="o">.</span><span class="n">init_mod_param</span><span class="p">(</span> <span class="o">**</span><span class="n">cfger</span><span class="o">.</span><span class="n">bknd_srv</span><span class="p">[</span><span class="s1">&#39;mod_params&#39;</span><span class="p">]</span> <span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">cfger</span><span class="o">.</span><span class="n">bknd_srv</span><span class="p">[</span><span class="s1">&#39;async_req&#39;</span><span class="p">]:</span>
-        <span class="n">chat_serv</span><span class="o">.</span><span class="n">chat_mod</span> <span class="o">=</span> <span class="n">llm_mod</span>
-        <span class="n">chat_serv</span><span class="o">.</span><span class="n">hist_db</span> <span class="o">=</span> <span class="n">mongo_serv</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="o">...</span> <span class="c1"># write sync conversation by yourself..</span>
-
-    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span> <span class="n">chat_serv</span><span class="o">.</span><span class="n">server_forever</span><span class="p">()</span> <span class="p">)</span>
-</pre></div>
-</div>
-<p><span class="raw-html-m2r"><br></span></p>
-<hr class="docutils" />
-<p>More detail tutorial about each topic is as follows :</p>
-</section>
+  <section id="common-usage">
+<h1>Common Usage<a class="headerlink" href="#common-usage" title="Permalink to this heading"></a></h1>
 <section id="how-to-declare-hierachical-config">
-<h2>2. How to declare hierachical config 🖋️<a class="headerlink" href="#how-to-declare-hierachical-config" title="Permalink to this heading"></a></h2>
+<h2>1. How to declare hierachical config 🖋️<a class="headerlink" href="#how-to-declare-hierachical-config" title="Permalink to this heading"></a></h2>
 <p>There have two kind of way to prepare the arguments in easy-config : we can either define flatten argument or groupping the multiple arguments in an hierachical manner (begin from second level). In most of time, we define the flatten argument as global setup, and arrange the rest of arguments into the corresponding dictionary for easy to assign it to the subroutine.
 Let’s give a deep-learning example ~</p>
 <p><em>hier_cfg.ini in work directory</em></p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">glb_seed</span> <span class="o">=</span> <span class="mi">42</span>
-<span class="n">exp_id</span> <span class="o">=</span> <span class="s1">&#39;0001&#39;</span>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="na">glb_seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">42</span>
+<span class="na">exp_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;0001&#39;</span>
 
 <span class="c1"># we call &#39;...&#39; in [...] as section name,</span>
 <span class="c1"># i.e. we can assign dict dataset to subroutine by `build_dataset(**cfg.dataset)`, just such easy!!</span>
-<span class="p">[</span><span class="n">dataset</span><span class="p">]</span>
-    <span class="n">service_port</span> <span class="o">=</span> <span class="mi">65536</span>
-    <span class="n">path</span> <span class="o">=</span> <span class="s1">&#39;/data/kitti&#39;</span>
-    <span class="c1"># of course, nested dict is also supported! it just the native python dictionary in dictionary!</span>
-    <span class="p">[</span><span class="n">dataset</span><span class="o">.</span><span class="n">loader</span><span class="p">]</span>
-        <span class="n">batch_size</span> <span class="o">=</span> <span class="mi">32</span>
+<span class="k">[dataset]</span>
+<span class="w">    </span><span class="na">service_port</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">65536</span>
+<span class="w">    </span><span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;/data/kitti&#39;</span>
+<span class="w">    </span><span class="c1"># of course, nested dict is also supported! it just the native python dictionary in dictionary!</span>
+<span class="w">    </span><span class="k">[dataset.loader]</span>
+<span class="w">        </span><span class="na">batch_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">32</span>
 
-<span class="p">[</span><span class="n">model</span><span class="p">]</span>
-    <span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">backbone</span><span class="p">]</span>
-        <span class="n">mod_typ</span> <span class="o">=</span> <span class="s1">&#39;resnet&#39;</span>
-        <span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">backbone</span><span class="o">.</span><span class="n">optimizer</span><span class="p">]</span>
-            <span class="n">lay_seed</span> <span class="o">=</span> <span class="mi">42</span>
+<span class="k">[model]</span>
+<span class="w">    </span><span class="k">[model.backbone]</span>
+<span class="w">        </span><span class="na">mod_typ</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;resnet&#39;</span>
+<span class="w">        </span><span class="k">[model.backbone.optimizer]</span>
+<span class="w">            </span><span class="na">lay_seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">42</span>
 
-<span class="p">[</span><span class="n">train_cfg</span><span class="p">]</span>
-    <span class="n">batch_size</span> <span class="o">=</span> <span class="mi">32</span>
-    <span class="p">[</span><span class="n">train_cfg</span><span class="o">.</span><span class="n">opt</span><span class="p">]</span>
-        <span class="n">opt_typ</span> <span class="o">=</span> <span class="s1">&#39;Adam&#39;</span>
-        <span class="n">lr</span> <span class="o">=</span> <span class="mf">1e-4</span>
-        <span class="n">sched</span> <span class="o">=</span> <span class="s1">&#39;cos_anneal&#39;</span>
+<span class="k">[train_cfg]</span>
+<span class="w">    </span><span class="na">batch_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">32</span>
+<span class="w">    </span><span class="k">[train_cfg.opt]</span>
+<span class="w">        </span><span class="na">opt_typ</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;Adam&#39;</span>
+<span class="w">        </span><span class="na">lr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1e-4</span>
+<span class="w">        </span><span class="na">sched</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;cos_anneal&#39;</span>
 </pre></div>
 </div>
 <p>We have defined the config file, now let’s see how to access any agruments! Execute <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">quick_hier.py</span></code> in work directory*.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">easy_configer.Configer</span> <span class="kn">import</span> <span class="n">Configer</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">easy_configer.Configer</span> <span class="kn">import</span> <span class="n">Configer</span>
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
     <span class="n">cfger</span> <span class="o">=</span> <span class="n">Configer</span><span class="p">(</span><span class="n">cmd_args</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -249,7 +145,7 @@ Glade to say : Yes! it’s possible to elegantly deal with above mentioned issue
 <blockquote>
 <div><p>Currently we support interpolation mechnaism to interpolate <strong>ANY</strong> arguemnts belong the different level of nested dictionary. Moreover, we also support <strong>$Env</strong> for accessing enviroment variables exported in bash!!</p>
 </div></blockquote>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># For convience, we define string-config!</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># For convience, we define string-config!</span>
 <span class="k">def</span> <span class="nf">get_str_cfg</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39; # `export glb_seed=42` in bash!!</span>
 <span class="sd">        glb_seed = $Env.glb_seed</span>
@@ -293,17 +189,17 @@ Glade to say : Yes! it’s possible to elegantly deal with above mentioned issue
 </section>
 <hr class="docutils" />
 <section id="commmend-line-support">
-<h2>3. Commmend-line Support ⌨️<a class="headerlink" href="#commmend-line-support" title="Permalink to this heading"></a></h2>
+<h2>2. Commmend-line Support ⌨️<a class="headerlink" href="#commmend-line-support" title="Permalink to this heading"></a></h2>
 <blockquote>
 <div><p>We also take <code class="docutils literal notranslate"><span class="pre">hier_cfg.ini</span></code> as example!</p>
 </div></blockquote>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># hier_cfg.ini</span>
-<span class="n">glb_var</span> <span class="o">=</span> <span class="mi">42</span><span class="nd">@int</span>
-<span class="p">[</span><span class="n">dataset</span><span class="p">]</span>
-    <span class="n">ds_type</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">path</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;root&#39;</span><span class="p">:</span><span class="s1">&#39;/data/kitti&#39;</span><span class="p">}</span><span class="nd">@Path</span>
-    <span class="p">[</span><span class="n">dataset</span><span class="o">.</span><span class="n">loader</span><span class="p">]</span>
-        <span class="n">batch_size</span> <span class="o">=</span> <span class="mi">32</span><span class="nd">@int</span>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="c1"># hier_cfg.ini</span>
+<span class="na">glb_var</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">42@int</span>
+<span class="k">[dataset]</span>
+<span class="w">    </span><span class="na">ds_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">None</span>
+<span class="w">    </span><span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">{&#39;root&#39;:&#39;/data/kitti&#39;}@Path</span>
+<span class="w">    </span><span class="k">[dataset.loader]</span>
+<span class="w">        </span><span class="na">batch_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">32@int</span>
 
 <span class="c1"># Hier-Cell cfg written by Josef-Huang..</span>
 </pre></div>
@@ -321,45 +217,45 @@ Glade to say : Yes! it’s possible to elegantly deal with above mentioned issue
 </section>
 <hr class="docutils" />
 <section id="import-sub-config">
-<h2>4. Import Sub-Config 🎎<a class="headerlink" href="#import-sub-config" title="Permalink to this heading"></a></h2>
+<h2>3. Import Sub-Config 🎎<a class="headerlink" href="#import-sub-config" title="Permalink to this heading"></a></h2>
 <p>Like <code class="docutils literal notranslate"><span class="pre">omegaconf</span></code>, most of user expect to seperate the config based on their type and dynamically merge it in runtime. It’s a rational requirement and the previous version of easy-config provide two way to conduct it, but both have it’s limit :</p>
 <ol class="arabic simple">
 <li><p>you can call the <code class="docutils literal notranslate"><span class="pre">cfg_from_ini</span></code> twice, for example, <code class="docutils literal notranslate"><span class="pre">cfg.cfg_from_ini('./base_cfg')</span> <span class="pre">;</span> <span class="pre">cfg.cfg_from_ini('./override_cfg')</span></code>. But it’s not explicitly load the config thus reducing readability.</p></li>
 <li><p>you can use the config merging, for example, <code class="docutils literal notranslate"><span class="pre">new_cfg</span> <span class="pre">=</span> <span class="pre">base_cfg</span> <span class="pre">|</span> <span class="pre">override_cfg</span></code>. But it’s not elegant solution while you  have to merge several config..</p></li>
 </ol>
 <p>Now, we provide the thrid way : <strong>sub-config</strong>. you can import the sub-config in any depth of hierachical config by simply placing the <code class="docutils literal notranslate"><span class="pre">&gt;</span></code> symbol at the beginning of line.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span># ./base_cfg.ini
-glb_seed = 42@int
-[dataset]
-    &gt; ./config/ds_config.ini
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="c1"># ./base_cfg.ini</span>
+<span class="na">glb_seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">42@int</span>
+<span class="k">[dataset]</span>
+<span class="w">    </span><span class="na">&gt; ./config/ds_config.ini</span>
 
-[model]
-    &gt; ./root/config/model_config.ini
+<span class="k">[model]</span>
+<span class="w">    </span><span class="na">&gt; ./root/config/model_config.ini</span>
 
-# ./config/ds_config.ini
-ds_type = None
-path = {&#39;root&#39;:&#39;/data/kitti&#39;}@Path
-[dataset.loader]
-    batch_size = 32@int
+<span class="c1"># ./config/ds_config.ini</span>
+<span class="na">ds_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">None</span>
+<span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">{&#39;root&#39;:&#39;/data/kitti&#39;}@Path</span>
+<span class="k">[dataset.loader]</span>
+<span class="w">    </span><span class="na">batch_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">32@int</span>
 
-# ./root/config/model_config.ini
-[model.backbone]
-    mod_typ = &#39;resnet&#39;
-    [model.backbone.optimizer]
-    # and yes, interpolation is still valid &quot;after&quot; the reference argument is declared!
-        lay_seed = $glb_seed
+<span class="c1"># ./root/config/model_config.ini</span>
+<span class="k">[model.backbone]</span>
+<span class="w">    </span><span class="na">mod_typ</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;resnet&#39;</span>
+<span class="w">    </span><span class="k">[model.backbone.optimizer]</span>
+<span class="w">    </span><span class="c1"># and yes, interpolation is still valid &quot;after&quot; the reference argument is declared!</span>
+<span class="w">        </span><span class="na">lay_seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">$glb_seed</span>
 </pre></div>
 </div>
 </section>
 <hr class="docutils" />
 <section id="config-operation">
-<h2>5. Config Operation ⛩️<a class="headerlink" href="#config-operation" title="Permalink to this heading"></a></h2>
+<h2>4. Config Operation ⛩️<a class="headerlink" href="#config-operation" title="Permalink to this heading"></a></h2>
 <p>Config operation is one of the core technique for dynamic configuration system!!
 In the following example, you can see that the merging config system already provided a impressive hierachical merging funtionality!</p>
 <blockquote>
 <div><p>For example, <code class="docutils literal notranslate"><span class="pre">ghyu.opop.add</span></code> in cfg_a can be replaced by the cfg_b in <strong>same</strong> section with the same variable name, while the different namespace keep their variable safely ~ so the value of <code class="docutils literal notranslate"><span class="pre">ghyu.opop.add</span></code> will be 67 and <code class="docutils literal notranslate"><span class="pre">ghyu.opop.tueo.inpo</span></code> refer the flatten variable <code class="docutils literal notranslate"><span class="pre">inpo</span></code> and the value will be 46.</p>
 </div></blockquote>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">easy_configer.Configer</span> <span class="kn">import</span> <span class="n">Configer</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">easy_configer.Configer</span> <span class="kn">import</span> <span class="n">Configer</span>
 
 <span class="k">def</span> <span class="nf">build_cfg_text_a</span><span class="p">():</span>
     <span class="k">return</span> <span class="s1">&#39;&#39;&#39;</span>
@@ -421,8 +317,8 @@ In the following example, you can see that the merging config system already pro
 <p><strong>Miscellnous features</strong></p>
 </section>
 <section id="io-converter">
-<h2>6. IO Converter 🐙<a class="headerlink" href="#io-converter" title="Permalink to this heading"></a></h2>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+<h2>5. IO Converter 🐙<a class="headerlink" href="#io-converter" title="Permalink to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 
 <span class="nd">@dataclass</span>
@@ -476,11 +372,11 @@ In the following example, you can see that the merging config system already pro
 </div>
 </section>
 <section id="absl-style-flag">
-<h2>7. Absl style flag 🏳️<a class="headerlink" href="#absl-style-flag" title="Permalink to this heading"></a></h2>
+<h2>6. Absl style flag 🏳️<a class="headerlink" href="#absl-style-flag" title="Permalink to this heading"></a></h2>
 <blockquote>
 <div><p>easy_config also support that you can access the ‘same’ config file in different python file without re-declare the config. test_flag.py under the same work directory</p>
 </div></blockquote>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">easy_configer.Configer</span> <span class="kn">import</span> <span class="n">Configer</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">easy_configer.Configer</span> <span class="kn">import</span> <span class="n">Configer</span>
 
 <span class="k">def</span> <span class="nf">get_n_blk_from_flag</span><span class="p">():</span>
     <span class="n">new_cfger</span> <span class="o">=</span> <span class="n">Configer</span><span class="p">()</span>
@@ -496,7 +392,7 @@ In the following example, you can see that the merging config system already pro
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="Installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Quick.html" class="btn btn-neutral float-left" title="Quick start" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="Metainfo.html" class="btn btn-neutral float-right" title="Meta information" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

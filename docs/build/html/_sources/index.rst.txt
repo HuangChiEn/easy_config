@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 Welcome to easy_configer's documentation!
-=========================================
+==========================================
 
 .. toctree::
    :maxdepth: 2
@@ -12,6 +12,7 @@ Welcome to easy_configer's documentation!
    
    About
    Installation
+   Quick
    Usage
    Metainfo
 

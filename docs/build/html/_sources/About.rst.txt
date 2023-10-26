@@ -16,7 +16,7 @@ Preface ✨
 easy_configer version : 2.2.0
 Configeruating the program in an easy-way 
 
-I'm willing to provide a light-weight solution for configurating your python program.:raw-html-m2r:`<br>`
+I'm willing to provide a light-weight solution for configurating your python program.
 Hope this repository make every user control their large project with easier ~ ~ 
 
 Introduction 📝
@@ -28,7 +28,7 @@ With the python project go into large-scale, a lot of argument will be required 
 
 For example :
 
-.. code-block::
+.. code-block:: python
 
    ## ConfigParser
    import ConfigParser 
@@ -57,6 +57,9 @@ That leverage me to package my solution for solving this issue. The easy_config 
 
 #. 
    **Accept multiple config file with dynamic style**
+
+#. 
+   **Dynamically loading the sub-config in root config file**
 
 #. 
    **Declare customized class instance in the config file**

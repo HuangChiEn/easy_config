@@ -51,7 +51,8 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="Installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Usage.html">Quick start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Quick.html">Quick start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Usage.html">Common Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Metainfo.html">Meta information</a></li>
 </ul>
 
@@ -86,7 +87,7 @@
 <h2>Preface ✨<a class="headerlink" href="#preface" title="Permalink to this heading"></a></h2>
 <p>easy_configer version : 2.2.0
 Configeruating the program in an easy-way</p>
-<p>I’m willing to provide a light-weight solution for configurating your python program.:raw-html-m2r:<cite>&lt;br&gt;</cite>
+<p>I’m willing to provide a light-weight solution for configurating your python program.
 Hope this repository make every user control their large project with easier ~ ~</p>
 </section>
 <section id="introduction">
@@ -94,7 +95,7 @@ Hope this repository make every user control their large project with easier ~ ~
 <p>With the python project go into large-scale, a lot of argument will be required to control the complex business logic, user may need a simple way to load configurations through a file eventually. Their exists various package cover part of function and offer some solution to tackle the mentioned problem.</p>
 <p><strong>Unfortunately, I can not find a solution for load &amp; use the argument in simple manner at least.</strong>   Instead, most of the config-tools seems only works for the specific goal, then cause the code more longer and hard to read.</p>
 <p>For example :</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## ConfigParser</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1">## ConfigParser</span>
 <span class="kn">import</span> <span class="nn">ConfigParser</span>
 <span class="n">Config</span> <span class="o">=</span> <span class="n">ConfigParser</span><span class="o">.</span><span class="n">ConfigParser</span><span class="p">()</span>
 <span class="n">Config</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&quot;c:</span><span class="se">\\</span><span class="s2">tomorrow.ini&quot;</span><span class="p">)</span>
@@ -116,6 +117,7 @@ Hope this repository make every user control their large project with easier ~ ~
 <ol class="arabic simple">
 <li><p><strong>simple &amp; customized syntax of declaration (partially support)</strong></p></li>
 <li><p><strong>Accept multiple config file with dynamic style</strong></p></li>
+<li><p><strong>Dynamically loading the sub-config in root config file</strong></p></li>
 <li><p><strong>Declare customized class instance in the config file</strong></p></li>
 <li><p><strong>Commend-line update all declared-value wherever it belong</strong></p></li>
 <li><p><strong>Support the absl style FLAGS functionality</strong></p></li>
