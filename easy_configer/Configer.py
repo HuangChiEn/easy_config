@@ -74,14 +74,23 @@ class Configer(object):
                 raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), str(cfg_path))
             if not cfg_path.suffix == ".ini":
                 raise ValueError("The file extension should be 'ini', instead of '{0}'".format(cfg_path.suffix))
-            
+        
+        # take from : https://stackoverflow.com/questions/16480495/read-a-file-with-line-continuation-characters-in-python
+        def continuation_lines(fin):
+            for line in fin:
+                line = line.rstrip('\n')
+                while line.endswith('\\'):
+                    line = line[:-1] + next(fin).rstrip('\n')
+                yield line
+
         try:
             # check config path validation
             cfg_path = Path(cfg_path)
             chk_src(cfg_path)
 
             with cfg_path.open('r') as cfg_ptr: 
-                raw_cfg_text = cfg_ptr.read()
+                raw_cfg_text = "\n".join([ line for line in continuation_lines(cfg_ptr) ])
+                #raw_cfg_text = cfg_ptr.read()
             
         except FileNotFoundError as fnf_err:
             print(fnf_err) ; raise

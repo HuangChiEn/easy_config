@@ -21,8 +21,8 @@
    '''
 
    # 看起來不錯, 讓我們取得 config!
-   from easy_configer.Config import Config
-   cfg = Config(description="math calculation config!", cmd_args=False)
+   from easy_configer.Configer import Configer
+   cfg = Configer(description="math calculation config!", cmd_args=False)
    cfg.cfg_from_str(cfg_str)
 
    # 喔.. 且慢, 我們可以讓它變得更簡單嗎 ?

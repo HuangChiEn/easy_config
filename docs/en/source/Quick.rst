@@ -21,8 +21,8 @@ Let's say we have an easy-config for development enviroment on jupyter notebook.
    '''
 
    # look's good, let's get the config!
-   from easy_configer.Config import Config
-   cfg = Config(description="math calculation config!", cmd_args=False)
+   from easy_configer.Configer import Configer
+   cfg = Configer(description="math calculation config!", cmd_args=False)
    cfg.cfg_from_str(cfg_str)
 
    # oh.. wait, could we do it more easier ?

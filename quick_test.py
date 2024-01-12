@@ -2,6 +2,11 @@ from easy_configer.Configer import Configer
 
 def build_cfg_text_a():
     return '''
+    tst_dct = { \
+        'kk' : 'aoa', \
+        'bp' : True \
+    }
+
     # Initial config file :
     tst = False @bool
     inpo = 46@int
