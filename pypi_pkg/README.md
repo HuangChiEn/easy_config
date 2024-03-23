@@ -1,7 +1,7 @@
 # Project description
-#### easy_configer version : 2.1.2
+#### easy_configer version : 2.2.0
 
-![easy-configer logo](assets/logo.png)
+![easy-configer logo](https://raw.githubusercontent.com/HuangChiEn/easy_config/master/assets/logo.png)
 
 ---
 
@@ -37,11 +37,11 @@ That leverage me to package my solution for solving this issue. The easy_config 
 
 1. **simple & customized syntax of declaration (partially support)**
 
-2. **Accept multiple config file with dynamic style**
+2. **Accept multiple config file in dynamic loading manner**
 
 3. **Declare customized class instance in the config file**
 
-4. **Commend-line update all declared-value wherever it belong**
+4. **Commend-line update all declared-value wherever it belong, even in hierachical section**
 
 5. **Support the absl style FLAGS functionality** 
 
@@ -59,7 +59,7 @@ And, of course the following attribute will also be supported :
 
 * inline comment '#', now you can write comment in everyline ~
 
-* support arguments (flatten) interpolation!!
+* support arguments interpolation!!
 
 * support config conversion, which bridge the easy_config into the other config file ~
 
@@ -67,18 +67,24 @@ And, of course the following attribute will also be supported :
 ---
 
 ### Newly update features 🚀
-1. same as 2.1.1, but update the document on pypi and add a new logo ~
+1. Better syntax for override argument via commendline
+2. Better syntax for declare the config file
+3. Various support of config conversion, including omegaconf, dataclasses, dict, ..., etc.
+4. Support enviroment variable (os.Env) interpolation
+5. Dynamic sub-config loading..
+6. Also update document and some handy examples ~
+
 ---
 
 ### Bug Fixed 🐛
-#### No bug report in previous version, feel free to report the bug via issue on github.
+#### config string with extra space caused config error, and it's fixed in this version.
 ---
 
 ### Dependencies 🏗️
-This package is written for Python 3.8 (but 3.6+ may be supported).
+This package is written for Python 3.8. After refactor in this version, this package also support down to python 3.6!!
 Of course, light-weight solution **do not** contain any 3-rd package complex dependencies.
 The python standard package (such as pathlib, sys, .., etc) is the only source of dependencies, so you don't need to worry about that ~ ~
-> However, if you want to use the IO_Converter (config conversion mechnaism), you still need to install omegaconf for integrate with hydra ~
+> However, if you want to use the IO_Converter for converting config into omegaconf, you still need to install omegaconf for this functionality ~
 
 ---
 
@@ -98,149 +104,212 @@ The python standard package (such as pathlib, sys, .., etc) is the only source o
 
 ### Quick start 🥂
 
-#### **1. How to write config file**
+#### **1. Handy example of config file**
+#### Let's say we have an easy-config for development enviroment on jupyter notebook. we want to define several variable for configurating a simple math calculation.
 
-#### *test_cfg.ini in work directory*
+    # config string
+    cfg_str = '''
+    title = 'math calculation'@str
+    coef = 1e-3@float
+    with_intercept = True@bool
+    intercept = 3@int
+    '''
+
+    # look's good, let's get the config!
+    from easy_configer.Config import Config
+    cfg = Config(description="math calculation config!", cmd_args=False)
+    cfg.cfg_from_str(cfg_str)
+
+    # oh.. wait, could we do it more easier ?
+    ez_cfg_str = '''
+    # opps.. let's change some value
+    title = 'linear equation'
+    coef = 15        
+    '''
+    # Note : every time you load the config, if you have the same variable name, 
+    #        it will override the value of the variable!
+    cfg.cfg_from_str(ez_cfg_str)
+
+    lin_equ = lambda x : cfg.coef * x + cfg.intercept if cfg.with_intercept else (cfg.coef * x)
+    x = 15
+    print( f"Linear equation with x={x} : { lin_equ(x) }" )
+
+
+#### In larger project, we may write a config file to control the program, so that the config will become easy to trace, check and debug. In here, we first prepare an config called `test_cfg.ini` in the working directory. 
+For easy-config file, there're two type of argument : flatten argument, hierachical argument. You can see that flatten argument is placed in first shallow level, and the argument could be easily accessed by dot operator. Besides flatten argument, all of hierachical argument will be placed in python dict object, thus accessing each argument by key string! 
     
-    # '#' denote comment line
-    # below define default argument, which is called 'flatten' args
-    luck_num = 42@int  # now we also support inline comment.. finally
-    name = Harry@str
-    even_mk_dict = {'a':123, 'b':'string'}@dict
+    # ./test_cfg.ini
+    # '#' denote comment line, the inline comment is also supported!
+
+    # define 'flatten' arguments :
+    serv_host = '127.0.0.1'  
+    serv_port = 9478@int    # specific type is also allowed!!
+    api_keys = {'TW_REGION':'SV92VS92N20', 'US_REGION':'W92N8WN029N2'}
     
-    # Well-define config file may use 'section' to split the args
-    # and the section can be defined as follows :
-    [fir_sec]
-    dummy_val = 78.5@float
+    # define 'hierachical' arguments :
+    # the 'section' is the key of accessing dict value and could be defined as follows :
+    [db_setup]
+        db_host = $serv_host
+        # first `export mongo_port=5566` in your bash, then support os.env interpolation!
+        db_port = $Env.mongo_port  
+        snap_shot = True
     
-    # and then define second section 
-    [sec_sec]
-    dummy_val = 45@int
-    
-    # finall, you will find that, configer isolate the namespace 
-    # to store the values with the corresponding section name.
-    # So, 2 dummy_val will not conflict with different section.
+    # and then define second section for backend server..
+    [bknd_srv]
+        load_8bit = True
+        async_req = True
+        chat_mode = 'inference'
+        model_type = 'LlaMa2.0'
+        [bknd_srv.mod_params]
+            log_hist = False
+            tempeture = 1e-4
+            model_mode = $bknd_srv.chat_mode  # hierachical args interpolation
     
 <br>
 
-#### *quick_start.py in work directory*
+Now, we're free to launch the chatbot via `python quick_start.py` (*quick_start.py in work directory*)!
+However, you can also override the arguemnts via commendline `python quick_start.py serv_port=7894`
     
-    # Epilog
-    from easy_configer.Configer import Configer
-    # new feature!! suport flag
-    from test_flag import get_n_blk_from_flag
-
-    # Of course, you can simple make the config file with the simple string, 
-    # which is very suitable for cell-based development enviroment (e.g. jupyter-lab)
-    # Do not forgot, always declare cfg_str in global part, not in main_block 
-    # By the way, you're allowed to define section-params in the cfg-str,
-    #   however, it's not recommend due to it's readibility!!
-    cfg_str = '''
-    lr = 1e-4@float
-    n_blk = 5@int
-    tst_var = {'num':3, 'name':'joseph'}@tst_cls
-    '''
-    
-    class Test(object):    
-        def __init__(self, num, name):
-            self.num = num
-            self.name = name
-
-        def num_name(self):
-            return self.num * self.name
+    import sys
     
     # main_block 
     if __name__ == "__main__":
-        cfger = Configer(description="helper information string in cmdline", cmd_args=True)
-        cfger.regist_cnvtor("tst_cls", Test)  # regist customer class 
-        
-        # Feed 2 different config file into Configer..
-        cfger.cfg_from_str(cfg_str)
+        from easy_configer.Configer import Configer
+
+        cfger = Configer(description="chat-bot configuration", cmd_args=True)
+        # we have defined a config file, let's try to load it!
         cfger.cfg_from_ini("./test_cfg.ini")
         
-        # Display the Namespace 
+        # Display the Namespace, it will display all flatten arguemnts and first-level sections
         print(cfger)
-        # Get the flatten argument
-        print(cfger.n_blk)
-        print( type(cfger.test) )  # chk the type!
-        # test the customized class
-        print(cfger.tst_var.num_name())
-        # test the flag 
-        print(get_n_blk_from_flag())
         
-        # Get the non-flatten argument
-        assert cfger.fir_sec['dummy_val'] != cfger.sec_sec['dummy_val']
-        
-        print( type(cfger.sec_sec['dummy_val']) )
+        ... # for building chat-bot instance `Chat_server`
+        chat_serv = Chat_server(host=cfger.serv_host, port=cfger.serv_port, api_keys=cfger.api_keys)
+
+        ... # build mongo-db instance `mongo_serv` for logging chat history..
+        mongo_serv.init_setup( **cfger.db_setup )
+
+        ... # loading llm model instance `Llama` ~
+        llm_mod = Llama(
+            ld_8bit=cfger.bknd_srv.load_8bit, 
+            chat_mode=cfger.chat_mode, 
+            model_type=cfger.model_type
+        )
+        llm_mod.init_mod_param( **cfger.bknd_srv['mod_params'] )
+
+        if cfger.bknd_srv['async_req']:
+            chat_serv.chat_mod = llm_mod
+            chat_serv.hist_db = mongo_serv
+        else:
+            ... # write sync conversation by yourself..
+
+        sys.exit( chat_serv.server_forever() )
 
 <br>
 
-#### *config interpolation with $ symbol*
-> Currently we support simple interpolation mechnaism, which only allow the *intepolated args* be putted in the **flatten section**. (you **cannot** interpolate args from **non-flatten section**)
+---
 
-    def get_str_cfg():
-        '''
-            # flatten section, you can put shared args
-            shr_port = 5566@int
-
-            [sec_A]
-                inner_port = $shr_port
-            [sec_B]
-                outter_port = $shr_port
-        '''
-
-    # main_block 
-    if __name__ == "__main__":
-        cfger = Configer(description="sample for arguments interpolation")
-
-        cfg_str = get_str_cfg()
-        cfger.cfg_from_str(cfg_str)
-        
-        # Shared port
-        print(cfger.shr_port)
-        # Assert
-        print(cfger.sec_A['inner_port'] == cfger.shr_port)
-        print(cfger.sec_A['inner_port'] == cfger.sec_B['outter_port'])
+### More detail tutorial about each topic is as follows :
 
 #### **2. How to declare hierachical config**
+There have two kind of way to prepare the arguments in easy-config : we can either define flatten argument or groupping the multiple arguments in an hierachical manner (begin from second level). In most of time, we define the flatten argument as global setup, and arrange the rest of arguments into the corresponding dictionary for easy to assign it to the subroutine.  
 
+#### Let's give a deep-learning example ~
 #### *hier_cfg.ini in work directory*
-    glb_var = 42@int
-    [dataset]         
-        sample_seed = $glb_var
-        path = {'root':'/data/kitti'}@Path
+
+    glb_seed = 42
+    exp_id = '0001'
+
+    # we call '...' in [...] as section name,
+    # i.e. we can assign dict dataset to subroutine by `build_dataset(**cfg.dataset)`, just such easy!!
+    [dataset]   
+        service_port = 65536
+        path = '/data/kitti'
+        # of course, nested dict is also supported! it just the native python dictionary in dictionary!
         [dataset.loader]
-            batch_size = 32@int
+            batch_size = 32
 
     [model]
         [model.backbone]
-             = 32@int
+            mod_typ = 'resnet'
             [model.backbone.optimizer]
-                lay_seed = $glb_var   # intepolation to any sub-section!
-                lr = 1e-4@float
+                lay_seed = 42  
+    
+    [train_cfg]
+        batch_size = 32
+        [train_cfg.opt]
+            opt_typ = 'Adam'
+            lr = 1e-4
+            sched = 'cos_anneal'
 
-    # Hier-Cell cfg written by Josef-Huang..
-
-#### *quick_hier.py in work directory*
+#### We have defined the config file, now let's see how to access any agruments! Execute `python quick_hier.py` in work directory*.
 
     from easy_configer.Configer import Configer
-    from pathlib import Path
     
     if __name__ == "__main__":
         cfger = Configer(cmd_args=True)
-        cfger.regist_cnvtor("Path", Path)
         
         # omit cfg_from_str, hier-config also could be declared in str though ~
         cfger.cfg_from_ini("./hier_cfg.ini")
         
-        # Display the Namespace 
-        print(cfger)
-        print(cfger.dataset)
+        print(cfger.dataset)  
+        # output nested dict : { 'service_port':65536, 'path':'/data/kitti', 'loader':{'batch_size':32} }
         
-        some_dataloader_func(**cfger.dataset['loader'])
+        print(cfger.dataset['loader']['batch_size'])
+        # output : 32
 
-        print(cfger.model['backbone']['optimizer'])
+        # we usually conduct initialization such simple & elegant!
+        ds = build_dataset(**cfger.dataset)
+        mod = build_model(**cfger.model)
+        ... # get torch Trainer
+        Trainer(mod).fit(ds)
 
+However, the syntax of above config file could be improved, isn't it !? For example, the batch_size is defined twice under `dataset.loader` and `train_cfg`, so as layer seed. Moreover, path is defined as python string, it need to be further converted by Path object in python standard package. Could we regist our customized data type for easy-config ?
+#### Glade to say : Yes! it's possible to elegantly deal with above mentioned issue. We can solve the first issue by using argument interpolation, and solve the second issue by using the customized register!!
+
+#### *config interpolation with $ symbol* and  *customized register method `regist_cnvtor`*
+> Currently we support interpolation mechnaism to interpolate **ANY** arguemnts belong the different level of nested dictionary. Moreover, we also support **$Env** for accessing enviroment variables exported in bash!!
+
+    # For convience, we define string-config!
+    def get_str_cfg():
+        ''' # `export glb_seed=42` in bash!!
+            glb_seed = $Env.glb_seed
+            exp_id = '0001'
+
+            [dataset]   
+                service_port = 65536
+
+                # Don't forgot to regist Path object first and the typename will be the given name!!
+                path = {'path':'/data/kitti'}@pyPath
+                
+                [dataset.loader]
+                    batch_size = 32
+
+            [model]
+                [model.backbone]
+                    mod_typ = 'resnet'
+                    [model.backbone.optimizer]
+                        lay_seed = $glb_seed
+            
+            [train_cfg]
+                batch_size = $dataset.loader.batch_size
+                [train_cfg.opt]
+                    opt_typ = 'Adam'
+                    lr = 1e-4
+                    sched = 'cos_anneal'
+        '''
+
+    # main_block 
+    if __name__ == "__main__":
+        from pathlib import Path
+
+        cfger = Configer(description="sample for arguments interpolation")
+        cfger.regist_cnvtor("pyPath", Path)  # regist customer class 'Path'
+
+        cfg_str = get_str_cfg()
+        cfger.cfg_from_str(cfg_str)
+        # do whatever you want to do!
+        
 
 #### **3. Commmend-line Support**
 > We also take `hier_cfg.ini` as example!
@@ -248,17 +317,10 @@ The python standard package (such as pathlib, sys, .., etc) is the only source o
     # hier_cfg.ini
     glb_var = 42@int
     [dataset]         
-        sample_seed = $glb_var
+        ds_type = None
         path = {'root':'/data/kitti'}@Path
         [dataset.loader]
             batch_size = 32@int
-
-    [model]
-        [model.backbone]
-             = 32@int
-            [model.backbone.optimizer]
-                lay_seed = $glb_var   # intepolation to any sub-section!
-                lr = 1e-4@float
 
     # Hier-Cell cfg written by Josef-Huang..
 
@@ -266,12 +328,43 @@ Execute python program and print out the helper information <br>
 `python quick_hier.py -h`
 
 Update flatten argument and print out the helper information <br>
-`python quick_hier.py -glb_var 404 -h`
+`python quick_hier.py glb_var=404 -h`
 
-Especially update **non-flatten argument**, you can access any argument at any level by dot-access in commend-line!! (with combining any argument update)<br>
-`python quick_start.py -model.backbone.optimizer.lr "{'yeah':'success'}@dict" -dataset.sample_seed 578@int -h`
+Especially update **non-flatten argument**, you can access any argument at any level by dot-access in commend-line!! (with combining any argument update). Now, try to change any nested argument <br>
+`python quick_hier.py dataset.ds_type="'kitti'" dataset.path="{'path':'/root/ds'}" dataset.loader.batch_size=48`
 
-#### **4. Config Operation**
+( Note that the commendline declaration for string is tricky, but currently we only support two way for that : 
+    `dataset.ds_type="'kitti'"` or `dataset.ds_type=kitti@str`, pick up one of you like ~ )
+
+#### **4. Import Sub-Config**
+Like `omegaconf`, most of user expect to seperate the config based on their type and dynamically merge it in runtime. It's a rational requirement and the previous version of easy-config provide two way to conduct it, but both have it's limit : 
+1. you can call the `cfg_from_ini` twice, for example, `cfg.cfg_from_ini('./base_cfg') ; cfg.cfg_from_ini('./override_cfg')`. But it's not explicitly load the config thus reducing readability.
+2. you can use the config merging, for example, `new_cfg = base_cfg | override_cfg`. But it's not elegant solution while you  have to merge several config..
+
+#### Now, we provide the thrid way : **sub-config**. you can import the sub-config in any depth of hierachical config by simply placing the `>` symbol at the beginning of line.
+    # ./base_cfg.ini
+    glb_seed = 42@int
+    [dataset]         
+        > ./config/ds_config.ini
+    
+    [model]
+        > ./root/config/model_config.ini
+    
+    # ./config/ds_config.ini
+    ds_type = None
+    path = {'root':'/data/kitti'}@Path
+    [dataset.loader]
+        batch_size = 32@int
+    
+    # ./root/config/model_config.ini
+    [model.backbone]
+        mod_typ = 'resnet'
+        [model.backbone.optimizer]
+        # and yes, interpolation is still valid "after" the reference argument is declared!
+            lay_seed = $glb_seed  
+
+
+#### **5. Config Operation**
 Config operation is one of the core technique for dynamic configuration system!!
 In the following example, you can see that the merging config system already provided a impressive hierachical merging funtionality! 
 
@@ -329,31 +422,68 @@ In the following example, you can see that the merging config system already pro
         
         # default, override falg is turn off ~
         cfg_a.merge_conf(cfg_b, override=True)
-        # operator support : cfg_b |= cfg_a
+
+        # `cfg_b = cfg_b | cfg_a`, operator support, warn to decrease the read-ability...
+        # cfg_a will override the argument of cfg_b which share the identitical variable name in cfg_b!
+        # operator support : `cfg_b |= cfg_a` == `cfg_b = cfg_b | cfg_a`
 
 ---
 
 ### **Miscellnous features**
-#### **5. IO Converter**
+#### **6. IO Converter**
+    from dataclasses import dataclass
+    from typing import Optional
 
-    # first import the IO_converter
-    from easy_config.IO_Converter import IO_Converter
-    cfg_cnvter = IO_Converter()
+    @dataclass
+    class TableConfig:
+        rows: int = 1
 
-    # convert easy_config instance into the argparse instance
-    argp_cfg = cfg_cnvter.cnvt_cfg(self.cfger, 'argparse')
+    @dataclass
+    class DatabaseConfig:
+        table_cfg: TableConfig = TableConfig()
 
-    uargp_cfg = cfg_cnvter.cnvt_cfg(self.cfger, 'argparse', parse_arg=False)
-    argp_cfg = uargp_cfg.parse_args()
+    @dataclass
+    class ModelConfig:
+        data_source: Optional[TableConfig] = None
 
-    # convert easy_config instance into the omegaconf instance
-    ome_cfg = cfg_cnvter.cnvt_cfg(self.cfger, 'omegacfg')
+    @dataclass
+    class ServerConfig:
+        db: DatabaseConfig
+        model: ModelConfig
 
-    # convert easy_config instance into the "yaml string"
-    yaml_cfg = cfg_cnvter.cnvt_cfg(self.cfger, 'yaml')
+    if __name__ == '__main__':
+        from easy_configer.IO_Converter import IO_Converter
+
+        # first import the IO_converter
+        from easy_config.IO_Converter import IO_Converter
+        cnvt = IO_Converter()
+
+        # convert easy_config instance into the argparse instance
+        argp_cfg = cnvt.cnvt_cfg_to(cfger, 'argparse')
+
+        uargp_cfg = cnvt.cnvt_cfg_to(cfger, 'argparse', parse_arg=False)
+        argp_cfg = uargp_cfg.parse_args()
+
+        ## convert config INTO..
+        # convert easy_config instance into the omegaconf instance
+        ome_cfg = cnvt.cnvt_cfg_to(cfger, 'omegaconf')
+
+        # convert easy_config instance into the "yaml string"
+        yaml_cfg = cnvt.cnvt_cfg_to(cfger, 'yaml')
+
+        # convert easy_config instance into the "dict"
+        yaml_cfg = cnvt.cnvt_cfg_to(cfger, 'dict')
+
+        ## convert into easy-config FROM..
+        # argparse, omegaconf, yaml, dict ... is supported
+        ez_cfg = cnvt.cnvt_cfg_from(argp_cfg, 'omegaconf')
+
+        # Especially, it support "dataclass"!
+        ds_cfg = ServerConfig()
+        ez_cfg = cnvt.cnvt_cfg_from(ds_cfg, 'dataclass')
 
 
-#### **6. Absl style flag**
+#### **7. Absl style flag**
 > easy_config also support that you can access the 'same' config file in different python file without re-declare the config. test_flag.py under the same work directory
 
     from easy_configer.Configer import Configer
@@ -363,7 +493,6 @@ In the following example, you can see that the merging config system already pro
         flag = new_cfger.get_cfg_flag()
         # test to get the pre-defined 'n_blk'
         return flag.n_blk
-
 
 ---
 

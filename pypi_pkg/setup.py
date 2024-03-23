@@ -9,7 +9,7 @@ with open(join(this_directory, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='easy_configer',
-    version='2.1.2',
+    version='2.2.0',
     description='An easy way for configurating python program by the given config file or config str',
     author='JosefHuang',
     author_email='a3285556aa@gmail.com',
@@ -17,7 +17,7 @@ setup(
     long_description_content_type='text/markdown',
     license='MIT',
     url='https://github.com/HuangChiEn/easy_config',
-    packages=['easy_configer', 'easy_configer/utils', 'assets'],
+    packages=['easy_configer', 'easy_configer/utils'],
     keywords=["configuration", "commendline argument", "argument"],
     python_requires='>=3.6',
     classifiers=[

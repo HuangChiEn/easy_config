@@ -1,7 +1,7 @@
 import unittest
 
-from easy_config.Configer import Configer
-from get_flag import get_flag_from_ext
+from easy_configer.Configer import Configer
+from .get_flag import get_flag_from_ext
 
 class test(object):    
     def __init__(self, num, string):

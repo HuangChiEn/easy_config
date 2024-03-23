@@ -10,7 +10,7 @@ def warning_on_one_line(message, category, filename, lineno, file=None, line=Non
 warnings.formatwarning = warning_on_one_line
 
 from .utils.Type_Convertor import Type_Convertor
-from .utils.Flag import Flag
+from .utils.Container import AttributeDict, Flag
 from .IO_Converter import IO_Converter
 
 class Configer(object):
@@ -90,7 +90,6 @@ class Configer(object):
 
             with cfg_path.open('r') as cfg_ptr: 
                 raw_cfg_text = "\n".join([ line for line in continuation_lines(cfg_ptr) ])
-                #raw_cfg_text = cfg_ptr.read()
             
         except FileNotFoundError as fnf_err:
             print(fnf_err) ; raise
@@ -100,9 +99,8 @@ class Configer(object):
             print(per_err) ; raise
         except Exception as ex:
             print(ex) ; raise
-        else:
-            self.__cfg_parser(raw_cfg_text)
         
+        self.__cfg_parser(raw_cfg_text)
         # build the flag object 
         self.__flag.__dict__ = self.__dict__
     
@@ -144,7 +142,7 @@ class Configer(object):
             if not allow_init:
                 raise RuntimeError("The parent node of {0} is not defined yet, " \
                                         "it's invalid for directly made the child node".format(root_key))
-            self.__dict__[root_key] = {}
+            self.__dict__[root_key] = AttributeDict() 
 
         ## Support toml like 'hierachical' format!!
         #  dynamically search the hierachical section begin from the 'next layer' of self.__dict__
@@ -156,7 +154,7 @@ class Configer(object):
                 if not allow_init:
                     raise RuntimeError("The parent node '{0}' is not defined yet, " \
                                             "it's invalid for directly made the child node".format(sec))
-                idx_sec[sec] = {}
+                idx_sec[sec] = AttributeDict() #{}
             idx_sec = idx_sec[sec]
 
         return idx_sec, sec_name_lst[-1]
@@ -215,7 +213,7 @@ class Configer(object):
                 idx_sec, idx_sec_key = self.__idx_sec_by_dot(sec_keys_str)
                 if idx_sec_key in idx_sec.keys():
                     raise RuntimeError('Re-defined config, {0} section will be overrided!!'.format(sec_keys_str))
-                idx_sec[idx_sec_key] = {}
+                idx_sec[idx_sec_key] = AttributeDict() #{}
                 cur_sec_keys = sec_keys_str
             
             # parse variable assignment string
@@ -232,8 +230,11 @@ class Configer(object):
                 # assign the val_dict into the corresponding section!
                 if cur_sec_keys != '':
                     idx_sec, idx_sec_key = self.__idx_sec_by_dot(cur_sec_keys)
-                    idx_sec[idx_sec_key].update( val_dict )
-                else:
+                    #idx_sec[idx_sec_key].update( val_dict )
+                    #breakpoint()
+                    idx_sec[idx_sec_key].set_attr_dict( val_dict )
+                # assign the val_dict as 'flatten' arguments 
+                else: # Note that flatten args IS NOT AttributeDict!
                     self.__dict__.update( val_dict )
 
         # Update the namespace value via commend-line input 
