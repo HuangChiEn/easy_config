@@ -136,25 +136,27 @@ class Configer(object):
         # Before easy_configer 1.3.4 ver, all section is builded upon this level
         if len(sec_name_lst) == 1:
             return self.__dict__, sec_keys_str
-
+            
         root_key = sec_name_lst.pop(0)
         if root_key not in self.__dict__:
             if not allow_init:
                 raise RuntimeError("The parent node of {0} is not defined yet, " \
                                         "it's invalid for directly made the child node".format(root_key))
             self.__dict__[root_key] = AttributeDict() 
-
+            
         ## Support toml like 'hierachical' format!!
         #  dynamically search the hierachical section begin from the 'next layer' of self.__dict__
         idx_sec = self.__dict__[root_key]
+        
         #  keep the index point to the node "parent", since the child node will be init as dict!
         for sec in sec_name_lst[:-1]:
+            # AttributeDict.get(.) will not trigger "defaultdict behavior"
             tmp = idx_sec.get(sec, '__UNDEFINE_VAL')
             if tmp == '__UNDEFINE_VAL':
                 if not allow_init:
                     raise RuntimeError("The parent node '{0}' is not defined yet, " \
                                             "it's invalid for directly made the child node".format(sec))
-                idx_sec[sec] = AttributeDict() #{}
+                idx_sec[sec] = AttributeDict() 
             idx_sec = idx_sec[sec]
 
         return idx_sec, sec_name_lst[-1]
@@ -213,7 +215,7 @@ class Configer(object):
                 idx_sec, idx_sec_key = self.__idx_sec_by_dot(sec_keys_str)
                 if idx_sec_key in idx_sec.keys():
                     raise RuntimeError('Re-defined config, {0} section will be overrided!!'.format(sec_keys_str))
-                idx_sec[idx_sec_key] = AttributeDict() #{}
+                idx_sec[idx_sec_key] = AttributeDict()
                 cur_sec_keys = sec_keys_str
             
             # parse variable assignment string
@@ -230,13 +232,11 @@ class Configer(object):
                 # assign the val_dict into the corresponding section!
                 if cur_sec_keys != '':
                     idx_sec, idx_sec_key = self.__idx_sec_by_dot(cur_sec_keys)
-                    #idx_sec[idx_sec_key].update( val_dict )
-                    #breakpoint()
-                    idx_sec[idx_sec_key].set_attr_dict( val_dict )
+                    idx_sec[idx_sec_key].update( val_dict )
                 # assign the val_dict as 'flatten' arguments 
                 else: # Note that flatten args IS NOT AttributeDict!
                     self.__dict__.update( val_dict )
-
+                    
         # Update the namespace value via commend-line input 
         if self.__cmd_args:
             self.args_from_cmd()
@@ -310,11 +310,28 @@ class Configer(object):
 
     # Display the namespace which record all of the declared arguments
     #   for the inner-node structure, iter-call __str__ wrapper !!
+    def __shadow_private_args(self):
+        return [ str(key) for key in self.__dict__.keys() if key[0] != '_' ] 
+
     def __str__(self):
-        key_str = [ str(key) for key in self.__dict__.keys() if key[0] != '_' ] 
+        key_str = self.__shadow_private_args()
         return "Namespace : \n" + ", ".join(key_str)
     # override default __repr__ to view configer in debugger
     __repr__ = __str__
+
+    # public interface for iterate the entire config
+    def __iter__(self):
+        tmp_dct = {}
+        for key in self.__shadow_private_args():
+            tmp_dct[key] = self.__dict__[key]
+        return iter(tmp_dct)
+    
+    # standard interface for dict-access for flatten argument (since Configer IS NOT AttributeDict)
+    def __getitem__(self, key):
+        return self.__dict__[key]
+
+    def __setitem__(self, key, value):
+        self.__dict__[key] = value
     
     ## Miscellnous functionality : 
     # return an absl style flag to store all of the args.

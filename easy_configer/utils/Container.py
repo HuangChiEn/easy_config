@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 # Similar with EasyDict, but we implement attr-dict in the other way
 class AttributeDict(dict):
 
@@ -9,16 +11,13 @@ class AttributeDict(dict):
             return self[key]
         except:
             # same behavior as defaultdict, allow recursively self.__setattr__
-            self[key] = AttributeDict({})
+            self[key] = {}
         return self[key]
 
-    # make input dict become AttributeDict instance
+    # make input dict become AttributeDict instance, call __setitem__
     def set_attr_dict(self, raw_dict):
         for k, v in raw_dict.items():
-            if isinstance(v, dict):
-                self.__setitem__(k, AttributeDict(v))
-            else:
-                self.__setitem__(k, v)
+            self.__setitem__(k, v)
     
     # also call self.__setitem__ underhood
     def __setattr__(self, key, value):
@@ -29,6 +28,10 @@ class AttributeDict(dict):
         if isinstance(value, dict):
             value = AttributeDict(value)
         dict.__setitem__(self, key, value)
+
+    # taken from : https://stackoverflow.com/questions/49901590/python-using-copy-deepcopy-on-dotdict
+    def __deepcopy__(self, memo=None):
+        return AttributeDict(deepcopy(dict(self), memo=memo))
 
 
 class Flag(object):
@@ -49,3 +52,7 @@ class Flag(object):
     @property
     def FLAGS(self):
         return self.flag_spec
+
+if __name__ == "__main__":
+    tmp = AttributeDict({'kk':45, 'bb':{'jj':{'gg':42}, 'kk':32}})
+    breakpoint()

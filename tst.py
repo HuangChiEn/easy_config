@@ -10,14 +10,14 @@ def build_cfg_text_a():
     # Initial config file :
     tst = False @bool
     inpo = 46@int
-    > ./test/test_cfg_a.ini
+    > ./test/test_properties/hier_cfg.ini
 
     # hierachical section will be considered as 
     # the special nested dict (AttributeDict)
     [test]         
         mrg_tst_var = [1, 3, 5]
         [test.ggap]
-            gtgt = $Section_test_A.tst_ext_var
+            gtgt = $sec1.sec21.sec21_var
     [ghyu]
         [ghyu.opop]
             add = 32
@@ -68,10 +68,15 @@ if __name__ == "__main__":
     #breakpoint()
     
     from easy_configer.Configer import Configer
+    from test.test_properties.test_object import Customized_Object
 
     cfg = Configer(cmd_args=True)
         
     cfg.cfg_from_str(build_cfg_text_a())
+    cfg.regist_cnvtor('tst_cls', Customized_Object)
+
+    #cfg.cfg_from_ini('./test/test_properties/dtype_cfg.ini')
+    
     breakpoint()
 
     
