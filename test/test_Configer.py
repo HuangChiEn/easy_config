@@ -4,7 +4,6 @@ from easy_configer.Configer import Configer
 from easy_configer.utils.Container import AttributeDict
 
 from .test_properties.test_object import Customized_Object, get_cfg_str
-from .get_flag import get_flag_from_ext
 
 
 class ConfigerTestCase(unittest.TestCase):
@@ -25,9 +24,10 @@ class ConfigerTestCase(unittest.TestCase):
 
     def test_parsing_config(self):
         # test dtype decleration
+        self.cfg2.cfg_from_ini(self.dtype_cfg_path)
         cfg_str = get_cfg_str(self.dtype_cfg_path)
         self.cfg1.cfg_from_str(cfg_str)
-        self.cfg2.cfg_from_ini(self.dtype_cfg_path)
+        
         self._test_dtype(self.cfg1)
         self._test_dtype(self.cfg2)
         # test hier 
@@ -138,9 +138,54 @@ class ConfigerTestCase(unittest.TestCase):
         self.assertEqual(cfg.merg_var, 'merge')
     
     def test_cmd_args(self):
-        ...
+        self._simulate_cmd_args()
+        # since `cmd_args=False` in default, config from client args will be ignored!
+        # it should raise the warning..
+        with self.assertWarns(Warning):
+            self.cfg2.cfg_from_cli()
+        
+        self.assertNotIn('init_var', self.cfg2)
+        # override flatten variable
+        self.assertEqual(self.cfg2.override_var, 42)
+        # override hierachical variable
+        self.assertEqual(self.cfg2.sec1.sec2.override_var, 42)
+        # add new flatten variable
+        self.assertEqual(self.cfg2.new_var, 42)
+        # add new variable in section
+        self.assertEqual(self.cfg2.new_sec.new_var, 42)
+
+        self.cfg4 = Configer(description='Test config', cmd_args=True)
+        self.cfg4.cfg_from_ini(self.init_cfg_path)
+
+        # override flatten variable
+        self.assertEqual(self.cfg4.override_var, 42)
+        # override hierachical variable
+        self.assertEqual(self.cfg4.sec1.sec2.override_var, 42)
+        # add new flatten variable
+        self.assertEqual(self.cfg4.new_var, 42)
+        # add new variable in section
+        self.assertEqual(self.cfg4.new_sec.new_var, 42)
+
+        self.cfg5 = Configer(description='Test config', cmd_args=False)
+        self.cfg5.cfg_from_ini(self.init_cfg_path)
+        # since `cmd_args=False`, all args should keep identitcal as initial config!
+        self.assertEqual(self.cfg5.override_var, -1)
+        self.assertEqual(self.cfg5.sec1.sec2.override_var, -1)
+        self.assertNotIn('new_var', self.cfg5)
+        self.assertNotIn('new_var', self.cfg5.new_sec1)
+
+    def _simulate_cmd_args(self):
+        import sys
+        # test override the default args
+        sys.argv.pop(0)  # remove `python -m unittest` cmd, it'll not given 
+        sys.argv.extend([
+            'override_var=42',   
+            'sec1.sec2.override_var=42',  
+            'new_var=42',  
+            'new_sec.new_var=42'  
+        ])
 
 if __name__ == '__main__':
-    tests = ['test_parsing_config', 'test_regist_cls']
+    tests = ['test_parsing_config', 'test_regist_cls', 'test_merge_config', 'test_cmd_args']
     suite = unittest.TestSuite(map(ConfigerTestCase, tests))
     unittest.main(verbosity=2)

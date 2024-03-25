@@ -255,7 +255,7 @@ class Configer(object):
 
         # ' = ' -> '=', eliminate white space
         cmd_sp_chr = self.split_char.strip()
-        sec_ptr, sec_key = None, None
+        sec_ptr, sec_key = None, None 
         for item in cmd_arg_lst:
             itm_lst = [ itm for itm in item.split(cmd_sp_chr) if itm != '']
             if len(itm_lst) != 2:
@@ -319,14 +319,14 @@ class Configer(object):
     # override default __repr__ to view configer in debugger
     __repr__ = __str__
 
-    # public interface for iterate the entire config
+    ## public interface for iterate the entire config
     def __iter__(self):
         tmp_dct = {}
         for key in self.__shadow_private_args():
             tmp_dct[key] = self.__dict__[key]
         return iter(tmp_dct)
     
-    # standard interface for dict-access for flatten argument (since Configer IS NOT AttributeDict)
+    ## standard interface for dict-access for flatten argument (since Configer IS NOT AttributeDict)
     def __getitem__(self, key):
         return self.__dict__[key]
 
