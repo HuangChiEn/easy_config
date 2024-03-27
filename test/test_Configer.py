@@ -3,7 +3,7 @@ import unittest
 from easy_configer.Configer import Configer
 from easy_configer.utils.Container import AttributeDict
 
-from .test_properties.test_object import Customized_Object, get_cfg_str
+from .test_properties.test_object import Customized_Object, get_cfg_str, get_flag
 
 
 class ConfigerTestCase(unittest.TestCase):
@@ -182,8 +182,20 @@ class ConfigerTestCase(unittest.TestCase):
             'override_var=42',   
             'sec1.sec2.override_var=42',  
             'new_var=42',  
-            'new_sec.new_var=42'  
+            'new_sec.new_var=42',
+            '-h'  # print description
         ])
+
+    def test_flag(self):
+        self.cfg1.cfg_from_ini(self.init_cfg_path)
+        absl_flag = get_flag()
+
+        # absl_flag will get the identical cfg of configer
+        self.assertEqual(self.cfg1.override_var, absl_flag.override_var)
+        self.assertEqual(self.cfg1.sec1.sec2.override_var, absl_flag.sec1.sec2.override_var)
+        self.assertEqual(self.cfg1.init_var, absl_flag.init_var)
+        self.assertEqual(self.cfg1.new_sec1.var, absl_flag.new_sec1.var)
+
 
 if __name__ == '__main__':
     tests = ['test_parsing_config', 'test_regist_cls', 'test_merge_config', 'test_cmd_args']

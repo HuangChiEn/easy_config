@@ -1,7 +1,7 @@
 import unittest
 
-from easy_config.Configer import Configer
-from easy_config.IO_Converter import IO_Converter
+from easy_configer.Configer import Configer
+from easy_configer.IO_Converter import IO_Converter
 
 import argparse 
 

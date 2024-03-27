@@ -20,3 +20,9 @@ def get_cfg_str(cfg_path):
     with open(cfg_path, 'r') as f_ptr:
         cfg_str = f_ptr.read()
     return cfg_str
+
+def get_flag():
+    from easy_configer.Configer import Configer
+    tmp_cfg = Configer()
+    # it should return the identical config wherever you defined 
+    return tmp_cfg.get_cfg_flag()
