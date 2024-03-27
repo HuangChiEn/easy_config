@@ -2,3 +2,4 @@
 *.egg-info
 pypi_pkg/*
 .bkup/*
+./tst.py
