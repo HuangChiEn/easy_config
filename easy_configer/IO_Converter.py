@@ -1,4 +1,5 @@
 from argparse import ArgumentParser
+from .utils.Container import AttributeDict
 
 class IO_Converter(object):
     def __init__(self):
@@ -51,36 +52,42 @@ class IO_Converter(object):
     def __remove_private_var(self, raw_cfg):
         tmp_dict = {}
         for k, v in raw_cfg.__dict__.items():
-            if not k[0] == '_':
+            # all private attribute is presented at first level
+            if not k.startswith('_'):
                 tmp_dict[k] = v
         return tmp_dict
 
-    # Convert easy_config to different config, QQ.. Byebye user..
-    def _to_argparse(self, raw_cfg, parse_arg=True, flatten_args=True):
-        args_template = ArgumentParser( description=raw_cfg.get_doc_str() )
-        raw_dict = self.__remove_private_var(raw_cfg)
-        
-        for sec_key, sec_val in raw_dict.items():
-            if flatten_args and isinstance(sec_val, dict):
-                for key, val in sec_val.items():
-                    args_template.add_argument("--{0}".format(key), type=type(val), default=val)
-            else:
-                args_template.add_argument("--{0}".format(sec_key), type=type(sec_val), default=sec_val)
+    def __convert_to_dict(self, sec_val):
+        dct = {}
+        for k, v in sec_val.items():
+            if isinstance(v, AttributeDict):
+                v = self.__convert_to_dict(v)
+            dct[k] = v
+        return dct
+    
+    def _to_dict(self, raw_cfg, return_attr_dict=False):
+        cfg = self.__remove_private_var(raw_cfg)
+        # force to convert AttributeDict into native python dict!
+        return cfg if return_attr_dict else self.__convert_to_dict(cfg)
 
+    # Convert easy_config to different config, QQ.. Byebye user..
+    def _to_argparse(self, raw_cfg, parse_arg=True):
+        args_template = ArgumentParser( description=raw_cfg.get_doc_str() )
+        for sec_key, sec_val in self._to_dict(raw_cfg).items():         
+            args_template.add_argument("--{0}".format(sec_key), type=type(sec_val), default=sec_val)
+        
         return args_template.parse_args() if parse_arg else args_template
 
     def _to_yaml(self, raw_cfg):
         mod = self.__imp_pkg('yaml')
-        raw_dict = self.__remove_private_var(raw_cfg)
-        return mod.dump(raw_dict)
+        cfg_dict = self._to_dict(raw_cfg)
+
+        return mod.dump(cfg_dict)
 
     def _to_omegacfg(self, raw_cfg):
         mod = self.__imp_pkg('omegaconf.omegaconf')
-        raw_dict = self.__remove_private_var(raw_cfg)
-        return mod.OmegaConf.create(raw_dict)
-
-    def _to_dict(self, raw_cfg):
-        return self.__remove_private_var(raw_cfg)
+        cfg_dict = self._to_dict(raw_cfg)
+        return mod.OmegaConf.create(cfg_dict)
     
     # Convert different config to easy_config! welcome aboard, User ~ www
     def _from_argparse(self, arg_cfg):
@@ -106,5 +113,9 @@ class IO_Converter(object):
         from .Configer import Configer
         cfg = Configer()
         for k, v in cfg_dict.items():
+            if isinstance(v, dict):
+                # set_attr_dict is enabled in init..
+                # no need to convert the nested-dict manuelly!
+                v = AttributeDict(v)
             cfg.__dict__[k] = v
         return cfg

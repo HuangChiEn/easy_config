@@ -26,3 +26,23 @@ def get_flag():
     tmp_cfg = Configer()
     # it should return the identical config wherever you defined 
     return tmp_cfg.get_cfg_flag()
+
+
+from dataclasses import dataclass
+from typing import Optional
+@dataclass
+class TableConfig:
+    rows: int = 1
+
+@dataclass
+class DatabaseConfig:
+    table_cfg: TableConfig = TableConfig()
+
+@dataclass
+class ModelConfig:
+    data_source: Optional[TableConfig] = None
+
+@dataclass
+class ServerConfig:
+    db: DatabaseConfig = DatabaseConfig()
+    model: ModelConfig = ModelConfig()

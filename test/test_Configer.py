@@ -80,12 +80,17 @@ class ConfigerTestCase(unittest.TestCase):
 
     def _test_subcfg(self, cfg):
         ## Note : cfg is not AttributeDict, so we use __dict__ to test it 
-        # section in sub-config do exists
-        self.assertIn('sec1', iter(cfg))
-        # new defined section exists
-        self.assertIn('sec_new', iter(cfg))
+        # section in dummy sub-config 
+        self.assertIn('secA', iter(cfg))
+        
+        # The recommended way to load a sub-config :
+        #   define a new section for storing the sub-config to prevent section conflict!
+        # If you want to override the original config, use "merge_conf(.)" instead!!
+        #   "implicitly" override args is the main reason i didn't prefer to use omegaconf..
+        self.assertIn('hier_sec', iter(cfg))
+
         # sub-config var 
-        self.assertEqual(cfg.secA.secB.secC.lev, 3)
+        self.assertEqual(cfg.hier_sec.secA.secB.secC.lev, 3)
         
     def test_regist_cls(self):
         self.cfg1.regist_cnvtor('tst_cls', Customized_Object)

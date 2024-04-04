@@ -200,7 +200,7 @@ class Configer(object):
             '''
             sub_cfg = Configer(cmd_args=False)
             sub_cfg.cfg_from_ini(sub_cfg_path)
-            return self.__cfg_cnvt.cnvt_cfg_to(sub_cfg, 'dict')
+            return self.__cfg_cnvt.cnvt_cfg_to(sub_cfg, 'dict', return_attr_dict=True)
 
         cur_sec_keys = ''
         for lin in raw_cfg_text.splitlines():
