@@ -35,50 +35,40 @@ For example :
     
 
 That leverage me to package my solution for solving this issue. The easy_config will cover the following attributes :
-
-1. **simple & customized syntax of declaration (partially support)**
+1. **Hierachical section config (nested dictionary)**
 
 2. **Accept multiple config file in dynamic loading manner**
 
-3. **Declare customized class instance in the config file**
+3. **Support customized class (initialized by keyword arguments)**
 
 4. **Commend-line update all declared-value wherever it belong, even in hierachical section**
 
-5. **Support the absl style FLAGS functionality** 
-
-6. **Omegaconf like hierachical config**
+5. **Support the absl style FLAGS functionality (declare once, use anywhere)** 
 
 And, of course the following attribute will also be supported :
 
-* dot-access of any default argument (flatten argument)
-
-* dict-access of any section argument (non-flatten argument) 
-
-* commend-line update any argument value (flatten & non-flatten argument)
-
-* add different settings while choosing to overload previous one.
+* dot-access of any arguments (even in nested dictionary)
 
 * inline comment '#', now you can write comment in everyline ~
 
 * support arguments interpolation!!
 
-* support config conversion, which bridge the easy_config into the other config file ~
+* support config conversion, which turn easy_config into the other kind of config package (omegaconf, argparse, ..., etc.)
 
 * support hierachical configurating system with dynamic override ~
+
 ---
 
 ### Newly update features 🚀
-1. Better syntax for override argument via commendline
-2. Better syntax for declare the config file
-3. Various support of config conversion, including omegaconf, dataclasses, dict, ..., etc.
-4. Support enviroment variable (os.Env) interpolation
-5. Dynamic sub-config loading..
-6. Also update document and some handy examples ~
+1. Enable all test case (automatically ci by git-action)
+2. Support dot-access of any arguments
+3. Consistent import syntax.. 
+4. New document is released ~
 
 ---
 
 ### Bug Fixed 🐛
-#### config string with extra space caused config error, and it's fixed in this version.
+#### Fix-up import syntax.. plz open an issue if you find a bug ~
 ---
 
 ### Dependencies 🏗️
@@ -92,14 +82,13 @@ The python standard package (such as pathlib, sys, .., etc) is the only source o
 ### Installation ⚙️<br>
 1. **pypi install** <br>
     simply type the `pip install easy_configer` (due to name conflict of pypi pkg, we use different pkg name)
+
 2. **install from source code** <br>
     clone the project from github : `git clone repo-link` 
     Chage to the root directory of the cloned project, and type `pip install -e .`
+
 3. **import syntax** <br>
-    Because of the name conflict of pypi pkg, i choice the different pkg name.
-    To import the installed pkg, the syntax will be depended on the install method. For example. <br>
-    Pip install : `from easy_configer.Configer import Configer` <br>
-    git clone & pip install : `from easy_config.Configer import Configer` <br>
+    Wherever you install, pypi or source. Now, you just need a simple import : `from easy_configer.Configer import Configer`
     
 ---
 
@@ -196,8 +185,11 @@ However, you can also override the arguemnts via commendline `python quick_start
             chat_mode=cfger.chat_mode, 
             model_type=cfger.model_type
         )
-        llm_mod.init_mod_param( **cfger.bknd_srv['mod_params'] )
 
+        # you can access nested-dict by dot access ~
+        llm_mod.init_mod_param( **cfger.bknd_srv.mod_params )
+
+        # or you can keep the dict fashion ~
         if cfger.bknd_srv['async_req']:
             chat_serv.chat_mod = llm_mod
             chat_serv.hist_db = mongo_serv
@@ -205,6 +197,8 @@ However, you can also override the arguemnts via commendline `python quick_start
             ... # write sync conversation by yourself..
 
         sys.exit( chat_serv.server_forever() )
+
+> Note that the recommended way to access the argument is **still** key-string access `cfger.args['#4$%-var']`, as you may notice, dot-access doesn't support **ugly** variable name. 
 
 <br>
 
@@ -256,8 +250,11 @@ There have two kind of way to prepare the arguments in easy-config : we can eith
         print(cfger.dataset)  
         # output nested dict : { 'service_port':65536, 'path':'/data/kitti', 'loader':{'batch_size':32} }
         
-        print(cfger.dataset['loader']['batch_size'])
-        # output : 32
+        print(f"key-string access bz : {cfger.dataset['loader']['batch_size']}")
+        # output - "key-string access bz : 32"
+
+        print(f"bz : {cfger.dataset.loader.batch_size}")
+        # output - "dot-access bz : 32"
 
         # we usually conduct initialization such simple & elegant!
         ds = build_dataset(**cfger.dataset)
@@ -311,8 +308,34 @@ However, the syntax of above config file could be improved, isn't it !? For exam
         cfger.cfg_from_str(cfg_str)
         # do whatever you want to do!
         
+#### **3. Access all arguments flexibly**
+We simple set a breakpoint to feel how flexible does `easy_configer.utils.Container.AttributeDict` support.
 
-#### **3. Commmend-line Support**
+    from easy_configer.Configer import Configer
+    
+    if __name__ == "__main__":
+        cfger = Configer()
+        cfger.cfg_from_ini("./hier_cfg.ini")
+        breakpoint()
+
+> We write a special example `hier_cfg.ini`!!
+    # nested-dict
+    [secA] # test depth ((sub^4)-section under secA)
+        lev = 1
+        [secA.secB]
+            lev = 2
+            [secA.secB.secC]
+                lev = 3
+                [secA.secB.secC.secD]
+                    lev = 4
+
+Now you can access each `lev` :
+1. `(pdb) cfger.secA.lev `, output `lev : 1`
+2. `(pdb) cfger['secA'].secB['lev'] `, output `lev : 2`, and so on..
+3. Most crazy one ~ `(pdb) cfger.secA.['secB'].secC['secD'].lev `, output `lev : 4`
+
+
+#### **4. Commmend-line Support**
 > We also take `hier_cfg.ini` as example!
 
     # hier_cfg.ini
@@ -337,7 +360,7 @@ Especially update **non-flatten argument**, you can access any argument at any l
 ( Note that the commendline declaration for string is tricky, but currently we only support two way for that : 
     `dataset.ds_type="'kitti'"` or `dataset.ds_type=kitti@str`, pick up one of you like ~ )
 
-#### **4. Import Sub-Config**
+#### **5. Import Sub-Config**
 Like `omegaconf`, most of user expect to seperate the config based on their type and dynamically merge it in runtime. It's a rational requirement and the previous version of easy-config provide two way to conduct it, but both have it's limit : 
 1. you can call the `cfg_from_ini` twice, for example, `cfg.cfg_from_ini('./base_cfg') ; cfg.cfg_from_ini('./override_cfg')`. But it's not explicitly load the config thus reducing readability.
 2. you can use the config merging, for example, `new_cfg = base_cfg | override_cfg`. But it's not elegant solution while you  have to merge several config..
@@ -365,7 +388,7 @@ Like `omegaconf`, most of user expect to seperate the config based on their type
             lay_seed = $glb_seed  
 
 
-#### **5. Config Operation**
+#### **6. Config Operation**
 Config operation is one of the core technique for dynamic configuration system!!
 In the following example, you can see that the merging config system already provided a impressive hierachical merging funtionality! 
 
@@ -431,7 +454,7 @@ In the following example, you can see that the merging config system already pro
 ---
 
 ### **Miscellnous features**
-#### **6. IO Converter**
+#### **7. IO Converter**
     from dataclasses import dataclass
     from typing import Optional
 
@@ -484,16 +507,29 @@ In the following example, you can see that the merging config system already pro
         ez_cfg = cnvt.cnvt_cfg_from(ds_cfg, 'dataclass')
 
 
-#### **7. Absl style flag**
+#### **8. Absl style flag**
 > easy_config also support that you can access the 'same' config file in different python file without re-declare the config. test_flag.py under the same work directory
 
+Suppose you have executed `main.py`:
+    from easy_configer.Configer import Configer
+    from utils import get_var_from_flag
+
+    if __name__ == "__main__":
+        cfg = Configer()
+        cfg.cfg_from_str("var = 32")
+
+        # both should output 32 ~
+        print(f"var from main : {cfg.var}")
+        print(f"var from flag : { get_var_from_flag() }")
+
+Now, when you step in `get_var_from_flag` function in different file..
     from easy_configer.Configer import Configer
 
-    def get_n_blk_from_flag():
+    def get_var_from_flag():
         new_cfger = Configer()
         flag = new_cfger.get_cfg_flag()
-        # test to get the pre-defined 'n_blk'
-        return flag.n_blk
+        # test to get the pre-defined 'var'
+        return flag.var
 
 ---
 
@@ -503,7 +539,8 @@ In the following example, you can see that the merging config system already pro
 
 ### Simple Unittest 🧪
 If you clone this repo and built from source, you can try to run the unittest.
-`cd test && python test_Configer.py`
+`python -m unittest discover`
+> I have placed all test file under test folder.
 
 ---
 
