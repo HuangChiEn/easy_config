@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>關於此專案 &mdash; easy_configer v2.1.2 說明文件</title>
+  <title>關於此專案 &mdash; easy_configer v2.3.1 說明文件</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -13,7 +13,8 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
@@ -86,15 +87,18 @@
 <h1>關於此專案<a class="headerlink" href="#id1" title="本標頭的永久連結"></a></h1>
 <section id="id2">
 <h2>前言 ✨<a class="headerlink" href="#id2" title="本標頭的永久連結"></a></h2>
-<p>easy_configer 版本 : 2.2.0
-用輕鬆的方法組態您的程式</p>
+<p>easy_configer 版本 : 2.3.2</p>
+<blockquote>
+<div><p>小提示 :  2.3.1 版只是對 pypi 上文檔的修正</p>
+</div></blockquote>
+<p>用輕鬆的方法組態您的程式</p>
 <p>我很榮幸向使用者推出一個輕量化的組態工具作為配置python程式的設定，
 希望這個工具能讓使用者輕鬆地控制大型專案 ~ ~</p>
 </section>
 <section id="id3">
 <h2>開發背景 📝<a class="headerlink" href="#id3" title="本標頭的永久連結"></a></h2>
 <p>當走向大型專案的規模，我們會需要許多參數來控制程式的複雜業務邏輯；最終使用者可能需要一個簡單的解決方案來加載程式參數的組態。
-雖然現今已經有許多套件提供這些功能，<strong>不幸的是，我目前仍未看到一個完整的解決方案能夠」輕鬆地」加載和使用這些組態</strong>；反之，大多套件都有自己的強項和短處，而他們的短處使得程式更加冗長和不易閱讀。</p>
+雖然現今已經有許多套件提供這些功能，<strong>不幸的是，我目前仍未看到一個完整的解決方案能夠輕鬆地加載和使用這些組態</strong>；反之，大多套件都有自己的強項和短處，而他們的短處使得程式更加冗長和不易閱讀。</p>
 <p>例如 :</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1">## ConfigParser</span>
 <span class="kn">import</span> <span class="nn">ConfigParser</span>
@@ -116,22 +120,18 @@
 </div>
 <p>這促使我提出一個新的解決方案來應對這些問題。easy_configer 將包括以下特性：</p>
 <ol class="arabic simple">
-<li><p><strong>簡單且可自訂的宣告語法 (部分支援)</strong></p></li>
+<li><p><strong>階層性組態 (多層次的字典結構)</strong></p></li>
 <li><p><strong>接受多個配置文件並支持動態加載</strong></p></li>
-<li><p><strong>動態地在根配置文件中載入子配置</strong></p></li>
-<li><p><strong>在配置文件中聲明自定義的類別實例</strong></p></li>
+<li><p><strong>支援自定義的資料型態 (藉由 keyword 參數初始化您的類別)</strong></p></li>
 <li><p><strong>可於命令列中更新任意組態值，不論其所屬階層與位置</strong></p></li>
 <li><p><strong>支援 absl 風格的 FLAGS 功能</strong></p></li>
-<li><p><strong>像 Omegaconf 一樣支援層次化配置</strong></p></li>
 </ol>
 <p>當然，解決方案也支援以下功能：</p>
 <ul class="simple">
-<li><p>對於任何扁平參數，使用 dot 運算子訪問</p></li>
-<li><p>對於任何非扁平(階層化)參數，如同一般字典物件使用 key 訪問</p></li>
-<li><p>命令列更新任何參數值（扁平和非扁平參數）</p></li>
+<li><p>對於任何參數，可使用 dot 運算子訪問 (即使是字典中字典的參數)</p></li>
 <li><p>內聯註釋 「#」，現在您可以在每一行中寫註釋了</p></li>
 <li><p>支援參數插值!!</p></li>
-<li><p>支援組態檔轉換，將 easy_config 轉換到不同配置套件 ~</p></li>
+<li><p>支援組態檔轉換，將 easy_config 轉換到不同組態套件 (omegaconf, argparse, …, 等第三方套件)</p></li>
 <li><p>支援具有動態覆蓋的多層次配置系統 ~</p></li>
 </ul>
 </section>
@@ -148,7 +148,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; 版權所有 2023, JosefHuang。</p>
+    <p>&#169; 版權所有 2024, JosefHuang。</p>
   </div>
 
   利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 

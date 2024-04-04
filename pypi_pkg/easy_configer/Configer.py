@@ -10,7 +10,7 @@ def warning_on_one_line(message, category, filename, lineno, file=None, line=Non
 warnings.formatwarning = warning_on_one_line
 
 from .utils.Type_Convertor import Type_Convertor
-from .utils.Flag import Flag
+from .utils.Container import AttributeDict, Flag
 from .IO_Converter import IO_Converter
 
 class Configer(object):
@@ -74,14 +74,22 @@ class Configer(object):
                 raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), str(cfg_path))
             if not cfg_path.suffix == ".ini":
                 raise ValueError("The file extension should be 'ini', instead of '{0}'".format(cfg_path.suffix))
-            
+        
+        # take from : https://stackoverflow.com/questions/16480495/read-a-file-with-line-continuation-characters-in-python
+        def continuation_lines(fin):
+            for line in fin:
+                line = line.rstrip('\n')
+                while line.endswith('\\'):
+                    line = line[:-1] + next(fin).rstrip('\n')
+                yield line
+
         try:
             # check config path validation
             cfg_path = Path(cfg_path)
             chk_src(cfg_path)
 
             with cfg_path.open('r') as cfg_ptr: 
-                raw_cfg_text = cfg_ptr.read()
+                raw_cfg_text = "\n".join([ line for line in continuation_lines(cfg_ptr) ])
             
         except FileNotFoundError as fnf_err:
             print(fnf_err) ; raise
@@ -91,9 +99,8 @@ class Configer(object):
             print(per_err) ; raise
         except Exception as ex:
             print(ex) ; raise
-        else:
-            self.__cfg_parser(raw_cfg_text)
         
+        self.__cfg_parser(raw_cfg_text)
         # build the flag object 
         self.__flag.__dict__ = self.__dict__
     
@@ -129,25 +136,27 @@ class Configer(object):
         # Before easy_configer 1.3.4 ver, all section is builded upon this level
         if len(sec_name_lst) == 1:
             return self.__dict__, sec_keys_str
-
+            
         root_key = sec_name_lst.pop(0)
         if root_key not in self.__dict__:
             if not allow_init:
                 raise RuntimeError("The parent node of {0} is not defined yet, " \
                                         "it's invalid for directly made the child node".format(root_key))
-            self.__dict__[root_key] = {}
-
+            self.__dict__[root_key] = AttributeDict() 
+            
         ## Support toml like 'hierachical' format!!
         #  dynamically search the hierachical section begin from the 'next layer' of self.__dict__
         idx_sec = self.__dict__[root_key]
+        
         #  keep the index point to the node "parent", since the child node will be init as dict!
         for sec in sec_name_lst[:-1]:
+            # AttributeDict.get(.) will not trigger "defaultdict behavior"
             tmp = idx_sec.get(sec, '__UNDEFINE_VAL')
             if tmp == '__UNDEFINE_VAL':
                 if not allow_init:
                     raise RuntimeError("The parent node '{0}' is not defined yet, " \
                                             "it's invalid for directly made the child node".format(sec))
-                idx_sec[sec] = {}
+                idx_sec[sec] = AttributeDict() 
             idx_sec = idx_sec[sec]
 
         return idx_sec, sec_name_lst[-1]
@@ -191,7 +200,7 @@ class Configer(object):
             '''
             sub_cfg = Configer(cmd_args=False)
             sub_cfg.cfg_from_ini(sub_cfg_path)
-            return self.__cfg_cnvt.cnvt_cfg_to(sub_cfg, 'dict')
+            return self.__cfg_cnvt.cnvt_cfg_to(sub_cfg, 'dict', return_attr_dict=True)
 
         cur_sec_keys = ''
         for lin in raw_cfg_text.splitlines():
@@ -206,7 +215,7 @@ class Configer(object):
                 idx_sec, idx_sec_key = self.__idx_sec_by_dot(sec_keys_str)
                 if idx_sec_key in idx_sec.keys():
                     raise RuntimeError('Re-defined config, {0} section will be overrided!!'.format(sec_keys_str))
-                idx_sec[idx_sec_key] = {}
+                idx_sec[idx_sec_key] = AttributeDict()
                 cur_sec_keys = sec_keys_str
             
             # parse variable assignment string
@@ -224,9 +233,10 @@ class Configer(object):
                 if cur_sec_keys != '':
                     idx_sec, idx_sec_key = self.__idx_sec_by_dot(cur_sec_keys)
                     idx_sec[idx_sec_key].update( val_dict )
-                else:
+                # assign the val_dict as 'flatten' arguments 
+                else: # Note that flatten args IS NOT AttributeDict!
                     self.__dict__.update( val_dict )
-
+                    
         # Update the namespace value via commend-line input 
         if self.__cmd_args:
             self.args_from_cmd()
@@ -245,7 +255,7 @@ class Configer(object):
 
         # ' = ' -> '=', eliminate white space
         cmd_sp_chr = self.split_char.strip()
-        sec_ptr, sec_key = None, None
+        sec_ptr, sec_key = None, None 
         for item in cmd_arg_lst:
             itm_lst = [ itm for itm in item.split(cmd_sp_chr) if itm != '']
             if len(itm_lst) != 2:
@@ -300,11 +310,28 @@ class Configer(object):
 
     # Display the namespace which record all of the declared arguments
     #   for the inner-node structure, iter-call __str__ wrapper !!
+    def __shadow_private_args(self):
+        return [ str(key) for key in self.__dict__.keys() if key[0] != '_' ] 
+
     def __str__(self):
-        key_str = [ str(key) for key in self.__dict__.keys() if key[0] != '_' ] 
+        key_str = self.__shadow_private_args()
         return "Namespace : \n" + ", ".join(key_str)
     # override default __repr__ to view configer in debugger
     __repr__ = __str__
+
+    ## public interface for iterate the entire config
+    def __iter__(self):
+        tmp_dct = {}
+        for key in self.__shadow_private_args():
+            tmp_dct[key] = self.__dict__[key]
+        return iter(tmp_dct)
+    
+    ## standard interface for dict-access for flatten argument (since Configer IS NOT AttributeDict)
+    def __getitem__(self, key):
+        return self.__dict__[key]
+
+    def __setitem__(self, key, value):
+        self.__dict__[key] = value
     
     ## Miscellnous functionality : 
     # return an absl style flag to store all of the args.

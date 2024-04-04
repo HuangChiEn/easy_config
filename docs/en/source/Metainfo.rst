@@ -8,22 +8,16 @@ Newly update features 🚀
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 #. 
-   Better syntax for **override argument via commendline**
+   Enable all test case (automatically ci by git-action)
 
 #. 
-   Better syntax for declare the config file ~
+   Support dot-access of any arguments
 
 #. 
-   Various support of **config conversion**, including omegaconf, dataclasses, dict, ..., etc.  
+   Consistent import syntax.. 
 
 #. 
-   Support enviroment variable (os.Env) **interpolation**!!
-
-#. 
-   Dynamic **sub-config** loading..
-
-#. 
-   Also update document and some handy examples ~  
+   New document is released ~  
 
 ----
 
@@ -35,13 +29,13 @@ TODO List 🔨
 
 .. 
 
-    next version released features v 2.2.0
+    next version released features v 2.3.3
 
 
 Bug Fixed 🐛
 ^^^^^^^^^^^^^^
 
-*config string with extra space caused config error, and it's fixed in this version..*
+Fix-up import syntax.. plz open an issue if you find a bug ~
 
 ----
 
@@ -49,7 +43,12 @@ Simple Unittest 🧪
 ^^^^^^^^^^^^^^^^^^
 
 If you clone this repo and built from source, you can try to run the unittest.
-``cd test && python test_Configer.py``
+``python -m unittest discover``
+
+..
+
+   I have placed all test file under test folder.
+
 
 ----
 

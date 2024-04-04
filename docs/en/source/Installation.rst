@@ -14,10 +14,7 @@ How to install ? ⚙️\ :raw-html-m2r:`<br>`
     clone the project from github : ``git clone repo-link`` 
     Chage to the root directory of the cloned project, and type ``pip install -e .``
 #. **import syntax** :raw-html-m2r:`<br>`
-    Because of the name conflict of pypi pkg, i choice the different pkg name.
-    To import the installed pkg, the syntax will be depended on the install method. For example. :raw-html-m2r:`<br>`
-    Pip install : ``from easy_configer.Configer import Configer`` :raw-html-m2r:`<br>`
-    git clone & pip install : ``from easy_config.Configer import Configer`` :raw-html-m2r:`<br>`
+     Wherever you install, pypi or source. Now, you just need a simple import : ``from easy_configer.Configer import Configer``
 
 ----
 

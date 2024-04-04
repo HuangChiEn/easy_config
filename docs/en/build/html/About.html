@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>About this project &mdash; easy_configer v2.1.2 documentation</title>
+  <title>About this project &mdash; easy_configer v2.3.1 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -13,7 +13,8 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
@@ -85,8 +86,11 @@
 <h1>About this project<a class="headerlink" href="#about-this-project" title="Permalink to this heading"></a></h1>
 <section id="preface">
 <h2>Preface ✨<a class="headerlink" href="#preface" title="Permalink to this heading"></a></h2>
-<p>easy_configer version : 2.2.0
-Configeruating the program in an easy-way</p>
+<p>easy_configer version : 2.3.2</p>
+<blockquote>
+<div><p>Note : version 2.3.1 just a document fixup for pypi</p>
+</div></blockquote>
+<p>Configeruating the program in an easy-way</p>
 <p>I’m willing to provide a light-weight solution for configurating your python program.
 Hope this repository make every user control their large project with easier ~ ~</p>
 </section>
@@ -115,23 +119,18 @@ Hope this repository make every user control their large project with easier ~ ~
 </div>
 <p>That leverage me to package my solution for solving this issue. The easy_config will cover the following attributes :</p>
 <ol class="arabic simple">
-<li><p><strong>simple &amp; customized syntax of declaration (partially support)</strong></p></li>
-<li><p><strong>Accept multiple config file with dynamic style</strong></p></li>
-<li><p><strong>Dynamically loading the sub-config in root config file</strong></p></li>
-<li><p><strong>Declare customized class instance in the config file</strong></p></li>
-<li><p><strong>Commend-line update all declared-value wherever it belong</strong></p></li>
-<li><p><strong>Support the absl style FLAGS functionality</strong></p></li>
-<li><p><strong>Omegaconf like hierachical config</strong></p></li>
+<li><p><strong>Hierachical section config (nested dictionary)</strong></p></li>
+<li><p><strong>Accept multiple config file in dynamic loading manner</strong></p></li>
+<li><p><strong>Support customized class (initialized by keyword arguments)</strong></p></li>
+<li><p><strong>Commend-line update all declared-value wherever it belong, even in hierachical section</strong></p></li>
+<li><p><strong>Support the absl style FLAGS functionality (declare once, use anywhere)</strong></p></li>
 </ol>
 <p>And, of course the following attribute will also be supported :</p>
 <ul class="simple">
-<li><p>dot-access of any default argument (flatten argument)</p></li>
-<li><p>dict-access of any section argument (non-flatten argument)</p></li>
-<li><p>commend-line update any argument value (flatten &amp; non-flatten argument)</p></li>
-<li><p>add different settings while choosing to overload previous one.</p></li>
+<li><p>dot-access of any arguments (even in nested dictionary)</p></li>
 <li><p>inline comment ‘#’, now you can write comment in everyline ~</p></li>
-<li><p>support arguments (flatten) interpolation!!</p></li>
-<li><p>support config conversion, which bridge the easy_config into the other config file ~</p></li>
+<li><p>support arguments interpolation!!</p></li>
+<li><p>support config conversion, which turn easy_config into the other kind of config package (omegaconf, argparse, …, etc.)</p></li>
 <li><p>support hierachical configurating system with dynamic override ~</p></li>
 </ul>
 </section>
@@ -148,7 +147,7 @@ Hope this repository make every user control their large project with easier ~ ~
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, JosefHuang.</p>
+    <p>&#169; Copyright 2024, JosefHuang.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

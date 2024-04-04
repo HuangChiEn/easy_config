@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Quick start &mdash; easy_configer v2.1.2 documentation</title>
+  <title>Quick start &mdash; easy_configer v2.3.1 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -13,7 +13,8 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
@@ -93,8 +94,8 @@
 <span class="s1">&#39;&#39;&#39;</span>
 
 <span class="c1"># look&#39;s good, let&#39;s get the config!</span>
-<span class="kn">from</span> <span class="nn">easy_configer.Config</span> <span class="kn">import</span> <span class="n">Config</span>
-<span class="n">cfg</span> <span class="o">=</span> <span class="n">Config</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;math calculation config!&quot;</span><span class="p">,</span> <span class="n">cmd_args</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">easy_configer.Configer</span> <span class="kn">import</span> <span class="n">Configer</span>
+<span class="n">cfg</span> <span class="o">=</span> <span class="n">Configer</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;math calculation config!&quot;</span><span class="p">,</span> <span class="n">cmd_args</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="n">cfg</span><span class="o">.</span><span class="n">cfg_from_str</span><span class="p">(</span><span class="n">cfg_str</span><span class="p">)</span>
 
 <span class="c1"># oh.. wait, could we do it more easier ?</span>
@@ -170,8 +171,10 @@ However, you can also override the arguemnts via commendline <code class="docuti
         <span class="n">chat_mode</span><span class="o">=</span><span class="n">cfger</span><span class="o">.</span><span class="n">chat_mode</span><span class="p">,</span>
         <span class="n">model_type</span><span class="o">=</span><span class="n">cfger</span><span class="o">.</span><span class="n">model_type</span>
     <span class="p">)</span>
-    <span class="n">llm_mod</span><span class="o">.</span><span class="n">init_mod_param</span><span class="p">(</span> <span class="o">**</span><span class="n">cfger</span><span class="o">.</span><span class="n">bknd_srv</span><span class="p">[</span><span class="s1">&#39;mod_params&#39;</span><span class="p">]</span> <span class="p">)</span>
+    <span class="c1"># you can access nested-dict by dot access ~</span>
+    <span class="n">llm_mod</span><span class="o">.</span><span class="n">init_mod_param</span><span class="p">(</span> <span class="o">**</span><span class="n">cfger</span><span class="o">.</span><span class="n">bknd_srv</span><span class="o">.</span><span class="n">mod_params</span> <span class="p">)</span>
 
+    <span class="c1"># or you can keep the dict fashion ~</span>
     <span class="k">if</span> <span class="n">cfger</span><span class="o">.</span><span class="n">bknd_srv</span><span class="p">[</span><span class="s1">&#39;async_req&#39;</span><span class="p">]:</span>
         <span class="n">chat_serv</span><span class="o">.</span><span class="n">chat_mod</span> <span class="o">=</span> <span class="n">llm_mod</span>
         <span class="n">chat_serv</span><span class="o">.</span><span class="n">hist_db</span> <span class="o">=</span> <span class="n">mongo_serv</span>
@@ -197,7 +200,7 @@ However, you can also override the arguemnts via commendline <code class="docuti
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, JosefHuang.</p>
+    <p>&#169; Copyright 2024, JosefHuang.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

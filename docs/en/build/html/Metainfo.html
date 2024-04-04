@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Meta information &mdash; easy_configer v2.1.2 documentation</title>
+  <title>Meta information &mdash; easy_configer v2.3.1 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -13,7 +13,8 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
@@ -87,12 +88,10 @@
 <section id="newly-update-features">
 <h2>Newly update features 🚀<a class="headerlink" href="#newly-update-features" title="Permalink to this heading"></a></h2>
 <ol class="arabic simple">
-<li><p>Better syntax for <strong>override argument via commendline</strong></p></li>
-<li><p>Better syntax for declare the config file ~</p></li>
-<li><p>Various support of <strong>config conversion</strong>, including omegaconf, dataclasses, dict, …, etc.</p></li>
-<li><p>Support enviroment variable (os.Env) <strong>interpolation</strong>!!</p></li>
-<li><p>Dynamic <strong>sub-config</strong> loading..</p></li>
-<li><p>Also update document and some handy examples ~</p></li>
+<li><p>Enable all test case (automatically ci by git-action)</p></li>
+<li><p>Support dot-access of any arguments</p></li>
+<li><p>Consistent import syntax..</p></li>
+<li><p>New document is released ~</p></li>
 </ol>
 </section>
 <hr class="docutils" />
@@ -102,18 +101,21 @@
 <li><p>Better <strong>exception mechniasm</strong> in easy-config ~</p></li>
 </ol>
 <blockquote>
-<div><p>next version released features v 2.2.0</p>
+<div><p>next version released features v 2.3.3</p>
 </div></blockquote>
 </section>
 <section id="bug-fixed">
 <h2>Bug Fixed 🐛<a class="headerlink" href="#bug-fixed" title="Permalink to this heading"></a></h2>
-<p><em>config string with extra space caused config error, and it’s fixed in this version..</em></p>
+<p>Fix-up import syntax.. plz open an issue if you find a bug ~</p>
 </section>
 <hr class="docutils" />
 <section id="simple-unittest">
 <h2>Simple Unittest 🧪<a class="headerlink" href="#simple-unittest" title="Permalink to this heading"></a></h2>
 <p>If you clone this repo and built from source, you can try to run the unittest.
-<code class="docutils literal notranslate"><span class="pre">cd</span> <span class="pre">test</span> <span class="pre">&amp;&amp;</span> <span class="pre">python</span> <span class="pre">test_Configer.py</span></code></p>
+<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">unittest</span> <span class="pre">discover</span></code></p>
+<blockquote>
+<div><p>I have placed all test file under test folder.</p>
+</div></blockquote>
 </section>
 <hr class="docutils" />
 <section id="miscellnous">
@@ -138,7 +140,7 @@ Josef-Huang, <a class="reference external" href="mailto:a3285556aa&#37;&#52;&#48
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, JosefHuang.</p>
+    <p>&#169; Copyright 2024, JosefHuang.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

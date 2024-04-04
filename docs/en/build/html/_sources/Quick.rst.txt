@@ -21,8 +21,8 @@ Let's say we have an easy-config for development enviroment on jupyter notebook.
    '''
 
    # look's good, let's get the config!
-   from easy_configer.Config import Config
-   cfg = Config(description="math calculation config!", cmd_args=False)
+   from easy_configer.Configer import Configer
+   cfg = Configer(description="math calculation config!", cmd_args=False)
    cfg.cfg_from_str(cfg_str)
 
    # oh.. wait, could we do it more easier ?
@@ -106,8 +106,10 @@ However, you can also override the arguemnts via commendline ``python quick_star
            chat_mode=cfger.chat_mode, 
            model_type=cfger.model_type
        )
-       llm_mod.init_mod_param( **cfger.bknd_srv['mod_params'] )
+       # you can access nested-dict by dot access ~
+       llm_mod.init_mod_param( **cfger.bknd_srv.mod_params )
 
+       # or you can keep the dict fashion ~
        if cfger.bknd_srv['async_req']:
            chat_serv.chat_mod = llm_mod
            chat_serv.hist_db = mongo_serv

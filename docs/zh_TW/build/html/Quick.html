@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>快速入門 &mdash; easy_configer v2.1.2 說明文件</title>
+  <title>快速入門 &mdash; easy_configer v2.3.1 說明文件</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -13,7 +13,8 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
@@ -94,8 +95,8 @@
 <span class="s1">&#39;&#39;&#39;</span>
 
 <span class="c1"># 看起來不錯, 讓我們取得 config!</span>
-<span class="kn">from</span> <span class="nn">easy_configer.Config</span> <span class="kn">import</span> <span class="n">Config</span>
-<span class="n">cfg</span> <span class="o">=</span> <span class="n">Config</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;math calculation config!&quot;</span><span class="p">,</span> <span class="n">cmd_args</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">easy_configer.Configer</span> <span class="kn">import</span> <span class="n">Configer</span>
+<span class="n">cfg</span> <span class="o">=</span> <span class="n">Configer</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;math calculation config!&quot;</span><span class="p">,</span> <span class="n">cmd_args</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="n">cfg</span><span class="o">.</span><span class="n">cfg_from_str</span><span class="p">(</span><span class="n">cfg_str</span><span class="p">)</span>
 
 <span class="c1"># 喔.. 且慢, 我們可以讓它變得更簡單嗎 ?</span>
@@ -113,24 +114,24 @@
 </pre></div>
 </div>
 <p>在較大型的項目中，我們可能會編寫一個配置文件來控制程序，使得配置更容易追蹤、檢查和調試。在這裡，我們首先在工作目錄中準備一個名為 <code class="docutils literal notranslate"><span class="pre">test_cfg.ini</span></code> 的配置文件。
-<em>對於 easy-config 文件，存在兩種類型的參數：扁平參數和層次參數</em>。您可以看到，扁平參數位於第一層級，可以通過點運算符輕鬆訪問；除了扁平參數之外，所有層次參數將被放置在 Python 字典對象中，因此可以通過字串訪問每個參數！</p>
+<em>對於 easy-config 文件，存在兩種類型的參數：扁平參數和階層化參數</em>。您可以看到，扁平參數位於第一層級，可以通過點運算符輕鬆訪問；除了扁平參數之外，所有階層化參數將被放置在 Python 字典對象中，因此可以通過字串訪問每個參數！</p>
 <div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="c1"># ./test_cfg.ini</span>
-<span class="c1"># &#39;#&#39; denote comment line, the inline comment is also supported!</span>
+<span class="c1"># 以 &#39;#&#39; 開頭為 comment, 我們也支援 inline-comment了!</span>
 
-<span class="c1"># define &#39;flatten&#39; arguments :</span>
+<span class="c1"># 定義扁平參數 (flatten arguments) :</span>
 <span class="na">serv_host</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;127.0.0.1&#39;</span>
 <span class="na">serv_port</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">9478@int</span><span class="w">    </span><span class="c1"># specific type is also allowed!!</span>
 <span class="na">api_keys</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">{&#39;TW_REGION&#39;:&#39;SV92VS92N20&#39;, &#39;US_REGION&#39;:&#39;W92N8WN029N2&#39;}</span>
 
-<span class="c1"># define &#39;hierachical&#39; arguments :</span>
-<span class="c1"># the &#39;section&#39; is the key of accessing dict value and could be defined as follows :</span>
+<span class="c1"># 定義階層化參數 :</span>
+<span class="c1"># &#39;section&#39; 為存取字典值時所用的字串，並於以下定義 :</span>
 <span class="k">[db_setup]</span>
 <span class="w">    </span><span class="na">db_host</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">$serv_host</span>
-<span class="w">    </span><span class="c1"># first `export mongo_port=5566` in your bash, then support os.env interpolation!</span>
+<span class="w">    </span><span class="c1"># 請先於您的 bash 中執行 `export mongo_port=5566`, 我們支援對 os.env 的參數插值!</span>
 <span class="w">    </span><span class="na">db_port</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">$Env.mongo_port</span>
 <span class="w">    </span><span class="na">snap_shot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
 
-<span class="c1"># and then define second section for backend server..</span>
+<span class="c1"># 接著我們為後端 server 定義 第二個 section..</span>
 <span class="k">[bknd_srv]</span>
 <span class="w">    </span><span class="na">load_8bit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
 <span class="w">    </span><span class="na">async_req</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
@@ -139,7 +140,7 @@
 <span class="w">    </span><span class="k">[bknd_srv.mod_params]</span>
 <span class="w">        </span><span class="na">log_hist</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
 <span class="w">        </span><span class="na">tempeture</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1e-4</span>
-<span class="w">        </span><span class="na">model_mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">$bknd_srv.chat_mode</span><span class="w">  </span><span class="c1"># hierachical args interpolation</span>
+<span class="w">        </span><span class="na">model_mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">$bknd_srv.chat_mode</span><span class="w">  </span><span class="c1"># 階層化參數插值</span>
 </pre></div>
 </div>
 <p><span class="raw-html-m2r"><br></span></p>
@@ -152,31 +153,33 @@
     <span class="kn">from</span> <span class="nn">easy_configer.Configer</span> <span class="kn">import</span> <span class="n">Configer</span>
 
     <span class="n">cfger</span> <span class="o">=</span> <span class="n">Configer</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;chat-bot configuration&quot;</span><span class="p">,</span> <span class="n">cmd_args</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="c1"># we have defined a config file, let&#39;s try to load it!</span>
+    <span class="c1"># 我們先定義組態檔，然後嘗試加載它!</span>
     <span class="n">cfger</span><span class="o">.</span><span class="n">cfg_from_ini</span><span class="p">(</span><span class="s2">&quot;./test_cfg.ini&quot;</span><span class="p">)</span>
 
-    <span class="c1"># Display the Namespace, it will display all flatten arguemnts and first-level sections</span>
+    <span class="c1"># 印出 Namespace, 它會印出所有扁平化參數 (first-level sections)</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">cfger</span><span class="p">)</span>
 
-    <span class="o">...</span> <span class="c1"># for building chat-bot instance `Chat_server`</span>
+    <span class="o">...</span> <span class="c1"># 建構 chat-bot 實例的程式碼 `Chat_server`</span>
     <span class="n">chat_serv</span> <span class="o">=</span> <span class="n">Chat_server</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="n">cfger</span><span class="o">.</span><span class="n">serv_host</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">cfger</span><span class="o">.</span><span class="n">serv_port</span><span class="p">,</span> <span class="n">api_keys</span><span class="o">=</span><span class="n">cfger</span><span class="o">.</span><span class="n">api_keys</span><span class="p">)</span>
 
-    <span class="o">...</span> <span class="c1"># build mongo-db instance `mongo_serv` for logging chat history..</span>
+    <span class="o">...</span> <span class="c1"># 建構 mongo-db 實例的 `mongo_serv` 以紀錄歷史對話訊息..</span>
     <span class="n">mongo_serv</span><span class="o">.</span><span class="n">init_setup</span><span class="p">(</span> <span class="o">**</span><span class="n">cfger</span><span class="o">.</span><span class="n">db_setup</span> <span class="p">)</span>
 
-    <span class="o">...</span> <span class="c1"># loading llm model instance `Llama` ~</span>
+    <span class="o">...</span> <span class="c1"># 加載 llm 模型實例 `Llama` ~</span>
     <span class="n">llm_mod</span> <span class="o">=</span> <span class="n">Llama</span><span class="p">(</span>
         <span class="n">ld_8bit</span><span class="o">=</span><span class="n">cfger</span><span class="o">.</span><span class="n">bknd_srv</span><span class="o">.</span><span class="n">load_8bit</span><span class="p">,</span>
         <span class="n">chat_mode</span><span class="o">=</span><span class="n">cfger</span><span class="o">.</span><span class="n">chat_mode</span><span class="p">,</span>
         <span class="n">model_type</span><span class="o">=</span><span class="n">cfger</span><span class="o">.</span><span class="n">model_type</span>
     <span class="p">)</span>
-    <span class="n">llm_mod</span><span class="o">.</span><span class="n">init_mod_param</span><span class="p">(</span> <span class="o">**</span><span class="n">cfger</span><span class="o">.</span><span class="n">bknd_srv</span><span class="p">[</span><span class="s1">&#39;mod_params&#39;</span><span class="p">]</span> <span class="p">)</span>
+    <span class="c1"># 您可以藉由 dot 運算子存取 nested-dict ~</span>
+    <span class="n">llm_mod</span><span class="o">.</span><span class="n">init_mod_param</span><span class="p">(</span> <span class="o">**</span><span class="n">cfger</span><span class="o">.</span><span class="n">bknd_srv</span><span class="o">.</span><span class="n">mod_params</span> <span class="p">)</span>
 
+    <span class="c1"># 或您可以維持使用字串的字典存取風格 ~</span>
     <span class="k">if</span> <span class="n">cfger</span><span class="o">.</span><span class="n">bknd_srv</span><span class="p">[</span><span class="s1">&#39;async_req&#39;</span><span class="p">]:</span>
         <span class="n">chat_serv</span><span class="o">.</span><span class="n">chat_mod</span> <span class="o">=</span> <span class="n">llm_mod</span>
         <span class="n">chat_serv</span><span class="o">.</span><span class="n">hist_db</span> <span class="o">=</span> <span class="n">mongo_serv</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="o">...</span> <span class="c1"># write sync conversation by yourself..</span>
+        <span class="o">...</span> <span class="c1"># 自行撰寫同步對話的程式碼..</span>
 
     <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span> <span class="n">chat_serv</span><span class="o">.</span><span class="n">server_forever</span><span class="p">()</span> <span class="p">)</span>
 </pre></div>
@@ -197,7 +200,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; 版權所有 2023, JosefHuang。</p>
+    <p>&#169; 版權所有 2024, JosefHuang。</p>
   </div>
 
   利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 

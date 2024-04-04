@@ -14,10 +14,7 @@
     從 github 克隆專案至本地端 : ``git clone repo-link`` 
     切換到克隆專案的根目錄，並輸入 ``pip install -e .``
 #. **import 語法** :raw-html-m2r:`<br>`
-    由於 pypi 套件的名稱出同，採用了不同的套件名稱。
-    因此在 import 下載的套件時，使用的語法將視您的下載方式而定。例如: :raw-html-m2r:`<br>`
-    透過 pip 下載 : ``from easy_configer.Configer import Configer`` :raw-html-m2r:`<br>`
-    git 克隆 & pip 下載 : ``from easy_config.Configer import Configer`` :raw-html-m2r:`<br>`
+    不管您如何安裝套件，我們統一使用以下 ``from easy_configer.Configer import Configer`` 
 
 ----
 

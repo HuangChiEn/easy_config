@@ -57,8 +57,11 @@
        print(cfger.dataset)  
        # output nested dict : { 'service_port':65536, 'path':'/data/kitti', 'loader':{'batch_size':32} }
 
-       print(cfger.dataset['loader']['batch_size'])
-       # output : 32
+       print(f"key-string access bz : {cfger.dataset['loader']['batch_size']}")
+       # output - "key-string access bz : 32"
+
+       print(f"bz : {cfger.dataset.loader.batch_size}")
+       # output - "dot-access bz : 32"
 
        # we usually conduct initialization such simple & elegant!
        ds = build_dataset(**cfger.dataset)
@@ -75,7 +78,7 @@
 
 ..
 
-   Currently we support interpolation mechnaism to interpolate **ANY** arguemnts belong the different level of nested dictionary. Moreover, we also support **$Env** for accessing enviroment variables exported in bash!!
+   目前我們支援對不同 nested-dictionary 層級的 **任意參數** 來進行插值；此外，我們也支援 **$Env** 來存取 bash 中的環境變數!!
 
 
 .. code-block:: python
@@ -122,7 +125,44 @@
 
 ----
 
-2. 命令列支援 ⌨️
+
+2. 靈活地存取所有組態參數 🔓
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+我們設定一個簡易的 breakpoint 來感受一下 ``easy_configer.utils.Container.AttributeDict`` 對存取參數靈活性的支援。
+
+.. code-block:: python
+
+   from easy_configer.Configer import Configer
+
+   if __name__ == "__main__":
+       cfger = Configer()
+       cfger.cfg_from_ini("./hier_cfg.ini")
+       breakpoint()
+
+我們寫一個特別的組態檔 ``hier_cfg.ini``\ !!
+
+.. code-block:: python
+
+    # nested-dict
+    [secA] # test depth ((sub^4)-section under secA)
+        lev = 1
+        [secA.secB]
+            lev = 2
+            [secA.secB.secC]
+                lev = 3
+                [secA.secB.secC.secD]
+                    lev = 4
+
+
+現在我們可以存取各階層的 ``lev`` 變數 :
+
+#. ``(pdb) cfger.secA.lev``\ , 輸出 ``lev : 1``
+#. ``(pdb) cfger['secA'].secB['lev']``\ , 輸出 ``lev : 2``\ , 並繼續..
+#. 最瘋狂的範例 ~ ``(pdb) cfger.secA.['secB'].secC['secD'].lev``\ , 輸出 ``lev : 4``
+
+----
+
+3. 命令列支援 ⌨️
 ~~~~~~~~~~~~~~~~~
 
 ..
@@ -157,7 +197,7 @@
 
 ----
 
-3. 載入子配置 🎎
+4. 載入子配置 🎎
 ~~~~~~~~~~~~~~~~~
 
 如同 ``omegaconf``\ , 大多數用戶期望根據類型將配置文件分開並在運行時動態合併它們。這是一個合理的需求，之前版本的 easy-config 提供了兩種進行此操作的方式，但都有其限制： 
@@ -192,7 +232,7 @@
 
 ----
 
-4. 配置運算子 ⛩️
+5. 配置運算子 ⛩️
 ~~~~~~~~~~~~~~~~~~
 
 配置運算子是動態配置系統的核心技術之一!!
@@ -268,7 +308,7 @@
 
 **其餘功能**
 
-5. IO 轉換器 🐙
+6. IO 轉換器 🐙
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
@@ -290,8 +330,8 @@
 
    @dataclass
    class ServerConfig:
-       db: DatabaseConfig
-       model: ModelConfig
+       db: DatabaseConfig = DatabaseConfig()
+       model: ModelConfig = ModelConfig()
 
    if __name__ == '__main__':
        from easy_configer.IO_Converter import IO_Converter
@@ -326,13 +366,29 @@
 
 
 
-6. Absl 風格的旗標參數 🏳️
+7. Absl 風格的旗標參數 🏳️
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ..
 
    easy_config 也支持您可以在不同的 Python 文件中訪問"相同"的配置文件，而無需重新聲明配置。在相同的工作目錄下創建一個名為 test_flag.py 的文件。
 
+假設您執行了 ``main.py``\ :
+
+.. code-block:: python
+
+    from easy_configer.Configer import Configer
+    from utils import get_var_from_flag
+
+    if __name__ == "__main__":
+       cfg = Configer()
+       cfg.cfg_from_str("var = 32")
+
+       # both should output 32 ~
+       print(f"var from main : {cfg.var}")
+       print(f"var from flag : { get_var_from_flag() }")
+
+現在，當您 step in 一個位於不同檔案的 ``get_var_from_flag`` 函數..
 
 .. code-block:: python
 
@@ -341,6 +397,6 @@
    def get_n_blk_from_flag():
        new_cfger = Configer()
        flag = new_cfger.get_cfg_flag()
-       # test to get the pre-defined 'n_blk'
-       return flag.n_blk
+       # test to get the pre-defined 'var'
+       return flag.var
 

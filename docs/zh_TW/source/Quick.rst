@@ -41,27 +41,27 @@
 
 
 在較大型的項目中，我們可能會編寫一個配置文件來控制程序，使得配置更容易追蹤、檢查和調試。在這裡，我們首先在工作目錄中準備一個名為 ``test_cfg.ini`` 的配置文件。
-*對於 easy-config 文件，存在兩種類型的參數：扁平參數和層次參數*。您可以看到，扁平參數位於第一層級，可以通過點運算符輕鬆訪問；除了扁平參數之外，所有層次參數將被放置在 Python 字典對象中，因此可以通過字串訪問每個參數！
+*對於 easy-config 文件，存在兩種類型的參數：扁平參數和階層化參數*。您可以看到，扁平參數位於第一層級，可以通過點運算符輕鬆訪問；除了扁平參數之外，所有階層化參數將被放置在 Python 字典對象中，因此可以通過字串訪問每個參數！
 
 .. code-block:: ini
 
    # ./test_cfg.ini
-   # '#' denote comment line, the inline comment is also supported!
+   # 以 '#' 開頭為 comment, 我們也支援 inline-comment了!
 
-   # define 'flatten' arguments :
+   # 定義扁平參數 (flatten arguments) :
    serv_host = '127.0.0.1'  
    serv_port = 9478@int    # specific type is also allowed!!
    api_keys = {'TW_REGION':'SV92VS92N20', 'US_REGION':'W92N8WN029N2'}
 
-   # define 'hierachical' arguments :
-   # the 'section' is the key of accessing dict value and could be defined as follows :
+   # 定義階層化參數 :
+   # 'section' 為存取字典值時所用的字串，並於以下定義 :
    [db_setup]
        db_host = $serv_host
-       # first `export mongo_port=5566` in your bash, then support os.env interpolation!
+       # 請先於您的 bash 中執行 `export mongo_port=5566`, 我們支援對 os.env 的參數插值!
        db_port = $Env.mongo_port  
        snap_shot = True
 
-   # and then define second section for backend server..
+   # 接著我們為後端 server 定義 第二個 section..
    [bknd_srv]
        load_8bit = True
        async_req = True
@@ -70,7 +70,7 @@
        [bknd_srv.mod_params]
            log_hist = False
            tempeture = 1e-4
-           model_mode = $bknd_srv.chat_mode  # hierachical args interpolation
+           model_mode = $bknd_srv.chat_mode  # 階層化參數插值
 
 
 :raw-html-m2r:`<br>`
@@ -87,31 +87,33 @@
        from easy_configer.Configer import Configer
 
        cfger = Configer(description="chat-bot configuration", cmd_args=True)
-       # we have defined a config file, let's try to load it!
+       # 我們先定義組態檔，然後嘗試加載它!
        cfger.cfg_from_ini("./test_cfg.ini")
 
-       # Display the Namespace, it will display all flatten arguemnts and first-level sections
+       # 印出 Namespace, 它會印出所有扁平化參數 (first-level sections)
        print(cfger)
 
-       ... # for building chat-bot instance `Chat_server`
+       ... # 建構 chat-bot 實例的程式碼 `Chat_server`
        chat_serv = Chat_server(host=cfger.serv_host, port=cfger.serv_port, api_keys=cfger.api_keys)
 
-       ... # build mongo-db instance `mongo_serv` for logging chat history..
+       ... # 建構 mongo-db 實例的 `mongo_serv` 以紀錄歷史對話訊息..
        mongo_serv.init_setup( **cfger.db_setup )
 
-       ... # loading llm model instance `Llama` ~
+       ... # 加載 llm 模型實例 `Llama` ~
        llm_mod = Llama(
            ld_8bit=cfger.bknd_srv.load_8bit, 
            chat_mode=cfger.chat_mode, 
            model_type=cfger.model_type
        )
-       llm_mod.init_mod_param( **cfger.bknd_srv['mod_params'] )
+       # 您可以藉由 dot 運算子存取 nested-dict ~
+       llm_mod.init_mod_param( **cfger.bknd_srv.mod_params )
 
+       # 或您可以維持使用字串的字典存取風格 ~
        if cfger.bknd_srv['async_req']:
            chat_serv.chat_mod = llm_mod
            chat_serv.hist_db = mongo_serv
        else:
-           ... # write sync conversation by yourself..
+           ... # 自行撰寫同步對話的程式碼..
 
        sys.exit( chat_serv.server_forever() )
 

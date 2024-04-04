@@ -1,5 +1,5 @@
 # Project description
-#### easy_configer version : 2.3.0
+#### easy_configer version : 2.3.2
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/HuangChiEn/easy_config/main.yaml?branch=master&event=push&style=for-the-badge&label=unittest&color=green)
 
 ![easy-configer logo](assets/logo.png)
@@ -35,6 +35,7 @@ For example :
     
 
 That leverage me to package my solution for solving this issue. The easy_config will cover the following attributes :
+
 1. **Hierachical section config (nested dictionary)**
 
 2. **Accept multiple config file in dynamic loading manner**
@@ -472,8 +473,8 @@ In the following example, you can see that the merging config system already pro
 
     @dataclass
     class ServerConfig:
-        db: DatabaseConfig
-        model: ModelConfig
+        db: DatabaseConfig = DatabaseConfig()
+        model: ModelConfig = ModelConfig()
 
     if __name__ == '__main__':
         from easy_configer.IO_Converter import IO_Converter

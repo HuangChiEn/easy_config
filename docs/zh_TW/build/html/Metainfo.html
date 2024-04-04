@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>套件相關資訊 &mdash; easy_configer v2.1.2 說明文件</title>
+  <title>套件相關資訊 &mdash; easy_configer v2.3.1 說明文件</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -13,7 +13,8 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
@@ -88,12 +89,10 @@
 <section id="id2">
 <h2>新增功能 🚀<a class="headerlink" href="#id2" title="本標頭的永久連結"></a></h2>
 <ol class="arabic simple">
-<li><p>提供較佳的語法來 <strong>透過命令複寫預設參數</strong></p></li>
-<li><p>提供較佳的語法，在組態檔聲明參數 ~</p></li>
-<li><p>支援多樣的 <strong>配置轉換</strong>, 包括轉換至 omegaconf, dataclasses, dict, …, 等等，或轉換回 easy-configer!!</p></li>
-<li><p>支援環境變數 (透過 os.Env 語法) <strong>插值</strong>!!</p></li>
-<li><p>動態 <strong>子組態</strong> 加載..</p></li>
-<li><p>也於文件中新增一些 「快速上手」 範例 ~</p></li>
+<li><p>啟用所有測試案例 (使用git-action自動化持續整合)</p></li>
+<li><p>支援 dot 運算子存取組態中的任意參數</p></li>
+<li><p>一致的 import 語法</p></li>
+<li><p>新版文件上線囉 ~</p></li>
 </ol>
 </section>
 <hr class="docutils" />
@@ -103,18 +102,21 @@
 <li><p>較佳的 easy-config <strong>異常錯誤設計</strong> ~</p></li>
 </ol>
 <blockquote>
-<div><p>next version released features v 2.3.0</p>
+<div><p>next version released features v 2.3.3</p>
 </div></blockquote>
 </section>
 <section id="bug">
 <h2>修正的Bug 🐛<a class="headerlink" href="#bug" title="本標頭的永久連結"></a></h2>
-<p><em>將多餘空白字元插入 config 定義中的特定位置造成解析錯誤，於此版中已修正..</em></p>
+<p>修正 import 語法.. 如果發現任何 bug 煩請於 github 開設新issue ~</p>
 </section>
 <hr class="docutils" />
 <section id="unittest">
 <h2>簡易 Unittest 🧪<a class="headerlink" href="#unittest" title="本標頭的永久連結"></a></h2>
-<p>目前棄用中，不建議運行.
-<code class="docutils literal notranslate"><span class="pre">cd</span> <span class="pre">test</span> <span class="pre">&amp;&amp;</span> <span class="pre">python</span> <span class="pre">test_Configer.py</span></code></p>
+<p>如果您從 github 克隆此專案，你可以嘗試運行下面的測試指令。
+<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">unittest</span> <span class="pre">discover</span></code></p>
+<blockquote>
+<div><p>我將所有測試案例置放於 test 資料夾底下。</p>
+</div></blockquote>
 </section>
 <hr class="docutils" />
 <section id="id3">
@@ -139,7 +141,7 @@ Hope God bless everyone in the world to know his word ~ <span class="raw-html-m2
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; 版權所有 2023, JosefHuang。</p>
+    <p>&#169; 版權所有 2024, JosefHuang。</p>
   </div>
 
   利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 

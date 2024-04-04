@@ -8,22 +8,16 @@
 ^^^^^^^^^^^^^
 
 #. 
-   提供較佳的語法來 **透過命令複寫預設參數**
+   啟用所有測試案例 (使用git-action自動化持續整合)
 
 #. 
-   提供較佳的語法，在組態檔聲明參數 ~
+   支援 dot 運算子存取組態中的任意參數
 
 #. 
-   支援多樣的 **配置轉換**, 包括轉換至 omegaconf, dataclasses, dict, ..., 等等，或轉換回 easy-configer!!  
+   一致的 import 語法 
 
 #. 
-   支援環境變數 (透過 os.Env 語法) **插值**!!
-
-#. 
-   動態 **子組態** 加載..
-
-#. 
-   也於文件中新增一些 "快速上手" 範例 ~  
+   新版文件上線囉 ~  
 
 ----
 
@@ -35,21 +29,25 @@ TODO 列表 🔨
 
 .. 
 
-    next version released features v 2.3.0
+    next version released features v 2.3.3
 
 
 修正的Bug 🐛
 ^^^^^^^^^^^^^^
 
-*將多餘空白字元插入 config 定義中的特定位置造成解析錯誤，於此版中已修正..*
+修正 import 語法.. 如果發現任何 bug 煩請於 github 開設新issue ~
 
 ----
 
 簡易 Unittest 🧪
 ^^^^^^^^^^^^^^^^^^
 
-目前棄用中，不建議運行.
-``cd test && python test_Configer.py``
+如果您從 github 克隆此專案，你可以嘗試運行下面的測試指令。
+``python -m unittest discover``
+
+..
+
+   我將所有測試案例置放於 test 資料夾底下。
 
 ----
 

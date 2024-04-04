@@ -56,8 +56,11 @@ We have defined the config file, now let's see how to access any agruments! Exec
        print(cfger.dataset)  
        # output nested dict : { 'service_port':65536, 'path':'/data/kitti', 'loader':{'batch_size':32} }
 
-       print(cfger.dataset['loader']['batch_size'])
-       # output : 32
+       print(f"key-string access bz : {cfger.dataset['loader']['batch_size']}")
+       # output - "key-string access bz : 32"
+
+       print(f"bz : {cfger.dataset.loader.batch_size}")
+       # output - "dot-access bz : 32"
 
        # we usually conduct initialization such simple & elegant!
        ds = build_dataset(**cfger.dataset)
@@ -120,7 +123,44 @@ Glade to say : Yes! it's possible to elegantly deal with above mentioned issue. 
 
 ----
 
-2. Commmend-line Support ⌨️
+
+2. Access all arguments flexibly 🔓
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+We simple set a breakpoint to feel how flexible does ``easy_configer.utils.Container.AttributeDict`` support.
+
+.. code-block:: python
+
+   from easy_configer.Configer import Configer
+
+   if __name__ == "__main__":
+       cfger = Configer()
+       cfger.cfg_from_ini("./hier_cfg.ini")
+       breakpoint()
+
+We write a special example ``hier_cfg.ini``\ !!
+
+.. code-block:: python
+
+    # nested-dict
+    [secA] # test depth ((sub^4)-section under secA)
+        lev = 1
+        [secA.secB]
+            lev = 2
+            [secA.secB.secC]
+                lev = 3
+                [secA.secB.secC.secD]
+                    lev = 4
+
+
+Now you can access each ``lev`` :
+
+#. ``(pdb) cfger.secA.lev``\ , output ``lev : 1``
+#. ``(pdb) cfger['secA'].secB['lev']``\ , output ``lev : 2``\ , and so on..
+#. Most crazy one ~ ``(pdb) cfger.secA.['secB'].secC['secD'].lev``\ , output ``lev : 4``
+
+----
+
+3. Commmend-line Support ⌨️
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ..
@@ -155,7 +195,7 @@ Especially update **non-flatten argument**\ , you can access any argument at any
 
 ----
 
-3. Import Sub-Config 🎎
+4. Import Sub-Config 🎎
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Like ``omegaconf``\ , most of user expect to seperate the config based on their type and dynamically merge it in runtime. It's a rational requirement and the previous version of easy-config provide two way to conduct it, but both have it's limit : 
@@ -191,7 +231,7 @@ Now, we provide the thrid way : **sub-config**. you can import the sub-config in
 
 ----
 
-4. Config Operation ⛩️
+5. Config Operation ⛩️
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Config operation is one of the core technique for dynamic configuration system!!
@@ -266,7 +306,7 @@ In the following example, you can see that the merging config system already pro
 
 **Miscellnous features**
 
-5. IO Converter 🐙
+6. IO Converter 🐙
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
@@ -288,8 +328,8 @@ In the following example, you can see that the merging config system already pro
 
    @dataclass
    class ServerConfig:
-       db: DatabaseConfig
-       model: ModelConfig
+       db: DatabaseConfig = DatabaseConfig()
+       model: ModelConfig = ModelConfig()
 
    if __name__ == '__main__':
        from easy_configer.IO_Converter import IO_Converter
@@ -324,14 +364,30 @@ In the following example, you can see that the merging config system already pro
 
 
 
-6. Absl style flag 🏳️
+7. Absl style flag 🏳️
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ..
 
    easy_config also support that you can access the 'same' config file in different python file without re-declare the config. test_flag.py under the same work directory
 
+Suppose you have executed ``main.py``\ :
 
+.. code-block:: python
+
+    from easy_configer.Configer import Configer
+    from utils import get_var_from_flag
+
+    if __name__ == "__main__":
+       cfg = Configer()
+       cfg.cfg_from_str("var = 32")
+
+       # both should output 32 ~
+       print(f"var from main : {cfg.var}")
+       print(f"var from flag : { get_var_from_flag() }")
+
+Now, when you step in ``get_var_from_flag`` function in different file..
+    
 .. code-block:: python
 
    from easy_configer.Configer import Configer
@@ -339,6 +395,6 @@ In the following example, you can see that the merging config system already pro
    def get_n_blk_from_flag():
        new_cfger = Configer()
        flag = new_cfger.get_cfg_flag()
-       # test to get the pre-defined 'n_blk'
-       return flag.n_blk
+       # test to get the pre-defined 'var'
+       return flag.var
 
