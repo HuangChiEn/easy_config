@@ -1,5 +1,5 @@
 # Project description
-#### easy_configer version : 2.3.0
+#### easy_configer version : 2.3.2
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/HuangChiEn/easy_config/main.yaml?branch=master&event=push&style=for-the-badge&label=unittest&color=green)
 
 ![easy-configer logo](https://raw.githubusercontent.com/HuangChiEn/easy_config/master/assets/logo.png)
@@ -472,8 +472,8 @@ In the following example, you can see that the merging config system already pro
 
     @dataclass
     class ServerConfig:
-        db: DatabaseConfig
-        model: ModelConfig
+        db: DatabaseConfig = DatabaseConfig()
+        model: ModelConfig = ModelConfig()
 
     if __name__ == '__main__':
         from easy_configer.IO_Converter import IO_Converter

@@ -63,4 +63,4 @@ Josef-Huang, a3285556aa@gmail.com
 
 Footer
 ~ Hope God bless everyone in the world to know his word ~ :raw-html-m2r:`<br>`
-**The fear of the LORD is the beginning of knowledge; fools despise wisdom and instruction. by Proverbs 1:7**
+**The fear of the Lord is the beginning of wisdom, and knowledge of the Holy One is understanding. by Proverbs 9:10**

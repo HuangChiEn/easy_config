@@ -62,4 +62,4 @@ Josef-Huang, a3285556aa@gmail.com
 
 尾頁
 Hope God bless everyone in the world to know his word ~ :raw-html-m2r:`<br>`
-**敬畏耶和華是智慧的開端，認識至聖者便是聰明。 by Proverbs 1:7**
+**敬畏耶和華是智慧的開端，認識至聖者便是聰明。 箴言九章十節**

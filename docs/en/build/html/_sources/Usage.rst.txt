@@ -369,7 +369,7 @@ In the following example, you can see that the merging config system already pro
 
 ..
 
-   easy_config also support that you can access the 'same' config file in different python file without re-declare the config. test_flag.py under the same work directory
+   easy_config also support that you can access the 'same' config file in different python file without re-declare the config. utils.py under the same work directory
 
 Suppose you have executed ``main.py``\ :
 
