@@ -1,5 +1,5 @@
 # Project description
-#### easy_configer version : 2.3.2
+#### easy_configer version : 2.4.0
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/HuangChiEn/easy_config/main.yaml?branch=master&event=push&style=for-the-badge&label=unittest&color=green)
 
 ![easy-configer logo](https://raw.githubusercontent.com/HuangChiEn/easy_config/master/assets/logo.png)
@@ -60,10 +60,9 @@ And, of course the following attribute will also be supported :
 ---
 
 ### Newly update features 🚀
-1. Enable all test case (automatically ci by git-action)
-2. Support dot-access of any arguments
-3. Consistent import syntax.. 
-4. New document is released ~
+1. Single-line python code execution via ${...} in config file
+2. Integrate argument intepolation via ${cfg} with special object
+3. Integrate enviroment variable intepolation via ${env} with special object
 
 ---
 
@@ -139,9 +138,9 @@ For easy-config file, there're two type of argument : flatten argument, hierachi
     # define 'hierachical' arguments :
     # the 'section' is the key of accessing dict value and could be defined as follows :
     [db_setup]
-        db_host = $serv_host
+        db_host = ${cfg.serv_host}
         # first `export mongo_port=5566` in your bash, then support os.env interpolation!
-        db_port = $Env.mongo_port  
+        db_port = ${env.mongo_port}  
         snap_shot = True
     
     # and then define second section for backend server..
@@ -153,7 +152,7 @@ For easy-config file, there're two type of argument : flatten argument, hierachi
         [bknd_srv.mod_params]
             log_hist = False
             tempeture = 1e-4
-            model_mode = $bknd_srv.chat_mode  # hierachical args interpolation
+            model_mode = ${cfg.bknd_srv.chat_mode}  # hierachical args interpolation
     
 <br>
 
@@ -265,13 +264,13 @@ There have two kind of way to prepare the arguments in easy-config : we can eith
 However, the syntax of above config file could be improved, isn't it !? For example, the batch_size is defined twice under `dataset.loader` and `train_cfg`, so as layer seed. Moreover, path is defined as python string, it need to be further converted by Path object in python standard package. Could we regist our customized data type for easy-config ?
 #### Glade to say : Yes! it's possible to elegantly deal with above mentioned issue. We can solve the first issue by using argument interpolation, and solve the second issue by using the customized register!!
 
-#### *config interpolation with $ symbol* and  *customized register method `regist_cnvtor`*
-> Currently we support interpolation mechnaism to interpolate **ANY** arguemnts belong the different level of nested dictionary. Moreover, we also support **$Env** for accessing enviroment variables exported in bash!!
+#### Thanks to *python code interpreter via ${...}* and  *customized register method `regist_cnvtor`*. **See below example**
+> Currently we support interpolation mechnaism to interpolate *ANY* arguemnts belong the different level of nested dictionary by using **\${cfg}**. Moreover, we also support **\${env}** for accessing enviroment variables exported in bash!!
 
     # For convience, we define string-config!
     def get_str_cfg():
         ''' # `export glb_seed=42` in bash!!
-            glb_seed = $Env.glb_seed
+            glb_seed = ${env.glb_seed}
             exp_id = '0001'
 
             [dataset]   
@@ -282,15 +281,19 @@ However, the syntax of above config file could be improved, isn't it !? For exam
                 
                 [dataset.loader]
                     batch_size = 32
+                    secrete_seed = 55688
 
             [model]
                 [model.backbone]
                     mod_typ = 'resnet'
                     [model.backbone.optimizer]
-                        lay_seed = $glb_seed
+                        # aweason! but we can do more crazy stuff ~
+                        lay_seed = ${cfg.glb_seed}
+                        # 'cfg' is used to access the config, feel free to access any arguments
+                        string_seed = "The secrete string in data loader is ${cfg.dataset.loader.secrete_seed}!!"
             
             [train_cfg]
-                batch_size = $dataset.loader.batch_size
+                batch_size = ${cfg.dataset.loader.batch_size}
                 [train_cfg.opt]
                     opt_typ = 'Adam'
                     lr = 1e-4
@@ -385,7 +388,7 @@ Like `omegaconf`, most of user expect to seperate the config based on their type
         mod_typ = 'resnet'
         [model.backbone.optimizer]
         # and yes, interpolation is still valid "after" the reference argument is declared!
-            lay_seed = $glb_seed  
+            lay_seed = ${cfg.glb_seed}
 
 
 #### **6. Config Operation**
@@ -409,7 +412,7 @@ In the following example, you can see that the merging config system already pro
             [ghyu.opop]
                 add = 32@int
                 [ghyu.opop.tueo]
-                    salt = $inpo
+                    salt = ${cfg.inpo}
 
         # Cell cfg written by Josef-Huang..
         '''

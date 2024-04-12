@@ -1,6 +1,8 @@
 from functools import partial
+from .Container import AttributeDict
 import ast
 import re
+import os
 
 import warnings
 def warning_on_one_line(message, category, filename, lineno, file=None, line=None):
@@ -26,6 +28,7 @@ class Type_Convertor(object):
                 and the '@' is the typ_split_chr.
         '''
         self.__split_chr = typ_split_chr
+        self.__env_vars = AttributeDict(os.environ)
 
         # fundemental api-string supported in built-in 
         # i.e. "{{{}}}".format("'key':56")  ->  "{'key':56}", ast.literal_eval("{'key':56}") -> {'key':56}
@@ -48,17 +51,67 @@ class Type_Convertor(object):
                                     "dict":curly_braces_cnvt, "set":curly_braces_cnvt, "tuple":tuple_cnvt, "list":lst_cnvt}
         self.__customized_cnvtor = {}
 
-    def convert(self, cfg_raw_str:str):
+    def convert(self, cfg_raw_str:str, tmp_cfg_node = None):
         '''
             cfg_raw_str :
                 The string which declare the arguments with the same syntax used in config file.
         '''    
+        # yeah, this may not make sure it's safe
+        # but at least remain you to check your config setup doesn't be injected!!
+        def safty_checker(raw_str):
+            for prevent_word in ['__class__', '__bases__', '__subclasses__', '__import__']:
+                if prevent_word in raw_str:
+                    raise RuntimeError(f"We prohibit the '{prevent_word}' string be parsed!")
+
+        def pre_interpret_val_str(val_str):
+            beg_tkn, end_tkn = "${", "}"
+            # early return the value-string without python interpreter symbol "${...}"
+            if beg_tkn not in val_str:
+                return val_str
+
+            parsed_str = ""
+            idx = 0
+            while idx < len(val_str):
+                curr_tkn = val_str[ idx : idx+len(beg_tkn) ]
+                if curr_tkn == beg_tkn:
+                    beg_idx = idx+len(beg_tkn)
+
+                    # offset present the length of python commend
+                    offset_idx = val_str[beg_idx:].find(end_tkn)
+                    if offset_idx == -1:
+                        raise RuntimeError("Missing closed '}' for the python pharse.")
+                    
+                    end_idx = beg_idx + offset_idx
+                    raw_string = val_str[beg_idx : end_idx]
+
+                    # https://stackoverflow.com/questions/15197673/using-pythons-eval-vs-ast-literal-eval
+                    # safty check of parsed string + empty global, builtins namespace..
+                    safty_checker(raw_string)
+                    parsed_val = eval(
+                                    raw_string, 
+                                    {'cfg':tmp_cfg_node, 'env':self.__env_vars, '__builtins__':{}},
+                                    {}
+                                )
+                    # append parsed string for further type conversion
+                    parsed_str += f"{parsed_val}"
+                    # point to next char (one position right-shift of '}')
+                    idx = end_idx + 1
+
+                else:  
+                    parsed_str += val_str[idx]
+                    idx += 1
+
+            return parsed_str
+
         # force to add split character at the end of parsed string
         cfg_raw_str = cfg_raw_str + self.__split_chr if (not self.__split_chr in cfg_raw_str) else cfg_raw_str
         try:
-            val_str, typ = cfg_raw_str.split(self.__split_chr)
+            raw_val_str, typ = cfg_raw_str.split(self.__split_chr)
         except:
             raise RuntimeError
+        
+        # pre-interpret python syntax ${...python_stuff..} in config-string
+        val_str = pre_interpret_val_str(raw_val_str)
         
         if typ in self.__customized_cnvtor.keys():
             args = ast.literal_eval(val_str)

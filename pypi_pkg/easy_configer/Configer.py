@@ -168,18 +168,9 @@ class Configer(object):
         
         try:
             var_name, val_str = cfg_str.split(self.__split_chr)
-            # support '$' notation for hierachical args interpolation!
-            if val_str[0] == '$':
-                val_str = val_str[1:]
-                if 'ENV' in val_str:   # to be honest, i don't think we should have to resolve complex object except os.env
-                    env_key = val_str.split('.')[-1]
-                    intep_val = os.environ[env_key]
-                else:    
-                    sec_ptr, sec_key = self.__idx_sec_by_dot(val_str)
-                    intep_val = sec_ptr[sec_key]
-                var_val = intep_val
-            else:
-                var_val = self.__typ_cnvt.convert(val_str)
+            # we support '${...}' for "single-line python code execution" in Type_Convertor, 
+            #   then, we can use it to build "config-resolve", "hierachical args interpolation"!!
+            var_val = self.__typ_cnvt.convert(val_str, self)
         except:
             raise RuntimeError("Configuration Error : Invalid config string ' {0}' ".format(cfg_str))
 
@@ -235,6 +226,7 @@ class Configer(object):
                     idx_sec[idx_sec_key].update( val_dict )
                 # assign the val_dict as 'flatten' arguments 
                 else: # Note that flatten args IS NOT AttributeDict!
+                    
                     self.__dict__.update( val_dict )
                     
         # Update the namespace value via commend-line input 

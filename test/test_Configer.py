@@ -22,6 +22,8 @@ class ConfigerTestCase(unittest.TestCase):
         self.init_cfg_path = 'test/test_properties/init_cfg.ini'
         self.merg_cfg_path = 'test/test_properties/merg_cfg.ini'
 
+        self.resolve_cfg_path = 'test/test_properties/reslv_cfg.ini'
+
     def test_parsing_config(self):
         # test dtype decleration
         self.cfg2.cfg_from_ini(self.dtype_cfg_path)
@@ -199,8 +201,14 @@ class ConfigerTestCase(unittest.TestCase):
         self.assertEqual(self.cfg1.override_var, absl_flag.override_var)
         self.assertEqual(self.cfg1.sec1.sec2.override_var, absl_flag.sec1.sec2.override_var)
         self.assertEqual(self.cfg1.init_var, absl_flag.init_var)
-        self.assertEqual(self.cfg1.new_sec1.var, absl_flag.new_sec1.var)
+        self.assertEqual(self.cfg1.new_sec1.var, absl_flag.new_sec1.var)    
 
+    def test_config_resolve(self):
+        self.cfg1.cfg_from_ini(self.resolve_cfg_path)
+        self.assertEqual(self.cfg1.sec1.sec2.intp_var, '/root/workspace/tmp')
+        self.assertEqual(self.cfg1.new_sec1.var, '/root/workspace/tmp/kkk')
+        self.assertEqual(self.cfg1.new_sec1.new_var, '/root/workspace/tmp/kkk'.upper())
+    
 
 if __name__ == '__main__':
     tests = ['test_parsing_config', 'test_regist_cls', 'test_merge_config', 'test_cmd_args']

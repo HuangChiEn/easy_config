@@ -9,7 +9,7 @@ with open(join(this_directory, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='easy_configer',
-    version='2.3.2',
+    version='2.4.0',
     description='An easy way for configurating python program by the given config file or config str',
     author='JosefHuang',
     author_email='a3285556aa@gmail.com',
