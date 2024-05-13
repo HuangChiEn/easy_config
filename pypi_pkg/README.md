@@ -1,5 +1,5 @@
 # Project description
-#### easy_configer version : 2.4.0
+#### easy_configer version : 2.5.0
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/HuangChiEn/easy_config/main.yaml?branch=master&event=push&style=for-the-badge&label=unittest&color=green)
 
 ![easy-configer logo](https://raw.githubusercontent.com/HuangChiEn/easy_config/master/assets/logo.png)
@@ -56,6 +56,8 @@ And, of course the following attribute will also be supported :
 * support config conversion, which turn easy_config into the other kind of config package (omegaconf, argparse, ..., etc.)
 
 * support hierachical configurating system with dynamic override ~
+
+* better support for argument intepolation (inline-intepolation is allowed now ~)
 
 ---
 
@@ -138,7 +140,7 @@ For easy-config file, there're two type of argument : flatten argument, hierachi
     # define 'hierachical' arguments :
     # the 'section' is the key of accessing dict value and could be defined as follows :
     [db_setup]
-        db_host = ${cfg.serv_host}
+        db_host = ${cfg.serv_host}:80@str
         # first `export mongo_port=5566` in your bash, then support os.env interpolation!
         db_port = ${env.mongo_port}  
         snap_shot = True
@@ -210,7 +212,7 @@ There have two kind of way to prepare the arguments in easy-config : we can eith
 
 #### Let's give a deep-learning example ~
 #### *hier_cfg.ini in work directory*
-
+    root_dir = '/workspace'
     glb_seed = 42
     exp_id = '0001'
 
@@ -218,7 +220,7 @@ There have two kind of way to prepare the arguments in easy-config : we can eith
     # i.e. we can assign dict dataset to subroutine by `build_dataset(**cfg.dataset)`, just such easy!!
     [dataset]   
         service_port = 65536
-        path = '/data/kitti'
+        path = "${cfg.root_dir}/data/kitti"
         # of course, nested dict is also supported! it just the native python dictionary in dictionary!
         [dataset.loader]
             batch_size = 32
@@ -264,7 +266,7 @@ There have two kind of way to prepare the arguments in easy-config : we can eith
 However, the syntax of above config file could be improved, isn't it !? For example, the batch_size is defined twice under `dataset.loader` and `train_cfg`, so as layer seed. Moreover, path is defined as python string, it need to be further converted by Path object in python standard package. Could we regist our customized data type for easy-config ?
 #### Glade to say : Yes! it's possible to elegantly deal with above mentioned issue. We can solve the first issue by using argument interpolation, and solve the second issue by using the customized register!!
 
-#### Thanks to *python code interpreter via ${...}* and  *customized register method `regist_cnvtor`*. **See below example**
+#### Thanks to *python format-string via ${...}* and  *customized register method `regist_cnvtor`*. **See below example**
 > Currently we support interpolation mechnaism to interpolate *ANY* arguemnts belong the different level of nested dictionary by using **\${cfg}**. Moreover, we also support **\${env}** for accessing enviroment variables exported in bash!!
 
     # For convience, we define string-config!
@@ -289,7 +291,7 @@ However, the syntax of above config file could be improved, isn't it !? For exam
                     [model.backbone.optimizer]
                         # aweason! but we can do more crazy stuff ~
                         lay_seed = ${cfg.glb_seed}
-                        # 'cfg' is used to access the config, feel free to access any arguments
+                        # 'cfg' is used to access the config, feel free to access any arguments defined previsouly!!
                         string_seed = "The secrete string in data loader is ${cfg.dataset.loader.secrete_seed}!!"
             
             [train_cfg]
