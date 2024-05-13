@@ -58,11 +58,10 @@ class Type_Convertor(object):
         '''    
         # yeah, this may not make sure it's safe
         # but at least remain you to check your config setup doesn't be injected!!
-        def safty_checker(raw_str):
-            for prevent_word in ['__class__', '__bases__', '__subclasses__', '__import__']:
-                if prevent_word in raw_str:
-                    raise RuntimeError(f"We prohibit the '{prevent_word}' string be parsed!")
-
+        def check_formation(formatted_str, raw_str):
+            if '{' in formatted_str:
+                raise RuntimeError(f"Format-string $'{raw_str}' failure, try to intepolate an undefined argument!")
+            
         def pre_interpret_val_str(val_str):
             beg_tkn, end_tkn = "${", "}"
             # early return the value-string without python interpreter symbol "${...}"
@@ -82,18 +81,18 @@ class Type_Convertor(object):
                         raise RuntimeError("Missing closed '}' for the python pharse.")
                     
                     end_idx = beg_idx + offset_idx
-                    raw_string = val_str[beg_idx : end_idx]
 
+                    # keep '{' and '}' to form python format string by -1, +1 on both index
+                    format_string = val_str[beg_idx-1 : end_idx+1]
+                    
                     # https://stackoverflow.com/questions/15197673/using-pythons-eval-vs-ast-literal-eval
-                    # safty check of parsed string + empty global, builtins namespace..
-                    safty_checker(raw_string)
-                    parsed_val = eval(
-                                    raw_string, 
-                                    {'cfg':tmp_cfg_node, 'env':self.__env_vars, '__builtins__':{}},
-                                    {}
-                                )
-                    # append parsed string for further type conversion
-                    parsed_str += f"{parsed_val}"
+                    # Due to unsafty of eval(.), we only support argument intepolation by format-string
+                    formatted_str = format_string.format(cfg=tmp_cfg_node, env=self.__env_vars)
+                    
+                    # chk parsed results & append string for further type conversion
+                    check_formation(formatted_str, format_string)
+                    parsed_str += formatted_str
+                    
                     # point to next char (one position right-shift of '}')
                     idx = end_idx + 1
 
