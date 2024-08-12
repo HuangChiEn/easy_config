@@ -140,8 +140,8 @@ class Configer(object):
         root_key = sec_name_lst.pop(0)
         if root_key not in self.__dict__:
             if not allow_init:
-                raise RuntimeError("The parent node of {0} is not defined yet, " \
-                                        "it's invalid for directly made the child node".format(root_key))
+                raise RuntimeError("The parent node '{0}' is not defined yet, " \
+                                    "it's invalid for directly made the child node '{1}'".format(root_key, sec_name_lst[0]))
             self.__dict__[root_key] = AttributeDict() 
             
         ## Support toml like 'hierachical' format!!
@@ -149,13 +149,13 @@ class Configer(object):
         idx_sec = self.__dict__[root_key]
         
         #  keep the index point to the node "parent", since the child node will be init as dict!
-        for sec in sec_name_lst[:-1]:
+        for idx, sec in enumerate(sec_name_lst[:-1]):
             # AttributeDict.get(.) will not trigger "defaultdict behavior"
             tmp = idx_sec.get(sec, '__UNDEFINE_VAL')
             if tmp == '__UNDEFINE_VAL':
                 if not allow_init:
                     raise RuntimeError("The parent node '{0}' is not defined yet, " \
-                                            "it's invalid for directly made the child node".format(sec))
+                                        "it's invalid for directly made the child node '{1}'".format(sec, sec_name_lst[idx+1]))
                 idx_sec[sec] = AttributeDict() 
             idx_sec = idx_sec[sec]
 
@@ -168,11 +168,11 @@ class Configer(object):
         
         try:
             var_name, val_str = cfg_str.split(self.__split_chr)
-            # we support '${...}' for "single-line python code execution" in Type_Convertor, 
-            #   then, we can use it to build "config-resolve", "hierachical args interpolation"!!
+            # Due to security issue, we 'DO NOT' support '${...}' for single-line python code execution!!
+            # '${...}' will only strictly used to access the configer argument..
             var_val = self.__typ_cnvt.convert(val_str, self)
         except:
-            raise RuntimeError("Configuration Error : Invalid config string ' {0}' ".format(cfg_str))
+            raise RuntimeError("Configuration Error : Invalid config string, '{0}'.".format(cfg_str))
 
         return { var_name : var_val }
 
@@ -193,6 +193,11 @@ class Configer(object):
             sub_cfg.cfg_from_ini(sub_cfg_path)
             return self.__cfg_cnvt.cnvt_cfg_to(sub_cfg, 'dict', return_attr_dict=True)
 
+        def chk_args_exists(val_dict:dict, container:dict):
+            key = list(val_dict.keys())[0]
+            if key in container:
+                raise RuntimeError("Re-config Error : duplicated argument '{0}' is defined.".format(key))
+            
         cur_sec_keys = ''
         for lin in raw_cfg_text.splitlines():
             # strip empty space and 'skip' empty line in cfgstr
@@ -205,7 +210,7 @@ class Configer(object):
             if sec_keys_str:
                 idx_sec, idx_sec_key = self.__idx_sec_by_dot(sec_keys_str)
                 if idx_sec_key in idx_sec.keys():
-                    raise RuntimeError('Re-defined config, {0} section will be overrided!!'.format(sec_keys_str))
+                    raise RuntimeError("Re-define Error : config section '{0}' is duplicated, section can not be overrided.".format(sec_keys_str))
                 idx_sec[idx_sec_key] = AttributeDict()
                 cur_sec_keys = sec_keys_str
             
@@ -219,15 +224,18 @@ class Configer(object):
                 else:
                     # normal value string
                     val_dict = self.__get_declr_dict(cfg_str)
-
+                
+                container = None
                 # assign the val_dict into the corresponding section!
                 if cur_sec_keys != '':
                     idx_sec, idx_sec_key = self.__idx_sec_by_dot(cur_sec_keys)
-                    idx_sec[idx_sec_key].update( val_dict )
+                    container = idx_sec[idx_sec_key]
                 # assign the val_dict as 'flatten' arguments 
                 else: # Note that flatten args IS NOT AttributeDict!
-                    
-                    self.__dict__.update( val_dict )
+                    container = self.__dict__
+                
+                chk_args_exists(val_dict, container)
+                container.update(val_dict)
                     
         # Update the namespace value via commend-line input 
         if self.__cmd_args:
@@ -324,6 +332,11 @@ class Configer(object):
 
     def __setitem__(self, key, value):
         self.__dict__[key] = value
+
+    def get(self, key, default_value=None):
+        if key not in self.__dict__:
+            return default_value
+        return self.__dict__[key]
     
     ## Miscellnous functionality : 
     # return an absl style flag to store all of the args.

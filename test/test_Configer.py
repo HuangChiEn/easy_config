@@ -207,7 +207,7 @@ class ConfigerTestCase(unittest.TestCase):
         self.cfg1.cfg_from_ini(self.resolve_cfg_path)
         self.assertEqual(self.cfg1.sec1.sec2.intp_var, '/root/workspace/tmp')
         self.assertEqual(self.cfg1.new_sec1.var, '/root/workspace/tmp/kkk')
-        self.assertEqual(self.cfg1.new_sec1.new_var, '/root/workspace/tmp/kkk'.upper())
+        self.assertEqual(self.cfg1.new_sec1.new_var, '/root/workspace/tmp/kkk')
     
 
 if __name__ == '__main__':
