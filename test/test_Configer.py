@@ -46,6 +46,12 @@ class ConfigerTestCase(unittest.TestCase):
             # test hierachical var be redefined!
             self.cfg1.cfg_from_str("lev = 42")
 
+        # test allow_override flag for cfg_from_str & cfg_from_ini 
+        self.cfg1.cfg_from_str("i_var1 = -1", allow_override=True)
+        self.assertEqual(self.cfg1.i_var1, -1)
+        self.cfg1.cfg_from_ini(self.dtype_cfg_path, allow_override=True)
+        self.assertEqual(self.cfg1.i_var1, 42)
+
         # test sub-config
         self.cfg2.cfg_from_ini(self.sub_cfg_path)
         self._test_subcfg(self.cfg2)

@@ -13,6 +13,8 @@ from .utils.Type_Convertor import Type_Convertor
 from .utils.Container import AttributeDict, Flag
 from .IO_Converter import IO_Converter
 
+from typing import List
+
 class Configer(object):
     '''
         The Configer attemtp to make a light-weight solution for configurating your program, 
@@ -22,7 +24,7 @@ class Configer(object):
         
         Hope such trivial contribution will let your work become easier ~ ~ God bless you.
     '''
-    def __init__(self, description:str = "", cmd_args:bool = False, split_chr:str = " = "):
+    def __init__(self, description:str = "", cmd_args:bool = False, split_chr:str = " = ") -> None:
         '''
             description (option) : 
                 A customer helper information which describe the functionality of your configer file.
@@ -44,7 +46,7 @@ class Configer(object):
 
     ## Main interface for configuration : 
     # Support commendline config
-    def cfg_from_cli(self):
+    def cfg_from_cli(self) -> None:
         ''' 
             The commendline-based configuration, specific arguments from commend-line only.
             ( only recommend for very lightweight config ) 
@@ -54,7 +56,7 @@ class Configer(object):
         self.args_from_cmd()
             
     # Support string config in cell-based intereactive enviroment
-    def cfg_from_str(self, raw_cfg_text:str, allow_override:bool=False):
+    def cfg_from_str(self, raw_cfg_text:str, allow_override:bool=False) -> None:
         ''' 
             raw_cfg_text :
                 The string which declare the arguments with the same syntax used in config file. 
@@ -64,7 +66,7 @@ class Configer(object):
         self.__flag.__dict__ = self.__dict__
     
     # Load .ini config from the given path
-    def cfg_from_ini(self, cfg_path:str, allow_override:bool=False):
+    def cfg_from_ini(self, cfg_path:str, allow_override:bool=False) -> None:
         '''
             cfg_path :
                 The path which locate the '*.ini' config file.
@@ -125,12 +127,14 @@ class Configer(object):
         sec_key_str = cfg_str[beg+1 : end].strip()
         return sec_key_str
     
-    def __idx_sec_by_dot(self, sec_keys_str:str, allow_init:bool = False) -> [dict, str]:
+    def __idx_sec_by_dot(self, sec_keys_str:str, allow_init:bool = False):  
         '''
             Core function to manage the hierachical arguments. 
             Store args is simple, just add it in dict. But dynamically search argument in specific section is non-trivial!
             Therefore, i wrote this function to deal with searching and return the "pointer" point to the section.
             It's sync with self.__dict__, so use it wiselly & carefully!!
+
+            Return (dict, str), leave in comment to competible from python 3.6 ~ python >= 3.9.
         '''
         sec_name_lst = sec_keys_str.split('.')
         # Before easy_configer 1.3.4 ver, all section is builded upon this level
@@ -177,7 +181,7 @@ class Configer(object):
         return { var_name : var_val }
 
     # core function of config parser
-    def __cfg_parser(self, raw_cfg_text:str, allow_override:bool):
+    def __cfg_parser(self, raw_cfg_text:str, allow_override:bool) -> None:
         '''
             raw_cfg_text :
                 The string which declare the arguments with the same syntax used in config file.
@@ -241,7 +245,7 @@ class Configer(object):
         if self.__cmd_args:
             self.args_from_cmd()
 
-    def args_from_cmd(self):   
+    def args_from_cmd(self) -> None:   
         '''
             Update the arguments by commend line input string
         '''
