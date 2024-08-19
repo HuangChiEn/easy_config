@@ -1,5 +1,5 @@
 # Project description
-#### easy_configer version : 2.5.0
+#### easy_configer version : 2.5.1
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/HuangChiEn/easy_config/main.yaml?branch=master&event=push&style=for-the-badge&label=unittest&color=green)
 
 ![easy-configer logo](https://raw.githubusercontent.com/HuangChiEn/easy_config/master/assets/logo.png)
@@ -39,37 +39,35 @@ That leverage me to package my solution for solving this issue. The easy_config 
 
 2. **Accept multiple config file in dynamic loading manner**
 
-3. **Support customized class (initialized by keyword arguments)**
+3. **Support customized class (initialized by list or keyword arguments)**
 
 4. **Commend-line update all declared-value wherever it belong, even in hierachical section**
 
 5. **Support the absl style FLAGS functionality (declare once, use anywhere)** 
 
-And, of course the following attribute will also be supported :
+And, of course the following attribute is supported :
 
-* dot-access of any arguments (even in nested dictionary)
+* dot-access of any config argument (even in nested dictionary)
 
 * inline comment '#', now you can write comment in everyline ~
 
-* support arguments interpolation!!
+* support config argument interpolation, inline-intepolation is also online now ~
 
 * support config conversion, which turn easy_config into the other kind of config package (omegaconf, argparse, ..., etc.)
 
-* support hierachical configurating system with dynamic override ~
-
-* better support for argument intepolation (inline-intepolation is allowed now ~)
+* support hierachical configuration system with dynamic loading ~
 
 ---
 
 ### Newly update features 🚀
-1. Single-line python code execution via ${...} in config file
-2. Integrate argument intepolation via ${cfg} with special object
-3. Integrate enviroment variable intepolation via ${env} with special object
+1. Integrate argument intepolation with using ${cfg} notation
+2. Integrate enviroment variable intepolation with using ${cfg} notation
 
 ---
 
 ### Bug Fixed 🐛
-#### Fix-up import syntax.. plz open an issue if you find a bug ~
+#### Due to safty policy, we rollback the feature "single line python code interpreter"..
+#### Hot-fix config overrided bug, add flag for support allow_override..
 ---
 
 ### Dependencies 🏗️
@@ -159,7 +157,7 @@ For easy-config file, there're two type of argument : flatten argument, hierachi
 <br>
 
 Now, we're free to launch the chatbot via `python quick_start.py` (*quick_start.py in work directory*)!
-However, you can also override the arguemnts via commendline `python quick_start.py serv_port=7894`
+However, you can also override the arguemnts via commendline `python quick_start.py serv_port=7894 bknd_srv.chat_mode=predict@str`
     
     import sys
     
@@ -267,12 +265,12 @@ However, the syntax of above config file could be improved, isn't it !? For exam
 #### Glade to say : Yes! it's possible to elegantly deal with above mentioned issue. We can solve the first issue by using argument interpolation, and solve the second issue by using the customized register!!
 
 #### Thanks to *python format-string via ${...}* and  *customized register method `regist_cnvtor`*. **See below example**
-> Currently we support interpolation mechnaism to interpolate *ANY* arguemnts belong the different level of nested dictionary by using **\${cfg}**. Moreover, we also support **\${env}** for accessing enviroment variables exported in bash!!
+> Currently we support interpolation mechnaism to interpolate *ANY* arguemnts belonging the different level of nested dictionary by using **\${cfg}**. Moreover, we also support **\${env}** for accessing enviroment variables exported in bash!!
 
     # For convience, we define string-config!
     def get_str_cfg():
         ''' # `export glb_seed=42` in bash!!
-            glb_seed = ${env.glb_seed}
+            glb_seed = ${env.glb_seed}@int   # or ${env.glb_seed} for short
             exp_id = '0001'
 
             [dataset]   
@@ -296,6 +294,7 @@ However, the syntax of above config file could be improved, isn't it !? For exam
             
             [train_cfg]
                 batch_size = ${cfg.dataset.loader.batch_size}
+                exp_id = "${cfg.exp_id}"  # or ${cfg.exp_id}@str, quote can not be omitted!
                 [train_cfg.opt]
                     opt_typ = 'Adam'
                     lr = 1e-4
