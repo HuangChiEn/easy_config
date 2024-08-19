@@ -13,7 +13,7 @@ from .utils.Type_Convertor import Type_Convertor
 from .utils.Container import AttributeDict, Flag
 from .IO_Converter import IO_Converter
 
-class Configer(object):
+class Configer(AttributeDict):
     '''
         The Configer attemtp to make a light-weight solution for configurating your program, 
         which offer a simple syntax for declare the arguments in the configure file (.ini suffix).
@@ -54,17 +54,17 @@ class Configer(object):
         self.args_from_cmd()
             
     # Support string config in cell-based intereactive enviroment
-    def cfg_from_str(self, raw_cfg_text:str, allow_override:bool=False):
+    def cfg_from_str(self, raw_cfg_text:str):
         ''' 
             raw_cfg_text :
                 The string which declare the arguments with the same syntax used in config file. 
         '''
-        self.__cfg_parser(raw_cfg_text, allow_override)
+        self.__cfg_parser(raw_cfg_text)
         # build the flag object 
         self.__flag.__dict__ = self.__dict__
     
     # Load .ini config from the given path
-    def cfg_from_ini(self, cfg_path:str, allow_override:bool=False):
+    def cfg_from_ini(self, cfg_path:str):
         '''
             cfg_path :
                 The path which locate the '*.ini' config file.
@@ -100,7 +100,7 @@ class Configer(object):
         except Exception as ex:
             print(ex) ; raise
         
-        self.__cfg_parser(raw_cfg_text, allow_override)
+        self.__cfg_parser(raw_cfg_text)
         # build the flag object 
         self.__flag.__dict__ = self.__dict__
     
@@ -177,7 +177,7 @@ class Configer(object):
         return { var_name : var_val }
 
     # core function of config parser
-    def __cfg_parser(self, raw_cfg_text:str, allow_override:bool):
+    def __cfg_parser(self, raw_cfg_text:str):
         '''
             raw_cfg_text :
                 The string which declare the arguments with the same syntax used in config file.
@@ -234,7 +234,7 @@ class Configer(object):
                 else: # Note that flatten args IS NOT AttributeDict!
                     container = self.__dict__
                 
-                (not allow_override) and chk_args_exists(val_dict, container)
+                chk_args_exists(val_dict, container)
                 container.update(val_dict)
                     
         # Update the namespace value via commend-line input 
@@ -327,17 +327,20 @@ class Configer(object):
         return iter(tmp_dct)
     
     ## standard interface for dict-access for flatten argument (since Configer IS NOT AttributeDict)
+    '''
     def __getitem__(self, key):
         return self.__dict__[key]
 
     def __setitem__(self, key, value):
         self.__dict__[key] = value
 
+    
     def get(self, key, default_value=None):
         if key not in self.__dict__:
             return default_value
         return self.__dict__[key]
-    
+    '''
+
     ## Miscellnous functionality : 
     # return an absl style flag to store all of the args.
     def get_cfg_flag(self):

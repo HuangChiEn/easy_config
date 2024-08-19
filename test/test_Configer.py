@@ -1,4 +1,6 @@
+import io
 import unittest
+import unittest.mock
 
 from easy_configer.Configer import Configer
 from easy_configer.utils.Container import AttributeDict
@@ -29,12 +31,21 @@ class ConfigerTestCase(unittest.TestCase):
         self.cfg2.cfg_from_ini(self.dtype_cfg_path)
         cfg_str = get_cfg_str(self.dtype_cfg_path)
         self.cfg1.cfg_from_str(cfg_str)
-        
+
         self._test_dtype(self.cfg1)
         self._test_dtype(self.cfg2)
         # test hier 
         self.cfg1.cfg_from_ini(self.hier_cfg_path)
         self._test_hier(self.cfg1)
+
+        # Given the same config!
+        # the argument can not be overrided in the identitcal config!
+        with self.assertRaisesRegex(RuntimeError, 'Re-define Error') as cm:
+            self.cfg1.cfg_from_str("i_var1 = -1")
+            self.cfg1.cfg_from_str("[sec1]")
+            # test hierachical var be redefined!
+            self.cfg1.cfg_from_str("lev = 42")
+
         # test sub-config
         self.cfg2.cfg_from_ini(self.sub_cfg_path)
         self._test_subcfg(self.cfg2)
@@ -104,9 +115,10 @@ class ConfigerTestCase(unittest.TestCase):
         self.assertEqual(args[1], None)
         self.assertEqual(self.cfg1.cust_var.get_kw_args()['tst'], 42)
 
-        self.cfg1.cfg_from_str("cust_var = [-1, -1, 42, 38, 96]@tst_cls")
-        self.assertEqual(self.cfg1.cust_var.get_args(), (-1, -1))
-        self.assertEqual(self.cfg1.cust_var.get_lst_args(), (42, 38, 96))
+        self.cfg2.regist_cnvtor('tst_cls', Customized_Object)
+        self.cfg2.cfg_from_str("cust_var = [-1, -1, 42, 38, 96]@tst_cls")
+        self.assertEqual(self.cfg2.cust_var.get_args(), (-1, -1))
+        self.assertEqual(self.cfg2.cust_var.get_lst_args(), (42, 38, 96))
 
     def test_merge_config(self):
         self.cfg1.cfg_from_ini(self.init_cfg_path)
@@ -146,10 +158,9 @@ class ConfigerTestCase(unittest.TestCase):
     
     def test_cmd_args(self):
         self._simulate_cmd_args()
-        # since `cmd_args=False` in default, config from client args will be ignored!
-        # it should raise the warning..
-        with self.assertWarns(Warning):
-            self.cfg2.cfg_from_cli()
+        
+        self.assert_stdout('from_cli', ["Description :"])
+        self.cfg2.cfg_from_cli()
         
         self.assertNotIn('init_var', self.cfg2)
         # override flatten variable
@@ -162,7 +173,8 @@ class ConfigerTestCase(unittest.TestCase):
         self.assertEqual(self.cfg2.new_sec.new_var, 42)
 
         self.cfg4 = Configer(description='Test config', cmd_args=True)
-        self.cfg4.cfg_from_ini(self.init_cfg_path)
+        # load self.cfg4 & assert console output
+        self.assert_stdout('from_ini', ["Description", "Test config"])
 
         # override flatten variable
         self.assertEqual(self.cfg4.override_var, 42)
@@ -193,6 +205,19 @@ class ConfigerTestCase(unittest.TestCase):
             '-h'  # print description
         ])
 
+    @unittest.mock.patch('sys.stdout', new_callable=io.StringIO)
+    def assert_stdout(self, method, expected_outputs, mock_stdout):
+        if method == 'from_cli':
+            # since `cmd_args=False` in default, config from client args will be ignored!
+            # it should raise the warning..
+            with self.assertWarns(Warning):
+                self.cfg2.cfg_from_cli()
+        else:
+            self.cfg4.cfg_from_ini(self.init_cfg_path)
+
+        for expected_output in expected_outputs:
+            self.assertRegex(mock_stdout.getvalue(), expected_output)
+
     def test_flag(self):
         self.cfg1.cfg_from_ini(self.init_cfg_path)
         absl_flag = get_flag()
@@ -207,7 +232,10 @@ class ConfigerTestCase(unittest.TestCase):
         self.cfg1.cfg_from_ini(self.resolve_cfg_path)
         self.assertEqual(self.cfg1.sec1.sec2.intp_var, '/root/workspace/tmp')
         self.assertEqual(self.cfg1.new_sec1.var, '/root/workspace/tmp/kkk')
-        self.assertEqual(self.cfg1.new_sec1.new_var, '/root/workspace/tmp/kkk')
+        
+        # resolve argument, it should same as the argument
+        self.assertEqual(self.cfg1.new_sec1.new_var, self.cfg1.new_sec1.var)
+        self.assertEqual(self.cfg1.new_sec1.new_num, self.cfg1.sec1.sec2.num)
     
 
 if __name__ == '__main__':

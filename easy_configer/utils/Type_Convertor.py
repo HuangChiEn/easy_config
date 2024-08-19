@@ -61,17 +61,18 @@ class Type_Convertor(object):
         def check_formation(formatted_str, raw_str):
             if '{' in formatted_str:
                 raise RuntimeError(f"Format-string $'{raw_str}' failure, try to intepolate an undefined argument!")
-            
+        
         def pre_interpret_val_str(val_str):
             beg_tkn, end_tkn = "${", "}"
             # early return the value-string without python interpreter symbol "${...}"
             if beg_tkn not in val_str:
                 return val_str
-
+            
             parsed_str = ""
             idx = 0
             while idx < len(val_str):
                 curr_tkn = val_str[ idx : idx+len(beg_tkn) ]
+                
                 if curr_tkn == beg_tkn:
                     beg_idx = idx+len(beg_tkn)
 
@@ -99,15 +100,12 @@ class Type_Convertor(object):
                 else:  
                     parsed_str += val_str[idx]
                     idx += 1
-
+            
             return parsed_str
 
         # force to add split character at the end of parsed string
         cfg_raw_str = cfg_raw_str + self.__split_chr if (not self.__split_chr in cfg_raw_str) else cfg_raw_str
-        try:
-            raw_val_str, typ = cfg_raw_str.split(self.__split_chr)
-        except:
-            raise RuntimeError
+        raw_val_str, typ = cfg_raw_str.split(self.__split_chr)
         
         # pre-interpret python syntax ${...python_stuff..} in config-string
         val_str = pre_interpret_val_str(raw_val_str)
@@ -123,10 +121,16 @@ class Type_Convertor(object):
                 warnings.warn("You're initialized class '{0}' with default arguments!".format(typ))
                 return self.__customized_cnvtor[typ]()
         
-        # support 'None' placeholder and [], {} eval, instead of define '@type'
+        # bare string-value evaluator, instead of define '@type' at the end..
+        #  responsible to eval 'None' placeholder and [], {} !!
         elif (val_str == 'None') or (not typ):  
             return ast.literal_eval(val_str)
-        
+            ''' # released in v3.0 easy-configer
+            try: # all type can be parsed by plain string
+                return ast.literal_eval(val_str)
+            except: # adding "'" quote-string to deal with string type value-string!! 
+                return ast.literal_eval(f"'{val_str}'")
+            '''
         # type-validator : we use ast.literal_eval and it need to \
         else:  # strip '[', ']', '{', '}' notation before feeding into 'default' type-conveter
             stripped_val_str = re.sub(r"[\[\]\{\}\(\) ]", "", val_str)
