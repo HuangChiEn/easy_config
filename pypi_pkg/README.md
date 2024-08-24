@@ -1,5 +1,5 @@
 # Project description
-#### easy_configer version : 2.5.1
+#### easy_configer version : 2.5.2
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/HuangChiEn/easy_config/main.yaml?branch=master&event=push&style=for-the-badge&label=unittest&color=green)
 
 ![easy-configer logo](https://raw.githubusercontent.com/HuangChiEn/easy_config/master/assets/logo.png)
@@ -369,7 +369,9 @@ Like `omegaconf`, most of user expect to seperate the config based on their type
 1. you can call the `cfg_from_ini` twice, for example, `cfg.cfg_from_ini('./base_cfg') ; cfg.cfg_from_ini('./override_cfg')`. But it's not explicitly load the config thus reducing readability.
 2. you can use the config merging, for example, `new_cfg = base_cfg | override_cfg`. But it's not elegant solution while you  have to merge several config..
 
-#### Now, we provide the thrid way : **sub-config**. you can import the sub-config in any depth of hierachical config by simply placing the `>` symbol at the beginning of line.
+#### Now, we provide the thrid way : **sub-config**. you can import the sub-config in any depth of hierachical config by simply placing the `>` symbol at the beginning of line. Also note that sub-config doesn't allow you override the declared argument by default, since dynamically override the arguments made your config hard to trace..
+> If you want to override the config, turn the flag allow_override as True. i.e. `cfg.cfg_from_ini(..., allow_override=True)`, `cfg.cfg_from_str(..., allow_override=True)`. The sub-config will follow the flag setting to override the config or raise the RuntimeError.
+
     # ./base_cfg.ini
     glb_seed = 42@int
     [dataset]         

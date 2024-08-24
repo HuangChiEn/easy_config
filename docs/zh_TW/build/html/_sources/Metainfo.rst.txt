@@ -8,16 +8,13 @@
 ^^^^^^^^^^^^^
 
 #. 
-   啟用所有測試案例 (使用git-action自動化持續整合)
+   啟用所有測試案例，且 v2.5.2 已成為穩定版本
 
 #. 
-   支援 dot 運算子存取組態中的任意參數
+   使用 ${cfg} 符號啟用參數插值功能
 
 #. 
-   一致的 import 語法 
-
-#. 
-   新版文件上線囉 ~  
+   使用 ${env} 符號啟用環境變數插值功能
 
 ----
 
@@ -25,17 +22,18 @@ TODO 列表 🔨
 ^^^^^^^^^^^^^^
 
 #. 
-   較佳的 easy-config **異常錯誤設計** ~
+   較佳的 easy-config **組態語法** ~
 
 .. 
 
-    next version released features v 2.3.3
+    next version released features v 2.6
 
 
 修正的Bug 🐛
 ^^^^^^^^^^^^^^
 
-修正 import 語法.. 如果發現任何 bug 煩請於 github 開設新issue ~
+基於安全政策，我撤回了可在組態內執行單行python語法的功能(雖然這功能也從未上到pypi發佈)
+Hot-fix 組態覆蓋的bug, 並提供參數設定是否進行組態覆寫
 
 ----
 

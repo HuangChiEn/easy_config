@@ -1,5 +1,5 @@
 # Project description
-#### easy_configer version : 2.5.1
+#### easy_configer version : 2.5.2
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/HuangChiEn/easy_config/main.yaml?branch=master&event=push&style=for-the-badge&label=unittest&color=green)
 
 ![easy-configer logo](https://raw.githubusercontent.com/HuangChiEn/easy_config/master/assets/logo.png)
@@ -45,7 +45,7 @@ That leverage me to package my solution for solving this issue. The easy_config 
 
 5. **Support the absl style FLAGS functionality (declare once, use anywhere)** 
 
-And, of course the following attribute is supported :
+And, of course the following attributes are supported :
 
 * dot-access of any config argument (even in nested dictionary)
 
@@ -60,6 +60,7 @@ And, of course the following attribute is supported :
 ---
 
 ### Newly update features 🚀
+0. Easy-configer pass all test-case, and v2.5.2 is the stable version.
 1. Integrate argument intepolation with using ${cfg} notation
 2. Integrate enviroment variable intepolation with using ${cfg} notation
 
@@ -236,7 +237,7 @@ There have two kind of way to prepare the arguments in easy-config : we can eith
             lr = 1e-4
             sched = 'cos_anneal'
 
-#### We have defined the config file, now let's see how to access any agruments! Execute `python quick_hier.py` in work directory*.
+#### We have defined the config file, now let's see how to access any agruments! Execute `python quick_hier.py` in work directory.
 
     from easy_configer.Configer import Configer
     
@@ -313,6 +314,8 @@ However, the syntax of above config file could be improved, isn't it !? For exam
         # do whatever you want to do!
         
 #### **3. Access all arguments flexibly**
+For `easy_configer>=v2.4.0`, each argument declared under section will be stored in a special dictionary object, called `AttributeDict` (Inhert from native python `dict`). It's a new container allowing dot-operator for accessing any nested object.
+The only pitfall about AttributeDict is that **you should never access its `__dict__` property**, since it's disabled..
 We simple set a breakpoint to feel how flexible does `easy_configer.utils.Container.AttributeDict` support.
 
     from easy_configer.Configer import Configer
@@ -369,7 +372,9 @@ Like `omegaconf`, most of user expect to seperate the config based on their type
 1. you can call the `cfg_from_ini` twice, for example, `cfg.cfg_from_ini('./base_cfg') ; cfg.cfg_from_ini('./override_cfg')`. But it's not explicitly load the config thus reducing readability.
 2. you can use the config merging, for example, `new_cfg = base_cfg | override_cfg`. But it's not elegant solution while you  have to merge several config..
 
-#### Now, we provide the thrid way : **sub-config**. you can import the sub-config in any depth of hierachical config by simply placing the `>` symbol at the beginning of line.
+#### Now, we provide the thrid way : **sub-config**. you can import the sub-config in any depth of hierachical config by simply placing the `>` symbol at the beginning of line. Also note that sub-config doesn't allow you override the declared argument by default, since dynamically override the arguments made your config hard to trace..
+> If you want to override the config, turn the flag allow_override as True. i.e. `cfg.cfg_from_ini(..., allow_override=True)`, `cfg.cfg_from_str(..., allow_override=True)`. The sub-config will follow the flag setting to override the config or raise the RuntimeError.
+
     # ./base_cfg.ini
     glb_seed = 42@int
     [dataset]         
@@ -459,6 +464,8 @@ In the following example, you can see that the merging config system already pro
 
 ### **Miscellnous features**
 #### **7. IO Converter**
+To convert the `easy_configer` type config into the other config instance, we provide a IO converter to serve for this requirement. IO converter support several well-know config type.. Just simple call the method with the proper arguments as the following example. 
+
     from dataclasses import dataclass
     from typing import Optional
 

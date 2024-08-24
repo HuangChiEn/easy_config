@@ -156,7 +156,7 @@
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># For convience, we define string-config!</span>
 <span class="k">def</span> <span class="nf">get_str_cfg</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39; # `export glb_seed=42` in bash!!</span>
-<span class="sd">        glb_seed = $Env.glb_seed</span>
+<span class="sd">        glb_seed = ${env.glb_seed}@int   # or ${env.glb_seed} for short</span>
 <span class="sd">        exp_id = &#39;0001&#39;</span>
 
 <span class="sd">        [dataset]</span>
@@ -167,15 +167,20 @@
 
 <span class="sd">            [dataset.loader]</span>
 <span class="sd">                batch_size = 32</span>
+<span class="sd">                secrete_seed = 55688</span>
 
 <span class="sd">        [model]</span>
 <span class="sd">            [model.backbone]</span>
 <span class="sd">                mod_typ = &#39;resnet&#39;</span>
 <span class="sd">                [model.backbone.optimizer]</span>
-<span class="sd">                    lay_seed = $glb_seed</span>
+<span class="sd">                     # aweason! but we can do more crazy stuff ~</span>
+<span class="sd">                     lay_seed = ${cfg.glb_seed}</span>
+<span class="sd">                     # &#39;cfg&#39; is used to access the config, feel free to access any arguments defined previsouly!!</span>
+<span class="sd">                     string_seed = &quot;The secrete string in data loader is ${cfg.dataset.loader.secrete_seed}!!&quot;</span>
 
 <span class="sd">        [train_cfg]</span>
-<span class="sd">            batch_size = $dataset.loader.batch_size</span>
+<span class="sd">            batch_size = ${cfg.dataset.loader.batch_size}</span>
+<span class="sd">            exp_id = &quot;${cfg.exp_id}&quot;  # or ${cfg.exp_id}@str, quote can not be omitted!</span>
 <span class="sd">            [train_cfg.opt]</span>
 <span class="sd">                opt_typ = &#39;Adam&#39;</span>
 <span class="sd">                lr = 1e-4</span>
@@ -198,7 +203,9 @@
 <hr class="docutils" />
 <section id="id3">
 <h2>2. 靈活地存取所有組態參數 🔓<a class="headerlink" href="#id3" title="本標頭的永久連結"></a></h2>
-<p>我們設定一個簡易的 breakpoint 來感受一下 <code class="docutils literal notranslate"><span class="pre">easy_configer.utils.Container.AttributeDict</span></code> 對存取參數靈活性的支援。</p>
+<p>對於 <code class="docutils literal notranslate"><span class="pre">easy_configer&gt;=v2.4.0``的版本，每個參數將被定義於</span> <span class="pre">``section</span></code> 底下，而 <code class="docutils literal notranslate"><span class="pre">section</span></code> 是由一種特殊的字典物件 <code class="docutils literal notranslate"><span class="pre">AttributeDict</span></code> (繼承於 python 的 <cite>dict</cite>) 所構成；它是一個新建的容器類，允許 dot-operator 存取任何層次的組態值。
+使用這種物件唯一需注意的是 <strong>請永遠不要存取它的 `__dict__` 屬性值</strong>，因為它們於建置時已被棄用(是一個空的字典)..
+我們設定一個簡易的 breakpoint 來感受一下 <code class="docutils literal notranslate"><span class="pre">easy_configer.utils.Container.AttributeDict</span></code> 對存取參數靈活性的支援。</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">easy_configer.Configer</span> <span class="kn">import</span> <span class="n">Configer</span>
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
@@ -262,7 +269,12 @@
 <li><p>您可以呼叫 <code class="docutils literal notranslate"><span class="pre">cfg_from_ini</span></code> 兩次, 例如, <code class="docutils literal notranslate"><span class="pre">cfg.cfg_from_ini('./base_cfg')</span> <span class="pre">;</span> <span class="pre">cfg.cfg_from_ini('./override_cfg')</span></code>。但這樣做並未明確載入配置，從而降低了可讀性。</p></li>
 <li><p>您可以使用配置合併，例如 : <code class="docutils literal notranslate"><span class="pre">new_cfg</span> <span class="pre">=</span> <span class="pre">base_cfg</span> <span class="pre">|</span> <span class="pre">override_cfg</span></code>。但是當您需要合併多個配置時，這並不是一個優雅的解決方案…</p></li>
 </ol>
-<p>現在，我們提供了第三種方式 : <strong>sub-config</strong>。您可以通過在行首簡單地放置 <code class="docutils literal notranslate"><span class="pre">&gt;</span></code> 符號來在層次配置的任何階層導入子配置。</p>
+<p>現在，我們提供了第三種方式 : <strong>sub-config</strong>。您可以通過在行首簡單地放置 <code class="docutils literal notranslate"><span class="pre">&gt;</span></code> 符號來在層次配置的任何階層導入子配置。
+請注意，sub-config 不允許您覆寫任何先前定義的組態值，所謂的動態合併或動態載入是指融合不重複的組態值，因為動態覆寫組態值一直是造成大型程式的組態配置難以追蹤的根本原因，也是各大組態工具吹噓的功能，很遺憾…</p>
+<blockquote>
+<div><p>雖然我不推薦，如果您要這個功能，可以透過啟用 allow_override 旗標來達成；例如. <code class="docutils literal notranslate"><span class="pre">cfg.cfg_from_ini(...,</span> <span class="pre">allow_override=True)</span></code>, <code class="docutils literal notranslate"><span class="pre">cfg.cfg_from_str(...,</span> <span class="pre">allow_override=True)</span></code>。
+這個設定雖然是套用在 <code class="docutils literal notranslate"><span class="pre">cfg.cfg_from_ini</span></code> 等方法，但 sub-config 的行為也會遵循此旗標的設定來覆寫組態值，或是拋出一個運行錯誤。</p>
+</div></blockquote>
 <div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="c1"># ./base_cfg.ini</span>
 <span class="na">glb_seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">42@int</span>
 <span class="k">[dataset]</span>
@@ -282,7 +294,7 @@
 <span class="w">    </span><span class="na">mod_typ</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;resnet&#39;</span>
 <span class="w">    </span><span class="k">[model.backbone.optimizer]</span>
 <span class="w">    </span><span class="c1"># and yes, interpolation is still valid &quot;after&quot; the reference argument is declared!</span>
-<span class="w">        </span><span class="na">lay_seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">$glb_seed</span>
+<span class="w">        </span><span class="na">lay_seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${cfg.glb_seed}</span>
 </pre></div>
 </div>
 </section>
@@ -310,7 +322,7 @@
 <span class="s1">        [ghyu.opop]</span>
 <span class="s1">            add = 32@int</span>
 <span class="s1">            [ghyu.opop.tueo]</span>
-<span class="s1">                salt = $inpo</span>
+<span class="s1">                salt = $</span><span class="si">{cfg.inpo}</span>
 
 <span class="s1">    # Cell cfg written by Josef-Huang..</span>
 <span class="s1">    &#39;&#39;&#39;</span>
@@ -358,6 +370,8 @@
 </section>
 <section id="io">
 <h2>6. IO 轉換器 🐙<a class="headerlink" href="#io" title="本標頭的永久連結"></a></h2>
+<p>我們藉由提供 IO converter 類別來將 <cite>easy_configer</cite> 組態轉換至其他組態工具的實例，基本上幾個知名的組態工具都在我的支援範圍，
+只要簡易的呼叫對應方法即可完成，以下為範例 :</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 

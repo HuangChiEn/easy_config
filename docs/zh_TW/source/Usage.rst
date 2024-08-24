@@ -86,7 +86,7 @@
    # For convience, we define string-config!
    def get_str_cfg():
        ''' # `export glb_seed=42` in bash!!
-           glb_seed = $Env.glb_seed
+           glb_seed = ${env.glb_seed}@int   # or ${env.glb_seed} for short
            exp_id = '0001'
 
            [dataset]   
@@ -97,15 +97,20 @@
 
                [dataset.loader]
                    batch_size = 32
+                   secrete_seed = 55688
 
            [model]
                [model.backbone]
                    mod_typ = 'resnet'
                    [model.backbone.optimizer]
-                       lay_seed = $glb_seed
+                        # aweason! but we can do more crazy stuff ~
+                        lay_seed = ${cfg.glb_seed}
+                        # 'cfg' is used to access the config, feel free to access any arguments defined previsouly!!
+                        string_seed = "The secrete string in data loader is ${cfg.dataset.loader.secrete_seed}!!"
 
            [train_cfg]
-               batch_size = $dataset.loader.batch_size
+               batch_size = ${cfg.dataset.loader.batch_size}
+               exp_id = "${cfg.exp_id}"  # or ${cfg.exp_id}@str, quote can not be omitted!
                [train_cfg.opt]
                    opt_typ = 'Adam'
                    lr = 1e-4
@@ -128,6 +133,8 @@
 
 2. 靈活地存取所有組態參數 🔓
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+對於 ``easy_configer>=v2.4.0``的版本，每個參數將被定義於 ``section`` 底下，而 ``section`` 是由一種特殊的字典物件 ``AttributeDict`` (繼承於 python 的 `dict`) 所構成；它是一個新建的容器類，允許 dot-operator 存取任何層次的組態值。
+使用這種物件唯一需注意的是 **請永遠不要存取它的 `__dict__` 屬性值**，因為它們於建置時已被棄用(是一個空的字典)..
 我們設定一個簡易的 breakpoint 來感受一下 ``easy_configer.utils.Container.AttributeDict`` 對存取參數靈活性的支援。
 
 .. code-block:: python
@@ -206,6 +213,12 @@
 #. 您可以使用配置合併，例如 : ``new_cfg = base_cfg | override_cfg``。但是當您需要合併多個配置時，這並不是一個優雅的解決方案...
 
 現在，我們提供了第三種方式 : **sub-config**。您可以通過在行首簡單地放置 ``>`` 符號來在層次配置的任何階層導入子配置。
+請注意，sub-config 不允許您覆寫任何先前定義的組態值，所謂的動態合併或動態載入是指融合不重複的組態值，因為動態覆寫組態值一直是造成大型程式的組態配置難以追蹤的根本原因，也是各大組態工具吹噓的功能，很遺憾...
+
+..
+
+   雖然我不推薦，如果您要這個功能，可以透過啟用 allow_override 旗標來達成；例如. ``cfg.cfg_from_ini(..., allow_override=True)``, ``cfg.cfg_from_str(..., allow_override=True)``。
+   這個設定雖然是套用在 ``cfg.cfg_from_ini`` 等方法，但 sub-config 的行為也會遵循此旗標的設定來覆寫組態值，或是拋出一個運行錯誤。
 
 .. code-block:: ini
 
@@ -228,7 +241,7 @@
        mod_typ = 'resnet'
        [model.backbone.optimizer]
        # and yes, interpolation is still valid "after" the reference argument is declared!
-           lay_seed = $glb_seed  
+           lay_seed = ${cfg.glb_seed}
 
 ----
 
@@ -261,7 +274,7 @@
            [ghyu.opop]
                add = 32@int
                [ghyu.opop.tueo]
-                   salt = $inpo
+                   salt = ${cfg.inpo}
 
        # Cell cfg written by Josef-Huang..
        '''
@@ -310,6 +323,8 @@
 
 6. IO 轉換器 🐙
 ~~~~~~~~~~~~~~~~~~~~~~~
+我們藉由提供 IO converter 類別來將 `easy_configer` 組態轉換至其他組態工具的實例，基本上幾個知名的組態工具都在我的支援範圍，
+只要簡易的呼叫對應方法即可完成，以下為範例 : 
 
 .. code-block:: python
 

@@ -8,16 +8,13 @@ Newly update features 🚀
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 #. 
-   Enable all test case (automatically ci by git-action)
+   Easy-configer pass all test-case, and v2.5.2 is the stable version.
 
 #. 
-   Support dot-access of any arguments
+   Integrate argument intepolation with using ${cfg} notation
 
 #. 
-   Consistent import syntax.. 
-
-#. 
-   New document is released ~  
+   Integrate enviroment variable intepolation with using ${cfg} notation
 
 ----
 
@@ -25,17 +22,18 @@ TODO List 🔨
 ^^^^^^^^^^^^^^
 
 #. 
-   Better **exception mechniasm** in easy-config ~
+   Better **config syntax** in easy-config ~
 
 .. 
 
-    next version released features v 2.3.3
+    next version released features v 2.6
 
 
 Bug Fixed 🐛
 ^^^^^^^^^^^^^^
 
-Fix-up import syntax.. plz open an issue if you find a bug ~
+Due to safty policy, we rollback the feature "single line python code interpreter"..
+Hot-fix config overrided bug, add flag for support allow_override..
 
 ----
 

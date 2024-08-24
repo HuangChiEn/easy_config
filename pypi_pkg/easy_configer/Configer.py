@@ -194,7 +194,7 @@ class Configer(object):
                     The sub-config path is parsed from the .ini file with split '>' symbol.
             '''
             sub_cfg = Configer(cmd_args=False)
-            sub_cfg.cfg_from_ini(sub_cfg_path)
+            sub_cfg.cfg_from_ini(sub_cfg_path, allow_override)
             return self.__cfg_cnvt.cnvt_cfg_to(sub_cfg, 'dict', return_attr_dict=True)
 
         def chk_args_exists(val_dict:dict, container:dict):

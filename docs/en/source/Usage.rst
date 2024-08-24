@@ -72,11 +72,11 @@ We have defined the config file, now let's see how to access any agruments! Exec
 However, the syntax of above config file could be improved, isn't it !? For example, the batch_size is defined twice under ``dataset.loader`` and ``train_cfg``\ , so as layer seed. Moreover, path is defined as python string, it need to be further converted by Path object in python standard package. Could we regist our customized data type for easy-config ?
 Glade to say : Yes! it's possible to elegantly deal with above mentioned issue. We can solve the first issue by using argument interpolation, and solve the second issue by using the customized register!!
 
-*config interpolation with $ symbol* and  customized register method ``regist_cnvtor`` 
+Thanks to *python format-string via ${...}* and  *customized register method `regist_cnvtor`*. *See below example*
 
 ..
 
-   Currently we support interpolation mechnaism to interpolate **ANY** arguemnts belong the different level of nested dictionary. Moreover, we also support **$Env** for accessing enviroment variables exported in bash!!
+   Currently we support interpolation mechnaism to interpolate **ANY** arguemnts belonging the different level of nested dictionary by using **\${cfg}**. Moreover, we also support **\${env}** for accessing enviroment variables exported in bash!!
 
 
 .. code-block:: python
@@ -84,7 +84,7 @@ Glade to say : Yes! it's possible to elegantly deal with above mentioned issue. 
    # For convience, we define string-config!
    def get_str_cfg():
        ''' # `export glb_seed=42` in bash!!
-           glb_seed = $Env.glb_seed
+           glb_seed = ${env.glb_seed}@int   # or ${env.glb_seed} for short
            exp_id = '0001'
 
            [dataset]   
@@ -95,15 +95,20 @@ Glade to say : Yes! it's possible to elegantly deal with above mentioned issue. 
 
                [dataset.loader]
                    batch_size = 32
+                   secrete_seed = 55688
 
            [model]
                [model.backbone]
-                   mod_typ = 'resnet'
-                   [model.backbone.optimizer]
-                       lay_seed = $glb_seed
+                    mod_typ = 'resnet'
+                    [model.backbone.optimizer]
+                        # aweason! but we can do more crazy stuff ~
+                        lay_seed = ${cfg.glb_seed}
+                        # 'cfg' is used to access the config, feel free to access any arguments defined previsouly!!
+                        string_seed = "The secrete string in data loader is ${cfg.dataset.loader.secrete_seed}!!"
 
            [train_cfg]
-               batch_size = $dataset.loader.batch_size
+               batch_size = ${cfg.dataset.loader.batch_size}
+               exp_id = "${cfg.exp_id}"  # or ${cfg.exp_id}@str, quote can not be omitted!
                [train_cfg.opt]
                    opt_typ = 'Adam'
                    lr = 1e-4
@@ -126,6 +131,8 @@ Glade to say : Yes! it's possible to elegantly deal with above mentioned issue. 
 
 2. Access all arguments flexibly 🔓
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+For ``easy_configer>=v2.4.0``, each argument declared under section will be stored in a special dictionary object, called `AttributeDict` (Inhert from native python `dict`). It's a new container allowing dot-operator for accessing any nested object.
+The only pitfall about AttributeDict is that **you should never access its `__dict__` property**, since it's disabled..
 We simple set a breakpoint to feel how flexible does ``easy_configer.utils.Container.AttributeDict`` support.
 
 .. code-block:: python
@@ -205,6 +212,12 @@ Like ``omegaconf``\ , most of user expect to seperate the config based on their 
 #. you can use the config merging, for example, ``new_cfg = base_cfg | override_cfg``. But it's not elegant solution while you  have to merge several config..
 
 Now, we provide the thrid way : **sub-config**. you can import the sub-config in any depth of hierachical config by simply placing the ``>`` symbol at the beginning of line.
+Also note that sub-config doesn't allow you override the declared argument by default, since dynamically override the arguments made your config hard to trace..
+
+..
+
+   If you want to override the config, turn the flag allow_override as True. i.e. ``cfg.cfg_from_ini(..., allow_override=True)``, ``cfg.cfg_from_str(..., allow_override=True)``.
+   The sub-config will follow the flag setting to override the config or raise the RuntimeError.
 
 .. code-block:: ini
 
@@ -227,7 +240,7 @@ Now, we provide the thrid way : **sub-config**. you can import the sub-config in
        mod_typ = 'resnet'
        [model.backbone.optimizer]
        # and yes, interpolation is still valid "after" the reference argument is declared!
-           lay_seed = $glb_seed  
+           lay_seed = ${cfg.glb_seed}
 
 ----
 
@@ -259,7 +272,7 @@ In the following example, you can see that the merging config system already pro
            [ghyu.opop]
                add = 32@int
                [ghyu.opop.tueo]
-                   salt = $inpo
+                   salt = ${cfg.inpo}
 
        # Cell cfg written by Josef-Huang..
        '''
@@ -308,6 +321,7 @@ In the following example, you can see that the merging config system already pro
 
 6. IO Converter 🐙
 ~~~~~~~~~~~~~~~~~~~~~~~
+To convert the `easy_configer` type config into the other config instance, we provide a IO converter to serve for this requirement. IO converter support several well-know config type.. Just simple call the method with the proper arguments as the following example. 
 
 .. code-block:: python
 
