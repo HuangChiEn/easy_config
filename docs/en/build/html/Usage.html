@@ -167,7 +167,7 @@ Glade to say : Yes! it’s possible to elegantly deal with above mentioned issue
 
 <span class="sd">        [model]</span>
 <span class="sd">            [model.backbone]</span>
-<span class="sd">                mod_typ = &#39;resnet&#39;</span>
+<span class="sd">                 mod_typ = &#39;resnet&#39;</span>
 <span class="sd">                 [model.backbone.optimizer]</span>
 <span class="sd">                     # aweason! but we can do more crazy stuff ~</span>
 <span class="sd">                     lay_seed = ${cfg.glb_seed}</span>
@@ -199,8 +199,8 @@ Glade to say : Yes! it’s possible to elegantly deal with above mentioned issue
 <hr class="docutils" />
 <section id="access-all-arguments-flexibly">
 <h2>2. Access all arguments flexibly 🔓<a class="headerlink" href="#access-all-arguments-flexibly" title="Permalink to this heading"></a></h2>
-<p>For <code class="docutils literal notranslate"><span class="pre">easy_configer&gt;=v2.4.0</span></code>, each argument declared under section will be stored in a special dictionary object, called <cite>AttributeDict</cite> (Inhert from native python <cite>dict</cite>). It’s a new container allowing dot-operator for accessing any nested object.
-The only pitfall about AttributeDict is that <strong>you should never access its `__dict__` property</strong>, since it’s disabled..
+<p>For <code class="docutils literal notranslate"><span class="pre">easy_configer&gt;=v2.4.0</span></code>, each argument declared under section will be stored in a special dictionary object, called <code class="docutils literal notranslate"><span class="pre">AttributeDict</span></code> (Inhert from native python <code class="docutils literal notranslate"><span class="pre">dict</span></code>). It’s a new container allowing dot-operator for accessing any nested object.
+The only pitfall about <code class="docutils literal notranslate"><span class="pre">AttributeDict</span></code> is that <strong>you should never access its ``__dict__`` property</strong>, since it’s disabled..
 We simple set a breakpoint to feel how flexible does <code class="docutils literal notranslate"><span class="pre">easy_configer.utils.Container.AttributeDict</span></code> support.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">easy_configer.Configer</span> <span class="kn">import</span> <span class="n">Configer</span>
 
@@ -268,8 +268,8 @@ We simple set a breakpoint to feel how flexible does <code class="docutils liter
 <p>Now, we provide the thrid way : <strong>sub-config</strong>. you can import the sub-config in any depth of hierachical config by simply placing the <code class="docutils literal notranslate"><span class="pre">&gt;</span></code> symbol at the beginning of line.
 Also note that sub-config doesn’t allow you override the declared argument by default, since dynamically override the arguments made your config hard to trace..</p>
 <blockquote>
-<div><p>If you want to override the config, turn the flag allow_override as True. i.e. <code class="docutils literal notranslate"><span class="pre">cfg.cfg_from_ini(...,</span> <span class="pre">allow_override=True)</span></code>, <code class="docutils literal notranslate"><span class="pre">cfg.cfg_from_str(...,</span> <span class="pre">allow_override=True)</span></code>.
-The sub-config will follow the flag setting to override the config or raise the RuntimeError.</p>
+<div><p>If you want to override the config, turn the flag <code class="docutils literal notranslate"><span class="pre">allow_override</span></code> as <code class="docutils literal notranslate"><span class="pre">True</span></code>. i.e. <code class="docutils literal notranslate"><span class="pre">cfg.cfg_from_ini(...,</span> <span class="pre">allow_override=True)</span></code>, <code class="docutils literal notranslate"><span class="pre">cfg.cfg_from_str(...,</span> <span class="pre">allow_override=True)</span></code>.
+The sub-config will follow the flag setting to override the config or raise the <code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code>.</p>
 </div></blockquote>
 <div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="c1"># ./base_cfg.ini</span>
 <span class="na">glb_seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">42@int</span>

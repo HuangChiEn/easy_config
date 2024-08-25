@@ -8,17 +8,9 @@
 
 .. toctree::
    :maxdepth: 2
-   :caption: 章節:
    
    About
    Installation
    Quick
    Usage
    Metainfo
-
-快速查詢
-==========
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`

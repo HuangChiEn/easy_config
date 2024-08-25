@@ -86,7 +86,7 @@ Easy-configでは、2つのパラメータの準備方法があります：フ�
    # For convience, we define string-config!
    def get_str_cfg():
        ''' # `export glb_seed=42` in bash!!
-           glb_seed = $Env.glb_seed
+           glb_seed = ${env.glb_seed}@int   # or ${env.glb_seed} for short
            exp_id = '0001'
 
            [dataset]   
@@ -97,15 +97,20 @@ Easy-configでは、2つのパラメータの準備方法があります：フ�
 
                [dataset.loader]
                    batch_size = 32
+                   secrete_seed = 55688
 
            [model]
                [model.backbone]
                    mod_typ = 'resnet'
                    [model.backbone.optimizer]
-                       lay_seed = $glb_seed
+                       # aweason! but we can do more crazy stuff ~
+                        lay_seed = ${cfg.glb_seed}
+                        # 'cfg' is used to access the config, feel free to access any arguments defined previsouly!!
+                        string_seed = "The secrete string in data loader is ${cfg.dataset.loader.secrete_seed}!!"
 
            [train_cfg]
-               batch_size = $dataset.loader.batch_size
+               batch_size = ${cfg.dataset.loader.batch_size}
+               exp_id = "${cfg.exp_id}"  # or ${cfg.exp_id}@str, quote can not be omitted!
                [train_cfg.opt]
                    opt_typ = 'Adam'
                    lr = 1e-4
@@ -128,7 +133,9 @@ Easy-configでは、2つのパラメータの準備方法があります：フ�
 
 2. 素早くすべての構成パラメータにアクセスできるようにします 🔓
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-簡単なブレークポイントを設定して、 ``easy_configer.utils.Container.AttributeDict`` がパラメータのアクセスをどのぐらいにサポートしているかを体験してみましょう。
+``easy_configer>=v2.4.0`` では、セクションの下で宣言された各引数は、``AttributeDict``と呼ばれる特別な辞書オブジェクトに格納されます（これはネイティブな Python の ``dict`` から継承しています）。これは、ネストされたオブジェクトにドット演算子でアクセスできる新しいコンテナです。 
+``AttributeDict`` についての唯一の落とし穴は、その ``__dict__`` プロパティにアクセスしてはいけないことです。これは無効化されています。
+簡単なブレーク‵`ポイントを設定して、 ``easy_configer.utils.Container.AttributeDict`` がパラメータのアクセスをどのぐらいにサポートしているかを体験してみましょう。
 
 .. code-block:: python
 
@@ -198,8 +205,8 @@ Python　で実行してヘルプ情報を出力します :raw-html-m2r:`<br>`
 
 ----
 
-4. 子設定をロードします 🎎
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+4. サブコンフィグをロードします 🎎
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ``omegaconf``\　のように、多くのユーザーは、構成ファイルを型に基づいて分割し、実行時に動的にマージすることを期待しています。
 これは合理的な要求ですが、以前のバージョンのeasy-configでは、構成ファイルを型に基づいて分割し、実行時に動的に結合することができましたが、これには制限がありました： 
@@ -208,6 +215,12 @@ Python　で実行してヘルプ情報を出力します :raw-html-m2r:`<br>`
 #. 設定のマージを使用することもできましたが。例えば、 ``new_cfg = base_cfg | override_cfg``。しかし、数多くの設定をマージする場合には優雅な解決策ではありませんでした。
 
 現在、新しい方法　**sub-config**　を提供します。サブ構成を導入するために、行の先頭に簡単に　``>``　記号を置くことができるようになりました。
+また、サブコンフィグでは、デフォルトでは宣言された引数をオーバーライドすることはできません。これは、引数を動的にオーバーライドするとコンフィグの追跡が困難になるためです。
+
+..
+
+   設定をオーバーライドしたい場合は、フラグ ``allow_override`` を ``True`` に設定してください。例えば、``cfg.cfg_from_ini(..., allow_override=True)`` や ``cfg.cfg_from_str(..., allow_override=True)`` のように指定します。
+   サブコンフィグは、フラグの設定に従って設定をオーバーライドするか、``RuntimeError`` を発生させます。
 
 .. code-block:: ini
 
@@ -230,7 +243,7 @@ Python　で実行してヘルプ情報を出力します :raw-html-m2r:`<br>`
        mod_typ = 'resnet'
        [model.backbone.optimizer]
        # and yes, interpolation is still valid "after" the reference argument is declared!
-           lay_seed = $glb_seed  
+           lay_seed = ${cfg.glb_seed}
 
 ----
 
@@ -264,7 +277,7 @@ Python　で実行してヘルプ情報を出力します :raw-html-m2r:`<br>`
            [ghyu.opop]
                add = 32@int
                [ghyu.opop.tueo]
-                   salt = $inpo
+                   salt = ${cfg.inpo}
 
        # Cell cfg written by Josef-Huang..
        '''
@@ -313,6 +326,8 @@ Python　で実行してヘルプ情報を出力します :raw-html-m2r:`<br>`
 
 6. IO変換機能 🐙
 ~~~~~~~~~~~~~~~~~~~~~~~
+``easy_configer`` 型の設定を他の設定インスタンスに変換するには、IO コンバータを提供しています。IO コンバータは、いくつかのよく知られた設定タイプをサポートしています。
+以下の例のように、適切な引数を指定してメソッドを呼び出すだけで簡単に利用できます。
 
 .. code-block:: python
 

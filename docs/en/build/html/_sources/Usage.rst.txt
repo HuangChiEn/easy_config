@@ -99,7 +99,7 @@ Thanks to *python format-string via ${...}* and  *customized register method `re
 
            [model]
                [model.backbone]
-                   mod_typ = 'resnet'
+                    mod_typ = 'resnet'
                     [model.backbone.optimizer]
                         # aweason! but we can do more crazy stuff ~
                         lay_seed = ${cfg.glb_seed}
@@ -131,8 +131,8 @@ Thanks to *python format-string via ${...}* and  *customized register method `re
 
 2. Access all arguments flexibly 🔓
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-For ``easy_configer>=v2.4.0``, each argument declared under section will be stored in a special dictionary object, called `AttributeDict` (Inhert from native python `dict`). It's a new container allowing dot-operator for accessing any nested object.
-The only pitfall about AttributeDict is that **you should never access its `__dict__` property**, since it's disabled..
+For ``easy_configer>=v2.4.0``, each argument declared under section will be stored in a special dictionary object, called ``AttributeDict`` (Inhert from native python ``dict``). It's a new container allowing dot-operator for accessing any nested object.
+The only pitfall about ``AttributeDict`` is that **you should never access its ``__dict__`` property**, since it's disabled..
 We simple set a breakpoint to feel how flexible does ``easy_configer.utils.Container.AttributeDict`` support.
 
 .. code-block:: python
@@ -216,8 +216,8 @@ Also note that sub-config doesn't allow you override the declared argument by de
 
 ..
 
-   If you want to override the config, turn the flag allow_override as True. i.e. ``cfg.cfg_from_ini(..., allow_override=True)``, ``cfg.cfg_from_str(..., allow_override=True)``.
-   The sub-config will follow the flag setting to override the config or raise the RuntimeError.
+   If you want to override the config, turn the flag ``allow_override`` as ``True``. i.e. ``cfg.cfg_from_ini(..., allow_override=True)``, ``cfg.cfg_from_str(..., allow_override=True)``.
+   The sub-config will follow the flag setting to override the config or raise the ``RuntimeError``.
 
 .. code-block:: ini
 

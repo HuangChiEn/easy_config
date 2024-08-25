@@ -8,17 +8,9 @@ easy_configer のドキュメントへようこそ!
 
 .. toctree::
    :maxdepth: 2
-   :caption: チャプター:
    
    About
    Installation
    Quick
    Usage
    Metainfo
-
-検索
-======
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`

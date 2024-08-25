@@ -44,8 +44,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">チャプター:</span></p>
-<ul class="current">
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="About.html">このプロジェクトについて</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Installation.html">ダウンロードの手順</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Quick.html">クイックスタート</a></li>
@@ -53,7 +52,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#id2">1. 階層化配置の定義方法 🖋️</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#id3">2. 素早くすべての構成パラメータにアクセスできるようにします 🔓</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#id4">3. コマンドラインのサポート ⌨️</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id5">4. 子設定をロードします 🎎</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id5">4. サブコンフィグをロードします 🎎</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#id6">5. コンフィグ運算子 ⛩️</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#io">6. IO変換機能 🐙</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#absl">7. Abslスタイルのフラグパラメータ 🏳️</a></li>
@@ -155,7 +154,7 @@
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># For convience, we define string-config!</span>
 <span class="k">def</span> <span class="nf">get_str_cfg</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39; # `export glb_seed=42` in bash!!</span>
-<span class="sd">        glb_seed = $Env.glb_seed</span>
+<span class="sd">        glb_seed = ${env.glb_seed}@int   # or ${env.glb_seed} for short</span>
 <span class="sd">        exp_id = &#39;0001&#39;</span>
 
 <span class="sd">        [dataset]</span>
@@ -166,15 +165,20 @@
 
 <span class="sd">            [dataset.loader]</span>
 <span class="sd">                batch_size = 32</span>
+<span class="sd">                secrete_seed = 55688</span>
 
 <span class="sd">        [model]</span>
 <span class="sd">            [model.backbone]</span>
 <span class="sd">                mod_typ = &#39;resnet&#39;</span>
 <span class="sd">                [model.backbone.optimizer]</span>
-<span class="sd">                    lay_seed = $glb_seed</span>
+<span class="sd">                    # aweason! but we can do more crazy stuff ~</span>
+<span class="sd">                     lay_seed = ${cfg.glb_seed}</span>
+<span class="sd">                     # &#39;cfg&#39; is used to access the config, feel free to access any arguments defined previsouly!!</span>
+<span class="sd">                     string_seed = &quot;The secrete string in data loader is ${cfg.dataset.loader.secrete_seed}!!&quot;</span>
 
 <span class="sd">        [train_cfg]</span>
-<span class="sd">            batch_size = $dataset.loader.batch_size</span>
+<span class="sd">            batch_size = ${cfg.dataset.loader.batch_size}</span>
+<span class="sd">            exp_id = &quot;${cfg.exp_id}&quot;  # or ${cfg.exp_id}@str, quote can not be omitted!</span>
 <span class="sd">            [train_cfg.opt]</span>
 <span class="sd">                opt_typ = &#39;Adam&#39;</span>
 <span class="sd">                lr = 1e-4</span>
@@ -197,7 +201,9 @@
 <hr class="docutils" />
 <section id="id3">
 <h2>2. 素早くすべての構成パラメータにアクセスできるようにします 🔓<a class="headerlink" href="#id3" title="Permalink to this heading"></a></h2>
-<p>簡単なブレークポイントを設定して、 <code class="docutils literal notranslate"><span class="pre">easy_configer.utils.Container.AttributeDict</span></code> がパラメータのアクセスをどのぐらいにサポートしているかを体験してみましょう。</p>
+<p><code class="docutils literal notranslate"><span class="pre">easy_configer&gt;=v2.4.0</span></code> では、セクションの下で宣言された各引数は、<code class="docutils literal notranslate"><span class="pre">AttributeDict``と呼ばれる特別な辞書オブジェクトに格納されます（これはネイティブな</span> <span class="pre">Python</span> <span class="pre">の</span> <span class="pre">``dict</span></code> から継承しています）。これは、ネストされたオブジェクトにドット演算子でアクセスできる新しいコンテナです。
+<code class="docutils literal notranslate"><span class="pre">AttributeDict</span></code> についての唯一の落とし穴は、その <code class="docutils literal notranslate"><span class="pre">__dict__</span></code> プロパティにアクセスしてはいけないことです。これは無効化されています。
+簡単なブレーク‵<cite>ポイントを設定して、 ``easy_configer.utils.Container.AttributeDict`</cite> がパラメータのアクセスをどのぐらいにサポートしているかを体験してみましょう。</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">easy_configer.Configer</span> <span class="kn">import</span> <span class="n">Configer</span>
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
@@ -256,14 +262,19 @@
 </section>
 <hr class="docutils" />
 <section id="id5">
-<h2>4. 子設定をロードします 🎎<a class="headerlink" href="#id5" title="Permalink to this heading"></a></h2>
+<h2>4. サブコンフィグをロードします 🎎<a class="headerlink" href="#id5" title="Permalink to this heading"></a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">omegaconf</span></code>　のように、多くのユーザーは、構成ファイルを型に基づいて分割し、実行時に動的にマージすることを期待しています。
 これは合理的な要求ですが、以前のバージョンのeasy-configでは、構成ファイルを型に基づいて分割し、実行時に動的に結合することができましたが、これには制限がありました：</p>
 <ol class="arabic simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">cfg_from_ini</span></code> を2回呼び出すことができましたが。例えば、 <code class="docutils literal notranslate"><span class="pre">cfg.cfg_from_ini('./base_cfg')</span> <span class="pre">;</span> <span class="pre">cfg.cfg_from_ini('./override_cfg')</span></code>。しかし、これは設定が明確にロードされていないため、可読性が良くないです。</p></li>
 <li><p>設定のマージを使用することもできましたが。例えば、 <code class="docutils literal notranslate"><span class="pre">new_cfg</span> <span class="pre">=</span> <span class="pre">base_cfg</span> <span class="pre">|</span> <span class="pre">override_cfg</span></code>。しかし、数多くの設定をマージする場合には優雅な解決策ではありませんでした。</p></li>
 </ol>
-<p>現在、新しい方法　<strong>sub-config</strong>　を提供します。サブ構成を導入するために、行の先頭に簡単に　<code class="docutils literal notranslate"><span class="pre">&gt;</span></code>　記号を置くことができるようになりました。</p>
+<p>現在、新しい方法　<strong>sub-config</strong>　を提供します。サブ構成を導入するために、行の先頭に簡単に　<code class="docutils literal notranslate"><span class="pre">&gt;</span></code>　記号を置くことができるようになりました。
+また、サブコンフィグでは、デフォルトでは宣言された引数をオーバーライドすることはできません。これは、引数を動的にオーバーライドするとコンフィグの追跡が困難になるためです。</p>
+<blockquote>
+<div><p>設定をオーバーライドしたい場合は、フラグ <code class="docutils literal notranslate"><span class="pre">allow_override</span></code> を <code class="docutils literal notranslate"><span class="pre">True</span></code> に設定してください。例えば、<code class="docutils literal notranslate"><span class="pre">cfg.cfg_from_ini(...,</span> <span class="pre">allow_override=True)</span></code> や <code class="docutils literal notranslate"><span class="pre">cfg.cfg_from_str(...,</span> <span class="pre">allow_override=True)</span></code> のように指定します。
+サブコンフィグは、フラグの設定に従って設定をオーバーライドするか、<code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code> を発生させます。</p>
+</div></blockquote>
 <div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="c1"># ./base_cfg.ini</span>
 <span class="na">glb_seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">42@int</span>
 <span class="k">[dataset]</span>
@@ -283,7 +294,7 @@
 <span class="w">    </span><span class="na">mod_typ</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;resnet&#39;</span>
 <span class="w">    </span><span class="k">[model.backbone.optimizer]</span>
 <span class="w">    </span><span class="c1"># and yes, interpolation is still valid &quot;after&quot; the reference argument is declared!</span>
-<span class="w">        </span><span class="na">lay_seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">$glb_seed</span>
+<span class="w">        </span><span class="na">lay_seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${cfg.glb_seed}</span>
 </pre></div>
 </div>
 </section>
@@ -312,7 +323,7 @@
 <span class="s1">        [ghyu.opop]</span>
 <span class="s1">            add = 32@int</span>
 <span class="s1">            [ghyu.opop.tueo]</span>
-<span class="s1">                salt = $inpo</span>
+<span class="s1">                salt = $</span><span class="si">{cfg.inpo}</span>
 
 <span class="s1">    # Cell cfg written by Josef-Huang..</span>
 <span class="s1">    &#39;&#39;&#39;</span>
@@ -360,6 +371,8 @@
 </section>
 <section id="io">
 <h2>6. IO変換機能 🐙<a class="headerlink" href="#io" title="Permalink to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">easy_configer</span></code> 型の設定を他の設定インスタンスに変換するには、IO コンバータを提供しています。IO コンバータは、いくつかのよく知られた設定タイプをサポートしています。
+以下の例のように、適切な引数を指定してメソッドを呼び出すだけで簡単に利用できます。</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 
