@@ -12,22 +12,27 @@ warnings.formatwarning = warning_on_one_line
 
 class Type_Convertor(object):
     '''
-        As the name implies, this helper class of Configer will convert the raw string of config file
-        into variable of the corresponding type.
-        
-        Now, i have update the security policy to prevent loading the harmful code to your system ~
-        feel free to use the default type converter. 
-
-        However, we still apply eval in regist_cnvtor, plz be careful about register the customized classes ~
+        This helper class aims to parse the config string into
+        the value of the corresponding type. Concerning security issue, we prevent to
+        parse the harmful code by using eval(.). Instead, we constraint the parse capability
+        by using ast.literal_eval(.), so feel free to use the default type converter. 
     '''
-    def __init__(self, typ_split_chr:str = '@'):
+    def __init__(self, typ_split_chr:str = '@', filter_split_chr:str = ' | '):
         '''
-            typ_split_chr (option) :
-                The character make use to split the declaration string in configer file.
-                For example, 'a*13@int' which means the argument 'a' is interger type data,
-                and the '@' is the typ_split_chr.
+        Constructor of type convertor. 
+
+        Args:
+            typ_split_chr (str, option): The character is used to split the declaration string in configer file.
+                For example, 'a = 13@int' which means the argument 'a' is interger type data,
+                and the '@' is the typ_split_chr. Default to `@`.
+
+            filter_split_chr (str, option): The character is used to split the value string and 
+                figure out the corresponding 'post-process' for the parsed value. For example, 
+                'a = hello@str | upper', the upper post-processor will turn a into HELLO string.
+                Default to ` | `.
         '''
         self.__split_chr = typ_split_chr
+        self.__filter_chr = filter_split_chr
         self.__env_vars = AttributeDict(os.environ)
 
         # fundemental api-string supported in built-in 
@@ -50,14 +55,18 @@ class Type_Convertor(object):
         self.__default_cnvtor = {"str":str, "int":int, "float":float, "bool":bool_cnvt,
                                     "dict":curly_braces_cnvt, "set":curly_braces_cnvt, "tuple":tuple_cnvt, "list":lst_cnvt}
         self.__customized_cnvtor = {}
+        self.__filter_cnvtor = {"upper":str.upper, "lower":str.lower, "strip":str.strip,
+                                "str":str, "int":int, "float":float, "bool":bool}
 
     def convert(self, cfg_raw_str:str, tmp_cfg_node = None):
         '''
-            cfg_raw_str :
-                The string which declare the arguments with the same syntax used in config file.
+        Args:
+            cfg_raw_str (str): The string which declare the arguments with the same syntax used in config file.
+            
+            tmp_cfg_node (AttributeDict): The container, which is used to intepolate the argument, store all arguments defined in config.
+                Default to None.
         '''    
-        # yeah, this may not make sure it's safe
-        # but at least remain you to check your config setup doesn't be injected!!
+        
         def check_formation(formatted_str, raw_str):
             if '{' in formatted_str:
                 raise RuntimeError(f"Format-string $'{raw_str}' failure, try to intepolate an undefined argument!")
@@ -103,49 +112,86 @@ class Type_Convertor(object):
             
             return parsed_str
 
-        # force to add split character at the end of parsed string
-        cfg_raw_str = cfg_raw_str + self.__split_chr if (not self.__split_chr in cfg_raw_str) else cfg_raw_str
-        raw_val_str, typ = cfg_raw_str.split(self.__split_chr)
-        
+        typ = ''
+        token_lst = cfg_raw_str.split(self.__split_chr)
+        # value string without declaring type
+        if len(token_lst) == 1:
+            raw_val_str = token_lst[0]
+        else:
+            raw_val_str, typ = token_lst
+
+        # record filter method(s)
+        token_lst = raw_val_str.split(self.__filter_chr)
+        method_lst = []
+        if len(token_lst) == 1:
+            raw_val_str = token_lst[0]
+        else:
+            raw_val_str, *method_lst = token_lst
+
         # pre-interpret python syntax ${...python_stuff..} in config-string
         val_str = pre_interpret_val_str(raw_val_str)
-        
+        var_val = None
         if typ in self.__customized_cnvtor.keys():
             args = ast.literal_eval(val_str)
             # For init customized class, we provide args, kwargs or default init  
             if isinstance(args, dict):
-                return self.__customized_cnvtor[typ](**args)
+                var_val = self.__customized_cnvtor[typ](**args)
             elif isinstance(args, list):
-                return self.__customized_cnvtor[typ](*args)
+                var_val = self.__customized_cnvtor[typ](*args)
             else:  # invalid type of args is considered as default init  
                 warnings.warn("You're initialized class '{0}' with default arguments!".format(typ))
-                return self.__customized_cnvtor[typ]()
+                var_val = self.__customized_cnvtor[typ]()
         
         # bare string-value evaluator, instead of define '@type' at the end..
-        #  responsible to eval 'None' placeholder and [], {} !!
+        #  responsible to eval 'None' placeholder and [], {}
         elif (val_str == 'None') or (not typ):  
-            return ast.literal_eval(val_str)
-            ''' # released in v3.0 easy-configer
             try: # all type can be parsed by plain string
-                return ast.literal_eval(val_str)
+                var_val = ast.literal_eval(val_str)
             except: # adding "'" quote-string to deal with string type value-string!! 
-                return ast.literal_eval(f"'{val_str}'")
-            '''
+                var_val = ast.literal_eval(f"'{val_str}'")
+            
         # type-validator : we use ast.literal_eval and it need to \
         else:  # strip '[', ']', '{', '}' notation before feeding into 'default' type-conveter
             stripped_val_str = re.sub(r"[\[\]\{\}\(\) ]", "", val_str)
-        return self.__default_cnvtor[typ](stripped_val_str)
+            var_val = self.__default_cnvtor[typ](stripped_val_str)
+        
+        # post-processing 'value filtering'
+        for method_name in method_lst:
+            var_val = self.__filter_cnvtor[method_name](var_val)
+        return var_val
     
     def regist_cnvtor(self, type_name:str = None, cnvt_func:callable = None):
         '''
-            type_name :
-                Name of registered function, namely the name of customized class.
+        Regist the customized class. 
+        
+        Args:
+            type_name (str): Name of registered function, namely the name of customized class. Default to None.
             
-            cnvt_func :
-                The function for converting the string object into the customized class instance.
+            cnvt_func (callable): The function for converting the string object into the customized class instance. Default to None.
         '''
-        assert callable(cnvt_func), "The converter function should be callable."
-        assert isinstance(type_name, str) and len(type_name) > 0, "The cnvt_name should be given"
+        if not callable(cnvt_func):
+            raise TypeError("The converter function is not callable.")
+        
+        if not (isinstance(type_name, str) and len(type_name) > 0):
+            raise RuntimeError("The cnvt_name should be given")
         
         func_wrap = lambda *args, **kwargs : cnvt_func(*args, **kwargs)
         self.__customized_cnvtor[type_name] = func_wrap
+
+    def regist_filter(self, filter_name:str = None, filter_func:callable = None):
+        '''
+            Regist the postprocessing function. 
+
+            Args:
+                type_name (str): Name of registered function, namely the name of customized class. Default to None.
+                
+                cnvt_func (callable): The function for converting the string object into the customized class instance. Default to None.
+        '''
+        if not callable(filter_func):
+            raise TypeError("The converter function is not callable.")
+        
+        if not (isinstance(filter_name, str) and len(filter_name) > 0):
+            raise RuntimeError("The cnvt_name should be given")
+        
+        func_wrap = lambda var_val : filter_func(var_val)
+        self.__filter_cnvtor[filter_name] = func_wrap

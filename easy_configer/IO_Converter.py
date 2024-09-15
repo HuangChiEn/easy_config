@@ -2,7 +2,18 @@ from argparse import ArgumentParser
 from .utils.Container import AttributeDict
 
 class IO_Converter(object):
+    '''
+    The interface to convert easy_config instance to 'other common config' instance, and vice versa.
+    Note : 
+        the converted results may be slightly different according to the support of target config.
+        For example, argparse doesn't explicitly provide a way for storing hierachical config, so the converted 
+        config will be flattened! 
+    '''
     def __init__(self):
+        '''
+        Constructor of converter. In here, we declare the output/input dispatcher to 
+        dispatch the easy_config instance into the indicated subroutine.
+        '''
         # 'o'utput to different config 
         self.output_dispatcher = {
             'argparse' : self._to_argparse,
@@ -20,6 +31,17 @@ class IO_Converter(object):
         }
 
     def cnvt_cfg_to(self, cfg, target_cfg_type:str, **cnvtr_kwarg):
+        '''
+        Convert easy_configer 'to' the other common config instance.
+
+        Args:
+            cfg (Configer): Easy_configer instance.
+            target_cfg_type (str): A string tag of supported config type. It could be viewed by `self.output_dispatcher.keys()`.
+            cnvtr_kwarg (`**kwargs`): Other keyword arguments attempt to pass to converter subroutine.
+
+        Return:
+            Any, the target config instance.
+        '''
         assert target_cfg_type in self.output_dispatcher.keys(), '''Unfortunately, {0} config is not supported yet\n
                                                 Currently, easy_configer only support : {1}'''.format(
                                                     target_cfg_type, self.output_dispatcher.keys()
@@ -27,6 +49,17 @@ class IO_Converter(object):
         return self.output_dispatcher[target_cfg_type](cfg, **cnvtr_kwarg)
 
     def cnvt_cfg_from(self, other_cfg, target_cfg_type:str, **cnvtr_kwarg):
+        '''
+        Convert to easy_configer 'from' the given common config instance.
+
+        Args:
+            other_cfg (Any): Any supported config instance. 
+            target_cfg_type (str): A string tag of supported config type. It could be viewed by `self.input_dispatcher.keys()`.
+            cnvtr_kwarg (`**kwargs`): Other keyword arguments attempt to pass to converter subroutine.
+
+        Return:
+            Configer.
+        '''
         assert target_cfg_type in self.input_dispatcher.keys(), '''Unfortunately, {0} config is not supported yet\n
                                                 Currently, easy_configer only support : {1}'''.format(
                                                     target_cfg_type, self.output_dispatcher.keys()
@@ -35,6 +68,7 @@ class IO_Converter(object):
 
     # utils functions
     def __imp_pkg(self, pkg_path):
+        ''' Utility function to import the corresponding config package. '''
         pypi_name = {
             'yaml' : 'pyyaml',
             'omegaconf' : 'omegaconf',
@@ -50,6 +84,10 @@ class IO_Converter(object):
         return mod
 
     def __remove_private_var(self, raw_cfg):
+        ''' 
+        Shadow the private arguments before conversion. 
+        Only used while convert easy_config to the other one. 
+        '''
         tmp_dict = {}
         for k, v in raw_cfg.__dict__.items():
             # all private attribute is presented at first level

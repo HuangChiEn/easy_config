@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Configer &mdash; easy_configer v2.3.2 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+      <link rel="stylesheet" href="_static/fonts.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="IO_Converter" href="api_IO_Converter.html" />
+    <link rel="prev" title="Meta information" href="Metainfo.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            easy_configer
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Table of Content</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="About.html">About this project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Quick.html">Quick start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Usage.html">Common Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Metainfo.html">Meta information</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API documentation</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Configer</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">Configer</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">cfg_from_cli</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">cfg_from_str</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">cfg_from_ini</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id6">args_from_cmd</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id7">__or__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id8">__add__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id9">concate_cfg</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id10">merge_conf</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id11">__str__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id12">__iter__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id13">__getitem__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id14">__setitem__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id15">get</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id16">get_cfg_flag</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id17">get_doc_str</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id18">regist_cnvtor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id19">split_char</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api_IO_Converter.html">IO_Converter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_Container.html">utils.Container</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_Type_Convertor.html">utils.Type_Convertor</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">easy_configer</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Configer</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/api_Configer.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="configer">
+<h1>Configer<a class="headerlink" href="#configer" title="Permalink to this heading"></a></h1>
+<ul>
+<li><p><a class="reference external" href="#Configer.Configer">Configer.Configer</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p><a class="reference external" href="#Configer.Configer.__init__">__init__</a></p></li>
+<li><p><a class="reference external" href="#Configer.Configer.cfg_from_cli">cfg_from_cli</a></p></li>
+<li><p><a class="reference external" href="#Configer.Configer.cfg_from_str">cfg_from_str</a></p></li>
+<li><p><a class="reference external" href="#Configer.Configer.cfg_from_ini">cfg_from_ini</a></p></li>
+<li><p><a class="reference external" href="#Configer.Configer.args_from_cmd">args_from_cmd</a></p></li>
+<li><p><a class="reference external" href="#Configer.Configer.__or__">__or__</a></p></li>
+<li><p><a class="reference external" href="#Configer.Configer.__add__">__add__</a></p></li>
+<li><p><a class="reference external" href="#Configer.Configer.concate_cfg">concate_cfg</a></p></li>
+<li><p><a class="reference external" href="#Configer.Configer.merge_conf">merge_conf</a></p></li>
+<li><p><a class="reference external" href="#Configer.Configer.__str__">__str__</a></p></li>
+<li><p><a class="reference external" href="#Configer.Configer.__iter__">__iter__</a></p></li>
+<li><p><a class="reference external" href="#Configer.Configer.__getitem__">__getitem__</a></p></li>
+<li><p><a class="reference external" href="#Configer.Configer.__setitem__">__setitem__</a></p></li>
+<li><p><a class="reference external" href="#Configer.Configer.get">get</a></p></li>
+<li><p><a class="reference external" href="#Configer.Configer.get_cfg_flag">get_cfg_flag</a></p></li>
+<li><p><a class="reference external" href="#Configer.Configer.get_doc_str">get_doc_str</a></p></li>
+<li><p><a class="reference external" href="#Configer.Configer.regist_cnvtor">regist_cnvtor</a></p></li>
+<li><p><a class="reference external" href="#Configer.Configer.split_char">split_char</a></p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+<p><span class="raw-html-m2r"><a id="Configer.Configer"></a></span></p>
+<section id="id1">
+<h2>Configer<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Configer</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The core module of easy_configer to implement the user configuration system.</p>
+<p><span class="raw-html-m2r"><a id="Configer.Configer.__init__"></a></span></p>
+<section id="id2">
+<h3>__init__<a class="headerlink" href="#id2" title="Permalink to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+             <span class="n">cmd_args</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+             <span class="n">split_chr</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot; = &quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</pre></div>
+</div>
+<p>Constructor of Configer.</p>
+<p><strong>Arguments</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">description</span></code> <em>str, optional</em> - A customized helper information which describe the role of config file. Defaults to empty string.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cmd_args</span></code> <em>bool, optional</em> - A flag to indicate reading argument from commendline and override the default config. Defaults to False.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">split_chr</span></code> <em>str, optional</em> - A char-string used to format the config syntax. Defaults to ” = “.
+For example, “<a class="reference external" href="mailto:a*13&#37;&#52;&#48;int">a*13<span>&#64;</span>int</a>” which means the argument ‘a’ contain interger value 13,
+and the “*” is the split_chr.
+Note that better not to change this char-string to prevent the symbol conflict.</p></li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<blockquote>
+<div><p>None. Don’t accept anything return from constructor.</p>
+</div></blockquote>
+<p><span class="raw-html-m2r"><a id="Configer.Configer.cfg_from_cli"></a></span></p>
+</section>
+<section id="id3">
+<h3>cfg_from_cli<a class="headerlink" href="#id3" title="Permalink to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">cfg_from_cli</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</pre></div>
+</div>
+<p>Building config from the commendline input and only apply the arguments from commend-line.
+( only recommend for very lightweight config )</p>
+<p><span class="raw-html-m2r"><a id="Configer.Configer.cfg_from_str"></a></span></p>
+</section>
+<section id="id4">
+<h3>cfg_from_str<a class="headerlink" href="#id4" title="Permalink to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">cfg_from_str</span><span class="p">(</span><span class="n">raw_cfg_text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">allow_override</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</pre></div>
+</div>
+<p>Building config from the given config string.</p>
+<p><strong>Arguments</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">raw_cfg_text</span></code> <em>str</em> - The string which declare the arguments with the same syntax used in config file.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">allow_override</span></code> <em>bool, optional</em> - A flag allow override config from the other source,
+such as the other .ini config file, config string. Default to False.</p></li>
+</ul>
+<p><span class="raw-html-m2r"><a id="Configer.Configer.cfg_from_ini"></a></span></p>
+</section>
+<section id="id5">
+<h3>cfg_from_ini<a class="headerlink" href="#id5" title="Permalink to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">cfg_from_ini</span><span class="p">(</span><span class="n">cfg_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">allow_override</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</pre></div>
+</div>
+<p>Building config from the given .ini config file.</p>
+<p><strong>Arguments</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">cfg_path</span></code> <em>str</em> - The path which locate the <em>.ini</em> config file.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">allow_override</span></code> <em>bool, optional</em> - A flag allow override config from the other source,
+such as the other .ini config file, config string. Default to False.</p></li>
+</ul>
+<p><span class="raw-html-m2r"><a id="Configer.Configer.args_from_cmd"></a></span></p>
+</section>
+<section id="id6">
+<h3>args_from_cmd<a class="headerlink" href="#id6" title="Permalink to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">args_from_cmd</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</pre></div>
+</div>
+<p>Update the arguments by commend line input string.
+Note that this method allow override the pre-define config natively (with silent mode).
+( Because commentline inputs are explicitly given by user, we don’t need to warn that )</p>
+<p><span class="raw-html-m2r"><a id="Configer.Configer.__or__"></a></span></p>
+</section>
+<section id="id7">
+<h3>__or__<a class="headerlink" href="#id7" title="Permalink to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__or__</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Support merge two config ‘with override’ the left-hand side config.
+For example. cfg_a = cfg_a | cfg_b, cfg_a will be overrided by cfg_b.</p>
+<p><strong>Arguments</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">cfg</span></code> <em>AttributeDict</em> - A container used to store the argument. it inherit from dict and the given input could be a nested dict.</p></li>
+</ul>
+<p><span class="raw-html-m2r"><a id="Configer.Configer.__add__"></a></span></p>
+</section>
+<section id="id8">
+<h3>__add__<a class="headerlink" href="#id8" title="Permalink to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Support merge two config ‘without override’ the any config.
+This method call self.concate_cfg(.) underhood.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">cfg</span></code> <em>AttributeDict</em> - A container used to store the argument. it inherit from dict and the given input could be a nested dict.</p>
+<p>Raise:
+RuntimeError with re-define argument.</p>
+</li>
+</ul>
+<p><span class="raw-html-m2r"><a id="Configer.Configer.concate_cfg"></a></span></p>
+</section>
+<section id="id9">
+<h3>concate_cfg<a class="headerlink" href="#id9" title="Permalink to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">concate_cfg</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Merge two config ‘without override’ the any config.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">cfg</span></code> <em>AttributeDict</em> - A container used to store the argument. it inherit from dict and the given input could be a nested dict.</p>
+<p>Raise:
+RuntimeError with re-define argument.</p>
+</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<blockquote>
+<div><p>Configer.</p>
+</div></blockquote>
+<p><span class="raw-html-m2r"><a id="Configer.Configer.merge_conf"></a></span></p>
+</section>
+<section id="id10">
+<h3>merge_conf<a class="headerlink" href="#id10" title="Permalink to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">merge_conf</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="n">override</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Merge two config ‘with override’ the config. The config will be overrided
+by the given config cfg.</p>
+<p><strong>Arguments</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">cfg</span></code> <em>AttributeDict</em> - A container used to store the argument. it inherit from dict and the given input could be a nested dict.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">override</span></code> <em>bool</em> - A flag to indicate overriding value by the given config cfg. Default to True.</p></li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<blockquote>
+<div><p>None. This is inplace operation.</p>
+</div></blockquote>
+<p><span class="raw-html-m2r"><a id="Configer.Configer.__str__"></a></span></p>
+</section>
+<section id="id11">
+<h3>__str__<a class="headerlink" href="#id11" title="Permalink to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__str__</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Present all ‘non-private’ arguments defined in config.</p>
+<p><span class="raw-html-m2r"><a id="Configer.Configer.__iter__"></a></span></p>
+</section>
+<section id="id12">
+<h3>__iter__<a class="headerlink" href="#id12" title="Permalink to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__iter__</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Return iterator for Configer. Because Configer itself isn’t dict.</p>
+<p><span class="raw-html-m2r"><a id="Configer.Configer.__getitem__"></a></span></p>
+</section>
+<section id="id13">
+<h3>__getitem__<a class="headerlink" href="#id13" title="Permalink to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Support getitem for Configer. Because Configer itself isn’t dict.</p>
+<p><span class="raw-html-m2r"><a id="Configer.Configer.__setitem__"></a></span></p>
+</section>
+<section id="id14">
+<h3>__setitem__<a class="headerlink" href="#id14" title="Permalink to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Support setitem for Configer. Because Configer itself isn’t dict.</p>
+<p><span class="raw-html-m2r"><a id="Configer.Configer.get"></a></span></p>
+</section>
+<section id="id15">
+<h3>get<a class="headerlink" href="#id15" title="Permalink to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">default_value</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Support get for Configer. Because Configer itself isn’t dict.</p>
+<p><span class="raw-html-m2r"><a id="Configer.Configer.get_cfg_flag"></a></span></p>
+</section>
+<section id="id16">
+<h3>get_cfg_flag<a class="headerlink" href="#id16" title="Permalink to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_cfg_flag</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Return the FLAG object which ‘sync’ the config.</p>
+<p><span class="raw-html-m2r"><a id="Configer.Configer.get_doc_str"></a></span></p>
+</section>
+<section id="id17">
+<h3>get_doc_str<a class="headerlink" href="#id17" title="Permalink to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_doc_str</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Return the helper information string.</p>
+<p><span class="raw-html-m2r"><a id="Configer.Configer.regist_cnvtor"></a></span></p>
+</section>
+<section id="id18">
+<h3>regist_cnvtor<a class="headerlink" href="#id18" title="Permalink to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">regist_cnvtor</span><span class="p">(</span><span class="n">type_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">cnvt_func</span><span class="p">:</span> <span class="nb">callable</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Declare the user customized class. The registered type (class) can be used
+to declare the argument in the config file.</p>
+<p><strong>Arguments</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">type_name</span></code> <em>str</em> - type name used in config file. i.e. registered as ‘dummy’,
+then declare a argument with such type will be <code class="docutils literal notranslate"><span class="pre">var</span> <span class="pre">=</span> <span class="pre">{'arg1':42}&#64;dummy</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cnvt_func</span></code> <em>callable</em> - typically it’s the constructor of your customized class.
+So, you can just directly feed the customized class as this arguemnt.</p></li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<blockquote>
+<div><p>None. This registered method doesn’t return any flag.</p>
+</div></blockquote>
+<p><span class="raw-html-m2r"><a id="Configer.Configer.split_char"></a></span></p>
+</section>
+<section id="id19">
+<h3>split_char<a class="headerlink" href="#id19" title="Permalink to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@property</span>
+<span class="k">def</span> <span class="nf">split_char</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Show the split char used in config file.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="Metainfo.html" class="btn btn-neutral float-left" title="Meta information" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="api_IO_Converter.html" class="btn btn-neutral float-right" title="IO_Converter" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, JosefHuang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

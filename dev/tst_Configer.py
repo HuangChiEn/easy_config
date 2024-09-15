@@ -9,9 +9,9 @@ def warning_on_one_line(message, category, filename, lineno, file=None, line=Non
     return "{0}:{1}: {2}: {3}\n".format(filename, lineno, category.__name__, message)
 warnings.formatwarning = warning_on_one_line
 
-from .utils.Type_Convertor import Type_Convertor
-from .utils.Container import AttributeDict, Flag
-from .IO_Converter import IO_Converter
+from easy_configer.utils.Type_Convertor import Type_Convertor
+from easy_configer.utils.Container import AttributeDict, Flag
+from .tst_IO_Converter import IO_Converter
 
 class Configer(AttributeDict):
     '''
@@ -61,7 +61,7 @@ class Configer(AttributeDict):
         '''
         self.__cfg_parser(raw_cfg_text)
         # build the flag object 
-        self.__flag.__dict__ = self.__dict__
+        self.__flag.__dict__ = self
     
     # Load .ini config from the given path
     def cfg_from_ini(self, cfg_path:str):
@@ -102,7 +102,7 @@ class Configer(AttributeDict):
         
         self.__cfg_parser(raw_cfg_text)
         # build the flag object 
-        self.__flag.__dict__ = self.__dict__
+        self.__flag.__dict__ = self
     
     ## Core implementation of config parser : 
     #  utils of config parser
@@ -135,18 +135,18 @@ class Configer(AttributeDict):
         sec_name_lst = sec_keys_str.split('.')
         # Before easy_configer 1.3.4 ver, all section is builded upon this level
         if len(sec_name_lst) == 1:
-            return self.__dict__, sec_keys_str
+            return self, sec_keys_str
             
         root_key = sec_name_lst.pop(0)
-        if root_key not in self.__dict__:
+        if root_key not in self.keys():
             if not allow_init:
                 raise RuntimeError("The parent node '{0}' is not defined yet, " \
                                     "it's invalid for directly made the child node '{1}'".format(root_key, sec_name_lst[0]))
-            self.__dict__[root_key] = AttributeDict() 
+            self[root_key] = AttributeDict() 
             
         ## Support toml like 'hierachical' format!!
         #  dynamically search the hierachical section begin from the 'next layer' of self.__dict__
-        idx_sec = self.__dict__[root_key]
+        idx_sec = self[root_key]
         
         #  keep the index point to the node "parent", since the child node will be init as dict!
         for idx, sec in enumerate(sec_name_lst[:-1]):
@@ -232,7 +232,7 @@ class Configer(AttributeDict):
                     container = idx_sec[idx_sec_key]
                 # assign the val_dict as 'flatten' arguments 
                 else: # Note that flatten args IS NOT AttributeDict!
-                    container = self.__dict__
+                    container = self
                 
                 chk_args_exists(val_dict, container)
                 container.update(val_dict)
@@ -314,8 +314,10 @@ class Configer(AttributeDict):
         return [ str(key) for key in self.__dict__.keys() if key[0] != '_' ] 
 
     def __str__(self):
-        key_str = self.__shadow_private_args()
+        key_str = [ str(key) for key in self.keys() if key[0] != '_' ] 
         return "Namespace : \n" + ", ".join(key_str)
+        #key_str = self.__shadow_private_args()
+        #return "Namespace : \n" + ", ".join(key_str)
     # override default __repr__ to view configer in debugger
     __repr__ = __str__
 

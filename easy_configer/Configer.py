@@ -17,27 +17,24 @@ from typing import List
 
 class Configer(object):
     '''
-        The Configer attemtp to make a light-weight solution for configurating your program, 
-        which offer a simple syntax for declare the arguments in the configure file (.ini suffix).
-        Moreover, I try to implement a highly customer reader, which allow the user to declare 
-        the instance of customer class with registered their constructor simply. 
-        
-        Hope such trivial contribution will let your work become easier ~ ~ God bless you.
+        The core module of easy_configer to implement the user configuration system.
     '''
     def __init__(self, description:str = "", cmd_args:bool = False, split_chr:str = " = ") -> None:
         '''
-            description (option) : 
-                A customer helper information which describe the functionality of your configer file.
-            
-            cmd_args (option) :
-                Allow the commend line argument update the declared value of configer file.
-                
-            declare_split_chr (option) :
-                The character make use to split the declaration string in configer file.
-                For example, 'a*13@int' which means the argument 'a' contain interger value 13,
-                and the '*' is the declare_split_chr.
+            Constructor of Configer.
+
+            Args:
+                description (str, optional): A customized helper information which describe the role of config file. Defaults to ''.
+                cmd_args (bool, optional): A flag to indicate reading argument from commendline and override the default config. Defaults to False.
+                split_chr (str, optional): A char-string used to format the config syntax. Defaults to ' = '.
+                    For example, 'a*13@int' which means the argument 'a' contain interger value 13,
+                    and the '*' is the split_chr.
+                    Note that better not to change this char-string to prevent the symbol conflict.
+
+            Returns:
+                None. Don't accept anything return from constructor.
         '''
-        self.__doc_str = "Description : \n" + description
+        self.__help_info = "Description : \n" + description
         self.__typ_cnvt = Type_Convertor()
         self.__cfg_cnvt = IO_Converter()
         self.__split_chr = split_chr
@@ -48,7 +45,7 @@ class Configer(object):
     # Support commendline config
     def cfg_from_cli(self) -> None:
         ''' 
-            The commendline-based configuration, specific arguments from commend-line only.
+            Building config from the commendline input and only apply the arguments from commend-line.
             ( only recommend for very lightweight config ) 
         '''
         if not self.__cmd_args:
@@ -58,8 +55,12 @@ class Configer(object):
     # Support string config in cell-based intereactive enviroment
     def cfg_from_str(self, raw_cfg_text:str, allow_override:bool=False) -> None:
         ''' 
-            raw_cfg_text :
-                The string which declare the arguments with the same syntax used in config file. 
+            Building config from the given config string.
+
+            Args: 
+                raw_cfg_text (str): The string which declare the arguments with the same syntax used in config file.
+                allow_override (bool, optional): A flag allow override config from the other source,
+                    such as the other .ini config file, config string. Default to False.
         '''
         self.__cfg_parser(raw_cfg_text, allow_override)
         # build the flag object 
@@ -68,10 +69,15 @@ class Configer(object):
     # Load .ini config from the given path
     def cfg_from_ini(self, cfg_path:str, allow_override:bool=False) -> None:
         '''
-            cfg_path :
-                The path which locate the '*.ini' config file.
+            Building config from the given .ini config file.
+
+            Args:
+                cfg_path (str): The path which locate the '*.ini' config file.
+                allow_override (bool, optional): A flag allow override config from the other source,
+                    such as the other .ini config file, config string. Default to False.
         '''
         def chk_src(cfg_path):
+            ''' checking config file with the valid suffix and can be readed. '''
             if not cfg_path.exists():
                 raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), str(cfg_path))
             if not cfg_path.suffix == ".ini":
@@ -79,6 +85,7 @@ class Configer(object):
         
         # take from : https://stackoverflow.com/questions/16480495/read-a-file-with-line-continuation-characters-in-python
         def continuation_lines(fin):
+            ''' support the multi-line declaration in config file. '''
             for line in fin:
                 line = line.rstrip('\n')
                 while line.endswith('\\'):
@@ -109,6 +116,7 @@ class Configer(object):
     ## Core implementation of config parser : 
     #  utils of config parser
     def __preproc_cfgstr(self, cfg_str:str) -> str:
+        ''' preprocess the config string with strip the empty line and comments. '''
         # eliminate the line full of white-space without any text
         cfg_str = cfg_str.strip() 
         # skip empty line and comment line 
@@ -118,6 +126,7 @@ class Configer(object):
         return cfg_str.split('#')[0].strip()
 
     def __get_sec(self, cfg_str:str) -> str:
+        ''' get section name of config string. '''
         if '[' != cfg_str[0]:
             return ''
         # more robust with Indented section
@@ -129,12 +138,18 @@ class Configer(object):
     
     def __idx_sec_by_dot(self, sec_keys_str:str, allow_init:bool = False):  
         '''
-            Core function to manage the hierachical arguments. 
+            Core function to manage the hierachical config. 
             Store args is simple, just add it in dict. But dynamically search argument in specific section is non-trivial!
             Therefore, i wrote this function to deal with searching and return the "pointer" point to the section.
             It's sync with self.__dict__, so use it wiselly & carefully!!
 
-            Return (dict, str), leave in comment to competible from python 3.6 ~ python >= 3.9.
+            Args:
+                sec_keys_str (str): A qurey string for indexing the hierachical section.
+                allow_init (bool): A flag to indicate initializing the section without declared it before.
+                    This flag should be turn on iff perform self.args_from_cmd(.). Default to False.
+            
+            Return:
+                [dict, str] : dict is the config section, str is section name.
         '''
         sec_name_lst = sec_keys_str.split('.')
         # Before easy_configer 1.3.4 ver, all section is builded upon this level
@@ -166,6 +181,15 @@ class Configer(object):
         return idx_sec, sec_name_lst[-1]
 
     def __get_declr_dict(self, cfg_str:str) -> dict : 
+        '''
+            Parse the value string and return the value dict to main routine for updating the config. 
+            
+            Args:
+                cfg_str (str): A value string for declaring the argument name and its value.
+                
+            Return:
+                dict: A value dictionary, the key is variable name and the value is corresponding parsed value.
+        '''
         if self.__split_chr not in cfg_str:
             raise RuntimeError("Configuration Error : Split character '{0}'" \
                                 " not found in '{1}'".format(self.__split_chr, cfg_str))
@@ -183,21 +207,35 @@ class Configer(object):
     # core function of config parser
     def __cfg_parser(self, raw_cfg_text:str, allow_override:bool) -> None:
         '''
-            raw_cfg_text :
-                The string which declare the arguments with the same syntax used in config file.
-        '''
+            Core function to parse the raw config string line-by-line. It'll dispatch each line of config string 
+            to the corresponding subroutine. Basically, subroutines is categorized into 3 types in order :
+            1. __preproc_cfgstr : to preprocess the config string by stripping empty line and comments.
+            2. __get_sec : get the section name, a kind of id to indicate the nested dict of hierachical config.
+            3. __get_declr_dict : parse the value string to get the value dictionary.
 
+            Args:
+                raw_cfg_text (str): The raw config strings. It could event include comment.
+                allow_override (bool): A flag allow override config from the other source,
+                    such as the other .ini config file, config string. Default to False.
+            
+            Return:
+                None. After config parsing, we access each argument by using this instance.
+                So we don't return anything.
+        '''
         def parse_sub_config(sub_cfg_path:str):
             '''
-                sub_cfg_path :
-                    The path of interpolated config. 
-                    The sub-config path is parsed from the .ini file with split '>' symbol.
+                Support subconfig (nested config) in the config file.
+            
+                Args:
+                    sub_cfg_path (str): The path of interpolated config. The sub-config path 
+                        is parsed from the .ini file with split '>' symbol.
             '''
             sub_cfg = Configer(cmd_args=False)
             sub_cfg.cfg_from_ini(sub_cfg_path)
             return self.__cfg_cnvt.cnvt_cfg_to(sub_cfg, 'dict', return_attr_dict=True)
 
         def chk_args_exists(val_dict:dict, container:dict):
+            ''' checking argument already exists in the value dict. '''
             key = list(val_dict.keys())[0]
             if key in container:
                 raise RuntimeError("Re-define Error : duplicated argument '{0}' is defined.".format(key))
@@ -247,7 +285,9 @@ class Configer(object):
 
     def args_from_cmd(self) -> None:   
         '''
-            Update the arguments by commend line input string
+            Update the arguments by commend line input string.
+            Note that this method allow override the pre-define config natively (with silent mode).
+            ( Because commentline inputs are explicitly given by user, we don't need to warn that )
         '''
         # remove file name from args
         cmd_arg_lst = sys.argv[1:]
@@ -255,7 +295,7 @@ class Configer(object):
         # print out helper document string
         if "-h" in cmd_arg_lst:
             cmd_arg_lst.remove("-h")
-            print(self.__doc_str)
+            print(self.__help_info)
 
         # ' = ' -> '=', eliminate white space
         cmd_sp_chr = self.split_char.strip()
@@ -273,24 +313,64 @@ class Configer(object):
     #  all of operator will be forced to return value!!
     #   merge operator, force to override!
     def __or__(self, cfg):
+        ''' 
+        Support merge two config 'with override' the left-hand side config. 
+        For example. cfg_a = cfg_a | cfg_b, cfg_a will be overrided by cfg_b.
+
+        Args:
+            cfg (AttributeDict): A container used to store the argument. it inherit from dict and the given input could be a nested dict.
+        '''
         cp_cfg = deepcopy(self)
         cp_cfg.merge_conf(cfg, override=True)
         return cp_cfg
 
     #   concate operator 
     def __add__(self, cfg):
+        ''' 
+        Support merge two config 'without override' the any config. 
+        This method call self.concate_cfg(.) underhood.
+
+        Args:
+            cfg (AttributeDict): A container used to store the argument. it inherit from dict and the given input could be a nested dict.
+        
+        Raise: 
+            RuntimeError with re-define argument.
+        '''
         return self.concate_cfg(cfg)
 
     # concate just means merge2conf "without" any override!!
     def concate_cfg(self, cfg):
+        ''' 
+        Merge two config 'without override' the any config. 
+        
+        Args:
+            cfg (AttributeDict): A container used to store the argument. it inherit from dict and the given input could be a nested dict.
+        
+        Raise: 
+            RuntimeError with re-define argument.
+
+        Return:
+            Configer.
+        '''
         cp_cfg = deepcopy(self)
         cp_cfg.merge_conf(cfg, override=False)
         return cp_cfg
         
     #   merge conf suppose 2 config have overlap section, otherwise use 'concate' method!
     def merge_conf(self, cfg, override=True):
-        
+        ''' 
+        Merge two config 'with override' the config. The config will be overrided
+            by the given config cfg.
+
+        Args:
+            cfg (AttributeDict): A container used to store the argument. it inherit from dict and the given input could be a nested dict.  
+            override (bool): A flag to indicate overriding value by the given config cfg. Default to True.
+
+        Return:
+            None. This is inplace operation.
+        '''
         def hier_merge(sf_dict, cfg_dict):
+            ''' Merge the nested dict config recursively. '''
             for sec_key, sec_val in cfg_dict.items():
                 # same section exists
                 if sec_key in sf_dict.keys():
@@ -312,12 +392,16 @@ class Configer(object):
                                     if '_' != k[0] }
         hier_merge(self.__dict__, cfg_dict)
 
-    # Display the namespace which record all of the declared arguments
-    #   for the inner-node structure, iter-call __str__ wrapper !!
     def __shadow_private_args(self):
+        ''' 
+        Remove the argument with '_' perfix. This method is used to display the namespace 
+        which record all of the declared arguments. For argument belong in nested dict, it
+        will call __str__ recursively.
+        '''
         return [ str(key) for key in self.__dict__.keys() if key[0] != '_' ] 
 
     def __str__(self):
+        ''' Present all 'non-private' arguments defined in config. '''
         key_str = self.__shadow_private_args()
         return "Namespace : \n" + ", ".join(key_str)
     # override default __repr__ to view configer in debugger
@@ -325,6 +409,7 @@ class Configer(object):
 
     ## public interface for iterate the entire config
     def __iter__(self):
+        ''' Return iterator for Configer. Because Configer itself isn't dict. '''
         tmp_dct = {}
         for key in self.__shadow_private_args():
             tmp_dct[key] = self.__dict__[key]
@@ -332,12 +417,15 @@ class Configer(object):
     
     ## standard interface for dict-access for flatten argument (since Configer IS NOT AttributeDict)
     def __getitem__(self, key):
+        ''' Support getitem for Configer. Because Configer itself isn't dict. '''
         return self.__dict__[key]
 
     def __setitem__(self, key, value):
+        ''' Support setitem for Configer. Because Configer itself isn't dict. '''
         self.__dict__[key] = value
 
     def get(self, key, default_value=None):
+        ''' Support get for Configer. Because Configer itself isn't dict. '''
         if key not in self.__dict__:
             return default_value
         return self.__dict__[key]
@@ -345,16 +433,33 @@ class Configer(object):
     ## Miscellnous functionality : 
     # return an absl style flag to store all of the args.
     def get_cfg_flag(self):
+        ''' Return the FLAG object which 'sync' the config. '''
         return self.__flag
 
     def get_doc_str(self):
-        return self.__doc_str
+        ''' Return the helper information string. '''
+        return self.__help_info
 
-    # For the declare the instance of user customized class 
-    def regist_cnvtor(self, *args:list, **kwargs:dict):
-        self.__typ_cnvt.regist_cnvtor(*args, **kwargs)
+    # 
+    def regist_cnvtor(self, type_name:str = None, cnvt_func:callable = None):
+        ''' 
+        Declare the user customized class. The registered type (class) can be used 
+        to declare the argument in the config file.
+
+        Args:
+            type_name (str): type name used in config file. i.e. registered as 'dummy', 
+                then declare a argument with such type will be `var = {'arg1':42}@dummy`.
+            
+            cnvt_func (callable): typically it's the constructor of your customized class.
+                So, you can just directly feed the customized class as this arguemnt.
+        
+        Return:
+            None. This registered method doesn't return any flag.
+        '''
+        self.__typ_cnvt.regist_cnvtor(type_name, cnvt_func)
     
     # show split character
     @property
     def split_char(self):
+        ''' Show the split char used in config file. '''
         return self.__split_chr

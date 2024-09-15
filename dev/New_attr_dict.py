@@ -22,8 +22,7 @@ class AttributeDict(dict):
         if isinstance(value,dict):
             value = AttributeDict(value)
         return value
+    
     def __getattribute__(self,name):
         print('__getarrtribute__ I handle all attribute at  very first')
-        #通过object显示调用__getattr__
-        # 如果不显示使用，除非属性找不到，否则不再调用__getattr__
         return object.__getattribute__(self,name)

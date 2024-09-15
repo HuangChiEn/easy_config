@@ -8,10 +8,19 @@ Welcome to easy_configer's documentation!
 
 .. toctree::
    :maxdepth: 2
-   
+   :caption: Table of Content
+
    About
    Installation
    Quick
    Usage
    Metainfo
 
+.. toctree::
+   :maxdepth: 1
+   :caption: API documentation
+
+   api_Configer
+   api_IO_Converter
+   api_Container
+   api_Type_Convertor
