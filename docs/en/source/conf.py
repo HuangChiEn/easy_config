@@ -9,7 +9,7 @@ import os
 project = 'easy_configer'
 copyright = '2024, JosefHuang'
 author = 'JosefHuang'
-release = 'v2.3.2'
+release = 'v2.5.3'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -22,4 +22,4 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 html_theme = 'renku'
 html_static_path = ['_static']
-html_build_dir = os.environ.get('READTHEDOCS_OUTPUT', 'docs/en/build/html')
+html_build_dir = os.environ.get('READTHEDOCS_OUTPUT', 'docs/en/2.5.3/build/html')
