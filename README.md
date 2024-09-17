@@ -1,5 +1,5 @@
 # Project description
-#### easy_configer version : 2.5.2
+#### easy_configer version : 2.5.3
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/HuangChiEn/easy_config/main.yaml?branch=master&event=push&style=for-the-badge&label=unittest&color=green)
 
 ![easy-configer logo](https://raw.githubusercontent.com/HuangChiEn/easy_config/master/assets/logo.png)
@@ -9,32 +9,11 @@
 ### Configeruating the program in an easy-way 
 I'm willing to provide a light-weight solution for configurating your python program. Hope this repository make every user control their large project more easier ~ ~ 
 
-### Introduction 📝
-With the python project go into large-scale, a lot of argument will be required to control the complex business logic, user may need a simple way to load configurations through a file eventually. Their exists various package cover part of function and offer some solution to tackle the mentioned problem. 
+### Easy-configer document
+**Check the documentation released in ReadTheDoc[🔗](https://easy-configer.readthedocs.io/en/latest/), to learn more!**
 
-**Unfortunately, I can not find a solution for load & use the argument in simple manner at least.**   Instead, most of the config-tools seems only works for the specific goal, then cause the code more longer and hard to read.
 
-For example :
-    
-    ## ConfigParser
-    import ConfigParser 
-    Config = ConfigParser.ConfigParser()
-    Config.read("c:\\tomorrow.ini")
-    # get arg via method
-    Config.get(section, option)
-    # or get arg with converter
-    int(Config['lucky_num'])
-    
-    ## Argparse
-    import argparse
-    parse = argparse.ArgumentParser("description string")
-    parse.add_argument("--lucky_num", type=int)
-    ...
-    args = parser.parse_args()
-    args.lucky_num
-    
-
-That leverage me to package my solution for solving this issue. The easy_config will cover the following attributes :
+Easy-config cover the following features :
 1. **Hierachical section config (nested dictionary)**
 
 2. **Accept multiple config file in dynamic loading manner**
@@ -544,12 +523,8 @@ Now, when you step in `get_var_from_flag` function in different file..
 
 ---
 
-#### **The documentation of easy_configer is also released in read doc** [🔗](https://easy-configer.readthedocs.io/en/latest/)
-
----
-
 ### Simple Unittest 🧪
-If you clone this repo and built from source, you can try to run the unittest.
+If you clone this repo and built from source, you can check the unittest.
 `python -m unittest discover`
 > I have placed all test file under test folder.
 

@@ -1,5 +1,5 @@
 # Project description
-#### easy_configer version : 2.5.2
+#### easy_configer version : 2.5.3
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/HuangChiEn/easy_config/main.yaml?branch=master&event=push&style=for-the-badge&label=unittest&color=green)
 
 ![easy-configer logo](https://raw.githubusercontent.com/HuangChiEn/easy_config/master/assets/logo.png)
@@ -9,32 +9,11 @@
 ### Configeruating the program in an easy-way 
 I'm willing to provide a light-weight solution for configurating your python program. Hope this repository make every user control their large project more easier ~ ~ 
 
-### Introduction 📝
-With the python project go into large-scale, a lot of argument will be required to control the complex business logic, user may need a simple way to load configurations through a file eventually. Their exists various package cover part of function and offer some solution to tackle the mentioned problem. 
+### Easy-configer document
+**Check the documentation released in ReadTheDoc[🔗](https://easy-configer.readthedocs.io/en/latest/), to learn more!**
 
-**Unfortunately, I can not find a solution for load & use the argument in simple manner at least.**   Instead, most of the config-tools seems only works for the specific goal, then cause the code more longer and hard to read.
 
-For example :
-    
-    ## ConfigParser
-    import ConfigParser 
-    Config = ConfigParser.ConfigParser()
-    Config.read("c:\\tomorrow.ini")
-    # get arg via method
-    Config.get(section, option)
-    # or get arg with converter
-    int(Config['lucky_num'])
-    
-    ## Argparse
-    import argparse
-    parse = argparse.ArgumentParser("description string")
-    parse.add_argument("--lucky_num", type=int)
-    ...
-    args = parser.parse_args()
-    args.lucky_num
-    
-
-That leverage me to package my solution for solving this issue. The easy_config will cover the following attributes :
+Easy-config cover the following features :
 1. **Hierachical section config (nested dictionary)**
 
 2. **Accept multiple config file in dynamic loading manner**
@@ -45,7 +24,7 @@ That leverage me to package my solution for solving this issue. The easy_config 
 
 5. **Support the absl style FLAGS functionality (declare once, use anywhere)** 
 
-And, of course the following attribute is supported :
+And, of course the following attributes are supported :
 
 * dot-access of any config argument (even in nested dictionary)
 
@@ -60,6 +39,7 @@ And, of course the following attribute is supported :
 ---
 
 ### Newly update features 🚀
+0. Easy-configer pass all test-case, and v2.5.2 is the stable version.
 1. Integrate argument intepolation with using ${cfg} notation
 2. Integrate enviroment variable intepolation with using ${cfg} notation
 
@@ -236,7 +216,7 @@ There have two kind of way to prepare the arguments in easy-config : we can eith
             lr = 1e-4
             sched = 'cos_anneal'
 
-#### We have defined the config file, now let's see how to access any agruments! Execute `python quick_hier.py` in work directory*.
+#### We have defined the config file, now let's see how to access any agruments! Execute `python quick_hier.py` in work directory.
 
     from easy_configer.Configer import Configer
     
@@ -313,6 +293,8 @@ However, the syntax of above config file could be improved, isn't it !? For exam
         # do whatever you want to do!
         
 #### **3. Access all arguments flexibly**
+For `easy_configer>=v2.4.0`, each argument declared under section will be stored in a special dictionary object, called `AttributeDict` (Inhert from native python `dict`). It's a new container allowing dot-operator for accessing any nested object.
+The only pitfall about AttributeDict is that **you should never access its `__dict__` property**, since it's disabled..
 We simple set a breakpoint to feel how flexible does `easy_configer.utils.Container.AttributeDict` support.
 
     from easy_configer.Configer import Configer
@@ -461,6 +443,8 @@ In the following example, you can see that the merging config system already pro
 
 ### **Miscellnous features**
 #### **7. IO Converter**
+To convert the `easy_configer` type config into the other config instance, we provide a IO converter to serve for this requirement. IO converter support several well-know config type.. Just simple call the method with the proper arguments as the following example. 
+
     from dataclasses import dataclass
     from typing import Optional
 
@@ -539,12 +523,8 @@ Now, when you step in `get_var_from_flag` function in different file..
 
 ---
 
-#### **The documentation of easy_configer is also released in read doc** [🔗](https://easy-configer.readthedocs.io/en/latest/)
-
----
-
 ### Simple Unittest 🧪
-If you clone this repo and built from source, you can try to run the unittest.
+If you clone this repo and built from source, you can check the unittest.
 `python -m unittest discover`
 > I have placed all test file under test folder.
 
