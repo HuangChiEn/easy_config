@@ -440,7 +440,6 @@ class Configer(object):
         ''' Return the helper information string. '''
         return self.__help_info
 
-    # 
     def regist_cnvtor(self, type_name:str = None, cnvt_func:callable = None):
         ''' 
         Declare the user customized class. The registered type (class) can be used 
@@ -457,6 +456,23 @@ class Configer(object):
             None. This registered method doesn't return any flag.
         '''
         self.__typ_cnvt.regist_cnvtor(type_name, cnvt_func)
+
+    def regist_filter(self, filter_name:str = None, filter_func:callable = None):
+        ''' 
+        Declare the user customized function for post-processor. The registered converter can be used 
+        to declare in the config file.
+
+        Args:
+            filter_name (str): filter name used in config file. i.e. registered as 'dummy', 
+                then declare a post-processor will be `var = 42 | dummy`.
+            
+            filter_func (callable): typically it's the function for post-processing the argument.
+                For example, `lambda x : str(x)` is a simple string type convresion.
+        
+        Return:
+            None. This registered method doesn't return any flag.
+        '''
+        self.__typ_cnvt.regist_filter(filter_name, filter_func)
     
     # show split character
     @property

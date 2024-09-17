@@ -25,6 +25,7 @@ class ConfigerTestCase(unittest.TestCase):
         self.merg_cfg_path = 'test/test_properties/merg_cfg.ini'
 
         self.resolve_cfg_path = 'test/test_properties/reslv_cfg.ini'
+        self.post_filter_cfg_path = 'test/test_properties/filter_cfg.ini'
 
     def test_parsing_config(self):
         # test dtype decleration
@@ -242,6 +243,24 @@ class ConfigerTestCase(unittest.TestCase):
         # resolve argument, it should same as the argument
         self.assertEqual(self.cfg1.new_sec1.new_var, self.cfg1.new_sec1.var)
         self.assertEqual(self.cfg1.new_sec1.new_num, self.cfg1.sec1.sec2.num)
+
+    def test_filter(self):
+        self.cfg1.regist_filter('addtwo', lambda x : x + 2)
+        self.cfg1.cfg_from_ini(self.post_filter_cfg_path)
+        
+        # test string-type builtin post-processor
+        self.assertTrue(self.cfg1.upper_var.isupper())
+        self.assertTrue(self.cfg1.lower_var.islower())
+        self.assertEqual(sum([ c.isspace() for c in self.cfg1.strip_var ]), 0)
+
+        # test various type conversion
+        self.assertIsInstance(self.cfg1.str_var, str)
+        self.assertIsInstance(self.cfg1.bool_var, bool)
+        self.assertIsInstance(self.cfg1.int_var, int)
+        self.assertIsInstance(self.cfg1.float_var, float)
+
+        # test regist filter
+        self.assertEqual(self.cfg1.addtwo_var, self.cfg1.inp_var+2)
     
 
 if __name__ == '__main__':

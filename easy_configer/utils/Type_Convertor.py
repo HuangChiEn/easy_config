@@ -112,22 +112,22 @@ class Type_Convertor(object):
             
             return parsed_str
 
-        typ = ''
-        token_lst = cfg_raw_str.split(self.__split_chr)
-        # value string without declaring type
-        if len(token_lst) == 1:
-            raw_val_str = token_lst[0]
-        else:
-            raw_val_str, typ = token_lst
-
         # record filter method(s)
-        token_lst = raw_val_str.split(self.__filter_chr)
         method_lst = []
+        token_lst = cfg_raw_str.split(self.__filter_chr)
         if len(token_lst) == 1:
             raw_val_str = token_lst[0]
         else:
             raw_val_str, *method_lst = token_lst
 
+        # value string without declaring type
+        token_lst = raw_val_str.split(self.__split_chr)
+        typ = ''
+        if len(token_lst) == 1:
+            raw_val_str = token_lst[0]
+        else:
+            raw_val_str, typ = token_lst
+        
         # pre-interpret python syntax ${...python_stuff..} in config-string
         val_str = pre_interpret_val_str(raw_val_str)
         var_val = None
@@ -147,17 +147,21 @@ class Type_Convertor(object):
         elif (val_str == 'None') or (not typ):  
             try: # all type can be parsed by plain string
                 var_val = ast.literal_eval(val_str)
-            except: # adding "'" quote-string to deal with string type value-string!! 
+            except: # Patch : adding "'" quote-string to deal with string type value-string!! 
                 var_val = ast.literal_eval(f"'{val_str}'")
             
         # type-validator : we use ast.literal_eval and it need to \
         else:  # strip '[', ']', '{', '}' notation before feeding into 'default' type-conveter
             stripped_val_str = re.sub(r"[\[\]\{\}\(\) ]", "", val_str)
             var_val = self.__default_cnvtor[typ](stripped_val_str)
-        
+            
         # post-processing 'value filtering'
         for method_name in method_lst:
-            var_val = self.__filter_cnvtor[method_name](var_val)
+            try:
+                var_val = self.__filter_cnvtor[method_name](var_val)
+            except KeyError:
+                kerr_msg = "The filter name '{}' haven't been registered yet!".format(method_name)
+                raise KeyError(kerr_msg) from None
         return var_val
     
     def regist_cnvtor(self, type_name:str = None, cnvt_func:callable = None):
