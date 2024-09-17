@@ -5,6 +5,10 @@
 ![easy-configer logo](https://raw.githubusercontent.com/HuangChiEn/easy_config/master/assets/logo.png)
 
 ---
+### Package demo ~
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/J3TM16Fn1RI/0.jpg)](https://www.youtube.com/watch?v=J3TM16Fn1RI)
+
+---
 
 ### Configeruating the program in an easy-way 
 I'm willing to provide a light-weight solution for configurating your python program. Hope this repository make every user control their large project more easier ~ ~ 
