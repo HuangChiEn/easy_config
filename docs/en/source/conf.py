@@ -14,7 +14,7 @@ release = 'v2.5.3'
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-templates_path = ['docs/en/_templates']
+templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 # -- Options for HTML output -------------------------------------------------
@@ -23,8 +23,3 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 html_theme = 'renku'
 html_static_path = ['_static']
 html_build_dir = os.environ.get('READTHEDOCS_OUTPUT', 'docs/en/build/html')
-
-html_context = {
-    'current_version' : "latest",
-    'versions' : [["2.5.3", "link to 2.5.3"], ["2.5.4", "link to 2.5.4"]],
-}
