@@ -10,6 +10,7 @@
 I'm willing to provide a light-weight solution for configurating your python program. Hope this repository make every user control their large project more easier ~ ~ 
 
 ### Easy-configer document
+Note : v2.5.3 just v2.5.2 with new document..
 **Check the documentation released in ReadTheDoc[🔗](https://easy-configer.readthedocs.io/en/latest/), to learn more!**
 
 
