@@ -5,3 +5,4 @@ pypi_pkg/*
 tst.py
 docs/en/md_bkup/*
 .vscode/*
+.demo/*

@@ -46,12 +46,12 @@ class AttributeDict(dict):
             AttributeDict, the returned dict have pre-defined empty dict, 
             then the specific argument could be updated to the empty dict.
         '''
+        
         try:
             return self[key]
         except:
-            # same behavior as defaultdict, allow recursively self.__setattr__
-            self[key] = {}
-        return self[key]
+            # the behavior different from defaultdict, raise attribute error..
+            raise AttributeError("AttributeDict doesn't have the attribute {}".format(key))
 
     def set_attr_dict(self, raw_dict):
         ''' 

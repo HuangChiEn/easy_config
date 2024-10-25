@@ -1,5 +1,5 @@
 # Project description
-#### easy_configer version : 2.5.3
+#### easy_configer version : 2.5.5
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/HuangChiEn/easy_config/main.yaml?branch=master&event=push&style=for-the-badge&label=unittest&color=green)
 
 ![easy-configer logo](https://raw.githubusercontent.com/HuangChiEn/easy_config/master/assets/logo.png)
@@ -10,7 +10,7 @@
 I'm willing to provide a light-weight solution for configurating your python program. Hope this repository make every user control their large project more easier ~ ~ 
 
 ### Easy-configer document
-Note : v2.5.3 just v2.5.2 with new document..
+Sorry for un-align version, now doc version will align with pypi version.
 **Check the documentation released in ReadTheDoc[🔗](https://easy-configer.readthedocs.io/en/latest/), to learn more!**
 
 
@@ -40,15 +40,15 @@ And, of course the following attributes are supported :
 ---
 
 ### Newly update features 🚀
-0. Easy-configer pass all test-case, and v2.5.2 is the stable version.
+0. v2.5.4 is the stable version (i just hot-fix a bug even in v2.5.3)
 1. Integrate argument intepolation with using ${cfg} notation
 2. Integrate enviroment variable intepolation with using ${cfg} notation
 
 ---
 
 ### Bug Fixed 🐛
-#### Due to safty policy, we rollback the feature "single line python code interpreter"..
-#### Hot-fix config overrided bug, add flag for support allow_override..
+#### Hot-fix Container bug, now it'll raise AttributeError while attribute doesn't exists..(this fixed in v2.5.4)
+
 ---
 
 ### Dependencies 🏗️

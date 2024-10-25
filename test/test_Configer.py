@@ -39,13 +39,27 @@ class ConfigerTestCase(unittest.TestCase):
         self.cfg1.cfg_from_ini(self.hier_cfg_path)
         self._test_hier(self.cfg1)
 
+        # Access the attributes which doesn't exist in AttributeDict!
+        with self.assertRaises(AttributeError) as cm:
+            self.cfg1.not_exist_var
+
+        with self.assertRaises(AttributeError) as cm:
+            self.cfg1.secA.secB.not_exist_var
+
         # Given the same config!
         # the argument can not be overrided in the identitcal config!
         with self.assertRaisesRegex(RuntimeError, 'Re-define Error') as cm:
             self.cfg1.cfg_from_str("i_var1 = -1")
+
+        with self.assertRaisesRegex(RuntimeError, 'Re-define Error') as cm:
             self.cfg1.cfg_from_str("[sec1]")
+        
+        with self.assertRaisesRegex(RuntimeError, 'Re-define Error') as cm:
             # test hierachical var be redefined!
-            self.cfg1.cfg_from_str("lev = 42")
+            self.cfg1.cfg_from_str('''
+                [secA]
+                    lev = 42
+            ''')
 
         # test allow_override flag for cfg_from_str & cfg_from_ini 
         self.cfg1.cfg_from_str("i_var1 = -1", allow_override=True)
