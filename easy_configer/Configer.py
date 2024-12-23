@@ -43,14 +43,14 @@ class Configer(object):
 
     ## Main interface for configuration : 
     # Support commendline config
-    def cfg_from_cli(self) -> None:
+    def cfg_from_cli(self, allow_override_sec=True) -> None:
         ''' 
             Building config from the commendline input and only apply the arguments from commend-line.
             ( only recommend for very lightweight config ) 
         '''
         if not self.__cmd_args:
             warnings.warn("'cfg_from_cli' is called, the settings 'cmd_args=False' will be ignored!")
-        self.args_from_cmd()
+        self.args_from_cmd(allow_override_sec)
             
     # Support string config in cell-based intereactive enviroment
     def cfg_from_str(self, raw_cfg_text:str, allow_override:bool=False) -> None:
@@ -136,7 +136,7 @@ class Configer(object):
         sec_key_str = cfg_str[beg+1 : end].strip()
         return sec_key_str
     
-    def __idx_sec_by_dot(self, sec_keys_str:str, allow_init:bool = False):  
+    def __idx_sec_parent_by_dot(self, sec_keys_str:str, allow_init:bool = False):  
         '''
             Core function to manage the hierachical config. 
             Store args is simple, just add it in dict. But dynamically search argument in specific section is non-trivial!
@@ -238,7 +238,7 @@ class Configer(object):
             ''' checking argument already exists in the value dict. '''
             key = list(val_dict.keys())[0]
             if key in container:
-                raise RuntimeError("Re-define Error : duplicated argument '{0}' is defined.".format(key))
+                raise RuntimeError("Re-define Error : argument '{0}' is already defined.".format(key))
             
         cur_sec_keys = ''
         for lin in raw_cfg_text.splitlines():
@@ -250,11 +250,11 @@ class Configer(object):
             # get the section key of config string (if there exists)
             sec_keys_str = self.__get_sec(cfg_str)
             if sec_keys_str:
-                idx_sec, idx_sec_key = self.__idx_sec_by_dot(sec_keys_str)
-                if idx_sec_key in idx_sec.keys():
-                    raise RuntimeError("Re-define Error : config section '{0}' is duplicated, section can not be overrided.".format(sec_keys_str))
-                idx_sec[idx_sec_key] = AttributeDict()
                 cur_sec_keys = sec_keys_str
+                idx_sec_parent, idx_sec_key = self.__idx_sec_parent_by_dot(sec_keys_str)
+                # if sec hasn't defined yet, make a new container
+                if idx_sec_key not in idx_sec_parent.keys():
+                    idx_sec_parent[idx_sec_key] = AttributeDict()
             
             # parse variable assignment string
             else:
@@ -270,9 +270,9 @@ class Configer(object):
                 container = None
                 # assign the val_dict into the corresponding section!
                 if cur_sec_keys != '':
-                    idx_sec, idx_sec_key = self.__idx_sec_by_dot(cur_sec_keys)
-                    container = idx_sec[idx_sec_key]
-                # assign the val_dict as 'flatten' arguments 
+                    idx_sec_parent, idx_sec_key = self.__idx_sec_parent_by_dot(cur_sec_keys)
+                    container = idx_sec_parent[idx_sec_key]
+                # assign the val_dict as 'flatten' arguments
                 else: # Note that flatten args IS NOT AttributeDict!
                     container = self.__dict__
                 
@@ -281,24 +281,26 @@ class Configer(object):
                     
         # Update the namespace value via commend-line input 
         if self.__cmd_args:
-            self.args_from_cmd()
+            self.args_from_cmd(allow_override_sec=allow_override)
 
-    def args_from_cmd(self) -> None:   
+    def args_from_cmd(self, allow_override_sec=False) -> None:   
         '''
             Update the arguments by commend line input string.
             Note that this method allow override the pre-define config natively (with silent mode).
             ( Because commentline inputs are explicitly given by user, we don't need to warn that )
         '''
-        # remove file name from args
-        cmd_arg_lst = sys.argv[1:]
+        # ' = ' -> '=', eliminate white space
+        cmd_sp_chr = self.split_char.strip()
+
+        # filter out all non-argument
+        cmd_arg_lst = [ arg for arg in sys.argv \
+                            if cmd_sp_chr in arg]
         
         # print out helper document string
         if "-h" in cmd_arg_lst:
             cmd_arg_lst.remove("-h")
             print(self.__help_info)
 
-        # ' = ' -> '=', eliminate white space
-        cmd_sp_chr = self.split_char.strip()
         sec_ptr, sec_key = None, None 
         for item in cmd_arg_lst:
             itm_lst = [ itm for itm in item.split(cmd_sp_chr) if itm != '']
@@ -306,8 +308,20 @@ class Configer(object):
                 raise RuntimeError(f"Invalid commendline input : the split char '{cmd_sp_chr}' should only present once and the value should be given!")
             
             sec_keys_str, val_str = itm_lst
-            sec_ptr, sec_key = self.__idx_sec_by_dot(sec_keys_str, allow_init=True)
+            sec_ptr, sec_key = self.__idx_sec_parent_by_dot(sec_keys_str, allow_init=True)
+            
+            # For the section already exists, 
+            # Prevent client argument easily override the section..
+            if sec_key in sec_ptr:
+                if isinstance(sec_ptr[sec_key], AttributeDict) and (not allow_override_sec): 
+                    raise RuntimeError(
+                        f"Client argument {sec_keys_str} attempt to override pre-defined section."
+                        "If you intend to do so, please set 'allow_override_sec=True'."
+                    )
             sec_ptr[sec_key] = self.__typ_cnvt.convert(val_str)
+
+        if len(cmd_arg_lst) == 0:
+            warnings.warn('Accept no client argument from commend line.')
 
     ## Configuration operator support :
     #  all of operator will be forced to return value!!

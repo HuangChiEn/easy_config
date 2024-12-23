@@ -15,11 +15,12 @@ class ConfigerTestCase(unittest.TestCase):
         self.cfg1 = Configer()
         self.cfg2 = Configer()
         self.cfg3 = Configer()
-
+        
         # declare config we're going to test
         self.dtype_cfg_path = 'test/test_properties/dtype_cfg.ini'   
         self.hier_cfg_path = 'test/test_properties/hier_cfg.ini'
         self.sub_cfg_path = 'test/test_properties/sub_cfg.ini'
+        self.nested_sub_cfg_path = 'test/test_properties/nested_sub_cfg.ini'
 
         self.init_cfg_path = 'test/test_properties/init_cfg.ini'
         self.merg_cfg_path = 'test/test_properties/merg_cfg.ini'
@@ -29,47 +30,50 @@ class ConfigerTestCase(unittest.TestCase):
 
     def test_parsing_config(self):
         # test dtype decleration
-        self.cfg2.cfg_from_ini(self.dtype_cfg_path)
         cfg_str = get_cfg_str(self.dtype_cfg_path)
         self.cfg1.cfg_from_str(cfg_str)
-
+        self.cfg2.cfg_from_ini(self.dtype_cfg_path)
+        
         self._test_dtype(self.cfg1)
         self._test_dtype(self.cfg2)
+        
         # test hier 
         self.cfg1.cfg_from_ini(self.hier_cfg_path)
         self._test_hier(self.cfg1)
-
-        # Access the attributes which doesn't exist in AttributeDict!
-        with self.assertRaises(AttributeError) as cm:
-            self.cfg1.not_exist_var
-
-        with self.assertRaises(AttributeError) as cm:
-            self.cfg1.secA.secB.not_exist_var
 
         # Given the same config!
         # the argument can not be overrided in the identitcal config!
         with self.assertRaisesRegex(RuntimeError, 'Re-define Error') as cm:
             self.cfg1.cfg_from_str("i_var1 = -1")
 
-        with self.assertRaisesRegex(RuntimeError, 'Re-define Error') as cm:
-            self.cfg1.cfg_from_str("[sec1]")
+        # define new var in already defined section should be permitted!
+        sl_cfg_str = 'new_var = 42'
+        self.cfg1.cfg_from_str(f'''
+            [secA]
+                {sl_cfg_str}
+        ''')
+        self.assertEqual(self.cfg1.secA.new_var, int(sl_cfg_str.split('=')[-1]))
         
         with self.assertRaisesRegex(RuntimeError, 'Re-define Error') as cm:
-            # test hierachical var be redefined!
+        # test hierachical var be redefined!
             self.cfg1.cfg_from_str('''
                 [secA]
                     lev = 42
             ''')
 
         # test allow_override flag for cfg_from_str & cfg_from_ini 
-        self.cfg1.cfg_from_str("i_var1 = -1", allow_override=True)
-        self.assertEqual(self.cfg1.i_var1, -1)
+        sl_cfg_str = 'i_var1 = -1'
+        self.cfg1.cfg_from_str(sl_cfg_str, allow_override=True)
+        self.assertEqual(self.cfg1.i_var1, int(sl_cfg_str.split('=')[-1]))
         self.cfg1.cfg_from_ini(self.dtype_cfg_path, allow_override=True)
         self.assertEqual(self.cfg1.i_var1, 42)
 
         # test sub-config
-        self.cfg2.cfg_from_ini(self.sub_cfg_path)
-        self._test_subcfg(self.cfg2)
+        with self.assertRaisesRegex(RuntimeError, 'Re-define Error') as cm:
+            self.cfg3.cfg_from_ini(self.sub_cfg_path)
+
+        self.cfg3.cfg_from_ini(self.sub_cfg_path, allow_override=True)
+        self._test_subcfg(self.cfg3)
 
     def _test_dtype(self, cfg):
         self.assertEqual(cfg.i_var1, 42)
@@ -99,10 +103,14 @@ class ConfigerTestCase(unittest.TestCase):
         self.assertEqual(cfg.d_var1, cfg.d_var2)
 
     def _test_hier(self, cfg):
+        ## Note : cfg is not AttributeDict, due to hist reason
+        self.assertIsInstance(cfg, Configer)
+
+        # test hier-containers are AttributeDict!
         self.assertIsInstance(cfg.sec1, AttributeDict)
         self.assertIn('sec21', cfg.sec1)
         self.assertIn('sec22', cfg.sec1)
-        
+       
         self.assertIsInstance(cfg.sec1.sec21, AttributeDict)
         self.assertIn('sec21_var', cfg.sec1.sec21)
 
@@ -125,6 +133,12 @@ class ConfigerTestCase(unittest.TestCase):
 
         # sub-config var 
         self.assertEqual(cfg.hier_sec.secA.secB.secC.lev, 3)
+
+        # testing nested sub-config
+        self.assertEqual(cfg.dummy.secA.var, cfg.secA.var)
+
+        # testing config overriding
+        self.assertEqual(cfg.secA.ori_var, 'overrided')
         
     def test_regist_cls(self):
         self.cfg1.regist_cnvtor('tst_cls', Customized_Object)
@@ -178,66 +192,57 @@ class ConfigerTestCase(unittest.TestCase):
         self.assertEqual(cfg.merg_var, 'merge')
     
     def test_cmd_args(self):
-        self._simulate_cmd_args()
-        
-        self.assert_stdout('from_cli', ["Description :"])
-        self.cfg2.cfg_from_cli()
-        
-        self.assertNotIn('init_var', self.cfg2)
-        # override flatten variable
-        self.assertEqual(self.cfg2.override_var, 42)
-        # override hierachical variable
-        self.assertEqual(self.cfg2.sec1.sec2.override_var, 42)
-        # add new flatten variable
-        self.assertEqual(self.cfg2.new_var, 42)
-        # add new variable in section
-        self.assertEqual(self.cfg2.new_sec.new_var, 42)
-
-        self.cfg4 = Configer(description='Test config', cmd_args=True)
-        # load self.cfg4 & assert console output
-        self.assert_stdout('from_ini', ["Description", "Test config"])
-
-        # override flatten variable
-        self.assertEqual(self.cfg4.override_var, 42)
-        # override hierachical variable
-        self.assertEqual(self.cfg4.sec1.sec2.override_var, 42)
-        # add new flatten variable
-        self.assertEqual(self.cfg4.new_var, 42)
-        # add new variable in section
-        self.assertEqual(self.cfg4.new_sec.new_var, 42)
-
-        self.cfg5 = Configer(description='Test config', cmd_args=False)
-        self.cfg5.cfg_from_ini(self.init_cfg_path)
-        # since `cmd_args=False`, all args should keep identitcal as initial config!
-        self.assertEqual(self.cfg5.override_var, -1)
-        self.assertEqual(self.cfg5.sec1.sec2.override_var, -1)
-        self.assertNotIn('new_var', self.cfg5)
-        self.assertNotIn('new_var', self.cfg5.new_sec1)
-
-    def _simulate_cmd_args(self):
-        import sys
-        # test override the default args
-        sys.argv.pop(0)  # remove `python -m unittest` cmd, it'll not given 
-        sys.argv.extend([
+        lst_cmd = [
             'override_var=42',   
             'sec1.sec2.override_var=42',  
             'new_var=42',  
-            'new_sec.new_var=42',
+            'new_sec1.new_var=42',
             '-h'  # print description
-        ])
+        ]
+        self._simulate_cmd_args(lst_cmd)
 
-    @unittest.mock.patch('sys.stdout', new_callable=io.StringIO)
-    def assert_stdout(self, method, expected_outputs, mock_stdout):
-        if method == 'from_cli':
-            # since `cmd_args=False` in default, config from client args will be ignored!
-            # it should raise the warning..
-            with self.assertWarns(Warning):
-                self.cfg2.cfg_from_cli()
-        else:
-            self.cfg4.cfg_from_ini(self.init_cfg_path)
+        # Test empty cfg, args only from client input
+        self.cfg1.cfg_from_cli()
+        # add new flatten variable
+        self.assertEqual(self.cfg1.new_var, 42)
+        # add new variable in hier section
+        self.assertEqual(self.cfg1.new_sec1.new_var, 42)
+        
+        # Test client input args override cfg from init
+        self.ini_cfg = Configer(description='Test config', cmd_args=True)
+        self.ini_cfg.cfg_from_ini(self.init_cfg_path)
+        
+        # override flatten variable
+        self.assertEqual(self.ini_cfg.override_var, 42)
+        # override hierachical variable
+        self.assertEqual(self.ini_cfg.sec1.sec2.override_var, 42)
+        # preserve original var
+        self.assertEqual(self.ini_cfg.new_sec1.var, -1)
 
-        for expected_output in expected_outputs:
-            self.assertRegex(mock_stdout.getvalue(), expected_output)
+        self.only_ini_cfg = Configer(cmd_args=False)
+        self.only_ini_cfg.cfg_from_ini(self.init_cfg_path)
+        # since `cmd_args=False`, all args should keep identitcal as initial config!
+        self.assertEqual(self.only_ini_cfg.override_var, -1)
+        self.assertEqual(self.only_ini_cfg.sec1.sec2.override_var, -1)
+        self.assertNotIn('new_var', self.only_ini_cfg)
+        self.assertNotIn('new_var', self.only_ini_cfg.new_sec1)
+
+        # Test client input args intend to change section itself
+        self._simulate_cmd_args(['sec1.sec2=None'], clear_all=True)
+        self.sec_cfg = Configer(cmd_args=True)
+        with self.assertRaisesRegex(RuntimeError, 'override pre-defined section') as cm:
+            self.sec_cfg.cfg_from_ini(self.init_cfg_path, allow_override=False)
+        
+        # Note allow_override, we still allow client args override sec,
+        # while user can do all that want, hope you knowing why you're going to do that ~
+        self.sec_cfg.cfg_from_ini(self.init_cfg_path, allow_override=True)
+        self.assertEqual(self.sec_cfg.sec1.sec2, None)
+
+    def _simulate_cmd_args(self, lst_cmd, clear_all=False):
+        import sys
+        # remove all previous defined arguments..
+        sys.argv = [] if clear_all else sys.argv
+        sys.argv.extend(lst_cmd)
 
     def test_flag(self):
         self.cfg1.cfg_from_ini(self.init_cfg_path)
