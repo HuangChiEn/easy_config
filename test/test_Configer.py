@@ -42,7 +42,7 @@ class ConfigerTestCase(unittest.TestCase):
         self._test_hier(self.cfg1)
 
         # Given the same config!
-        # the argument can not be overrided in the identitcal config!
+        # the argument can not be overwrited in the identitcal config!
         with self.assertRaisesRegex(RuntimeError, 'Re-define Error') as cm:
             self.cfg1.cfg_from_str("i_var1 = -1")
 
@@ -61,18 +61,18 @@ class ConfigerTestCase(unittest.TestCase):
                     lev = 42
             ''')
 
-        # test allow_override flag for cfg_from_str & cfg_from_ini 
+        # test allow_overwrite flag for cfg_from_str & cfg_from_ini 
         sl_cfg_str = 'i_var1 = -1'
-        self.cfg1.cfg_from_str(sl_cfg_str, allow_override=True)
+        self.cfg1.cfg_from_str(sl_cfg_str, allow_overwrite=True)
         self.assertEqual(self.cfg1.i_var1, int(sl_cfg_str.split('=')[-1]))
-        self.cfg1.cfg_from_ini(self.dtype_cfg_path, allow_override=True)
+        self.cfg1.cfg_from_ini(self.dtype_cfg_path, allow_overwrite=True)
         self.assertEqual(self.cfg1.i_var1, 42)
 
         # test sub-config
         with self.assertRaisesRegex(RuntimeError, 'Re-define Error') as cm:
             self.cfg3.cfg_from_ini(self.sub_cfg_path)
 
-        self.cfg3.cfg_from_ini(self.sub_cfg_path, allow_override=True)
+        self.cfg3.cfg_from_ini(self.sub_cfg_path, allow_overwrite=True)
         self._test_subcfg(self.cfg3)
 
     def _test_dtype(self, cfg):
@@ -127,8 +127,8 @@ class ConfigerTestCase(unittest.TestCase):
         
         # The recommended way to load a sub-config :
         #   define a new section for storing the sub-config to prevent section conflict!
-        # If you want to override the original config, use "merge_conf(.)" instead!!
-        #   "implicitly" override args is the main reason i didn't prefer to use omegaconf..
+        # If you want to overwrite the original config, use "merge_conf(.)" instead!!
+        #   "implicitly" overwrite args is the main reason i didn't prefer to use omegaconf..
         self.assertIn('hier_sec', iter(cfg))
 
         # sub-config var 
@@ -230,12 +230,12 @@ class ConfigerTestCase(unittest.TestCase):
         # Test client input args intend to change section itself
         self._simulate_cmd_args(['sec1.sec2=None'], clear_all=True)
         self.sec_cfg = Configer(cmd_args=True)
-        with self.assertRaisesRegex(RuntimeError, 'override pre-defined section') as cm:
-            self.sec_cfg.cfg_from_ini(self.init_cfg_path, allow_override=False)
+        with self.assertRaisesRegex(RuntimeError, 'overwrite pre-defined section') as cm:
+            self.sec_cfg.cfg_from_ini(self.init_cfg_path, allow_overwrite=False)
         
-        # Note allow_override, we still allow client args override sec,
+        # Note allow_overwrite, we still allow client args overwrite sec,
         # while user can do all that want, hope you knowing why you're going to do that ~
-        self.sec_cfg.cfg_from_ini(self.init_cfg_path, allow_override=True)
+        self.sec_cfg.cfg_from_ini(self.init_cfg_path, allow_overwrite=True)
         self.assertEqual(self.sec_cfg.sec1.sec2, None)
 
     def _simulate_cmd_args(self, lst_cmd, clear_all=False):

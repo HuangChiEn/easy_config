@@ -25,7 +25,7 @@ class Configer(object):
 
             Args:
                 description (str, optional): A customized helper information which describe the role of config file. Defaults to ''.
-                cmd_args (bool, optional): A flag to indicate reading argument from commendline and override the default config. Defaults to False.
+                cmd_args (bool, optional): A flag to indicate reading argument from commendline and overwrite the default config. Defaults to False.
                 split_chr (str, optional): A char-string used to format the config syntax. Defaults to ' = '.
                     For example, 'a*13@int' which means the argument 'a' contain interger value 13,
                     and the '*' is the split_chr.
@@ -43,37 +43,37 @@ class Configer(object):
 
     ## Main interface for configuration : 
     # Support commendline config
-    def cfg_from_cli(self, allow_override_sec=True) -> None:
+    def cfg_from_cli(self, allow_overwrite_sec=True) -> None:
         ''' 
             Building config from the commendline input and only apply the arguments from commend-line.
             ( only recommend for very lightweight config ) 
         '''
         if not self.__cmd_args:
             warnings.warn("'cfg_from_cli' is called, the settings 'cmd_args=False' will be ignored!")
-        self.args_from_cmd(allow_override_sec)
+        self.args_from_cmd(allow_overwrite_sec)
             
     # Support string config in cell-based intereactive enviroment
-    def cfg_from_str(self, raw_cfg_text:str, allow_override:bool=False) -> None:
+    def cfg_from_str(self, raw_cfg_text:str, allow_overwrite:bool=False) -> None:
         ''' 
             Building config from the given config string.
 
             Args: 
                 raw_cfg_text (str): The string which declare the arguments with the same syntax used in config file.
-                allow_override (bool, optional): A flag allow override config from the other source,
+                allow_overwrite (bool, optional): A flag allow overwrite config from the other source,
                     such as the other .ini config file, config string. Default to False.
         '''
-        self.__cfg_parser(raw_cfg_text, allow_override)
+        self.__cfg_parser(raw_cfg_text, allow_overwrite)
         # build the flag object 
         self.__flag.__dict__ = self.__dict__
     
     # Load .ini config from the given path
-    def cfg_from_ini(self, cfg_path:str, allow_override:bool=False) -> None:
+    def cfg_from_ini(self, cfg_path:str, allow_overwrite:bool=False) -> None:
         '''
             Building config from the given .ini config file.
 
             Args:
                 cfg_path (str): The path which locate the '*.ini' config file.
-                allow_override (bool, optional): A flag allow override config from the other source,
+                allow_overwrite (bool, optional): A flag allow overwrite config from the other source,
                     such as the other .ini config file, config string. Default to False.
         '''
         def chk_src(cfg_path):
@@ -109,7 +109,7 @@ class Configer(object):
         except Exception as ex:
             print(ex) ; raise
         
-        self.__cfg_parser(raw_cfg_text, allow_override)
+        self.__cfg_parser(raw_cfg_text, allow_overwrite)
         # build the flag object 
         self.__flag.__dict__ = self.__dict__
     
@@ -205,7 +205,7 @@ class Configer(object):
         return { var_name : var_val }
 
     # core function of config parser
-    def __cfg_parser(self, raw_cfg_text:str, allow_override:bool) -> None:
+    def __cfg_parser(self, raw_cfg_text:str, allow_overwrite:bool) -> None:
         '''
             Core function to parse the raw config string line-by-line. It'll dispatch each line of config string 
             to the corresponding subroutine. Basically, subroutines is categorized into 3 types in order :
@@ -215,7 +215,7 @@ class Configer(object):
 
             Args:
                 raw_cfg_text (str): The raw config strings. It could event include comment.
-                allow_override (bool): A flag allow override config from the other source,
+                allow_overwrite (bool): A flag allow overwrite config from the other source,
                     such as the other .ini config file, config string. Default to False.
             
             Return:
@@ -276,17 +276,17 @@ class Configer(object):
                 else: # Note that flatten args IS NOT AttributeDict!
                     container = self.__dict__
                 
-                (not allow_override) and chk_args_exists(val_dict, container)
+                (not allow_overwrite) and chk_args_exists(val_dict, container)
                 container.update(val_dict)
                     
         # Update the namespace value via commend-line input 
         if self.__cmd_args:
-            self.args_from_cmd(allow_override_sec=allow_override)
+            self.args_from_cmd(allow_overwrite_sec=allow_overwrite)
 
-    def args_from_cmd(self, allow_override_sec=False) -> None:   
+    def args_from_cmd(self, allow_overwrite_sec=False) -> None:   
         '''
             Update the arguments by commend line input string.
-            Note that this method allow override the pre-define config natively (with silent mode).
+            Note that this method allow overwrite the pre-define config natively (with silent mode).
             ( Because commentline inputs are explicitly given by user, we don't need to warn that )
         '''
         # ' = ' -> '=', eliminate white space
@@ -311,12 +311,12 @@ class Configer(object):
             sec_ptr, sec_key = self.__idx_sec_parent_by_dot(sec_keys_str, allow_init=True)
             
             # For the section already exists, 
-            # Prevent client argument easily override the section..
+            # Prevent client argument easily overwrite the section..
             if sec_key in sec_ptr:
-                if isinstance(sec_ptr[sec_key], AttributeDict) and (not allow_override_sec): 
+                if isinstance(sec_ptr[sec_key], AttributeDict) and (not allow_overwrite_sec): 
                     raise RuntimeError(
-                        f"Client argument {sec_keys_str} attempt to override pre-defined section."
-                        "If you intend to do so, please set 'allow_override_sec=True'."
+                        f"Client argument {sec_keys_str} attempt to overwrite pre-defined section."
+                        "If you intend to do so, please set 'allow_overwrite_sec=True'."
                     )
             sec_ptr[sec_key] = self.__typ_cnvt.convert(val_str)
 
@@ -325,23 +325,23 @@ class Configer(object):
 
     ## Configuration operator support :
     #  all of operator will be forced to return value!!
-    #   merge operator, force to override!
+    #   merge operator, force to overwrite!
     def __or__(self, cfg):
         ''' 
-        Support merge two config 'with override' the left-hand side config. 
-        For example. cfg_a = cfg_a | cfg_b, cfg_a will be overrided by cfg_b.
+        Support merge two config 'with overwrite' the left-hand side config. 
+        For example. cfg_a = cfg_a | cfg_b, cfg_a will be overwrite by cfg_b.
 
         Args:
             cfg (AttributeDict): A container used to store the argument. it inherit from dict and the given input could be a nested dict.
         '''
         cp_cfg = deepcopy(self)
-        cp_cfg.merge_conf(cfg, override=True)
+        cp_cfg.merge_conf(cfg, overwrite=True)
         return cp_cfg
 
     #   concate operator 
     def __add__(self, cfg):
         ''' 
-        Support merge two config 'without override' the any config. 
+        Support merge two config 'without overwrite' the any config. 
         This method call self.concate_cfg(.) underhood.
 
         Args:
@@ -352,10 +352,10 @@ class Configer(object):
         '''
         return self.concate_cfg(cfg)
 
-    # concate just means merge2conf "without" any override!!
+    # concate just means merge2conf "without" any overwrite!!
     def concate_cfg(self, cfg):
         ''' 
-        Merge two config 'without override' the any config. 
+        Merge two config 'without overwrite' the any config. 
         
         Args:
             cfg (AttributeDict): A container used to store the argument. it inherit from dict and the given input could be a nested dict.
@@ -367,18 +367,18 @@ class Configer(object):
             Configer.
         '''
         cp_cfg = deepcopy(self)
-        cp_cfg.merge_conf(cfg, override=False)
+        cp_cfg.merge_conf(cfg, overwrite=False)
         return cp_cfg
         
     #   merge conf suppose 2 config have overlap section, otherwise use 'concate' method!
-    def merge_conf(self, cfg, override=True):
+    def merge_conf(self, cfg, overwrite=True):
         ''' 
-        Merge two config 'with override' the config. The config will be overrided
+        Merge two config 'with overwrite' the config. The config will be overwrite
             by the given config cfg.
 
         Args:
             cfg (AttributeDict): A container used to store the argument. it inherit from dict and the given input could be a nested dict.  
-            override (bool): A flag to indicate overriding value by the given config cfg. Default to True.
+            overwrite (bool): A flag to indicate overriding value by the given config cfg. Default to True.
 
         Return:
             None. This is inplace operation.
@@ -388,7 +388,7 @@ class Configer(object):
             for sec_key, sec_val in cfg_dict.items():
                 # same section exists
                 if sec_key in sf_dict.keys():
-                    if not override:
+                    if not overwrite:
                         raise RuntimeError("Re-define Error : Key '{0}' in input config already exists in merged config!!".format(sec_key))
                     
                     # if both self-dict and cfg_dict are dict, merge it hierachically!
@@ -418,7 +418,7 @@ class Configer(object):
         ''' Present all 'non-private' arguments defined in config. '''
         key_str = self.__shadow_private_args()
         return "Namespace : \n" + ", ".join(key_str)
-    # override default __repr__ to view configer in debugger
+    # overwrite default __repr__ to view configer in debugger
     __repr__ = __str__
 
     ## public interface for iterate the entire config
