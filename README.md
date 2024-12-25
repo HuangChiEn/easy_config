@@ -6,7 +6,8 @@
 
 ---
 ### Package demo ~
-🚧 temporary not avaliable, because we plain to insert demo video directly..
+https://github.com/user-attachments/assets/1d6f43a4-f621-433c-a6c0-d267c7b32399
+> The demo video only cover basic functionality of easy_configer, more examples plz refer the doc below..
 
 ---
 
