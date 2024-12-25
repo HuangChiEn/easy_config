@@ -117,7 +117,7 @@ Although writing a string config in python is convenient, it only suitable for t
 #### To form a hierachical argument in nested section, we apply toml-like syntax to describe the nested section (i.e. `[bknd_srv.mod_params]` is belong to `[bknd_srv]` parent section). The arguments in nested section are also wrapped by nested AttributeDict. Besides you can access all kind of arguments by the simple dot-operator, however, we still recommend you to use key-string as pure python dict.
 > Note that the recommended way to access the argument is **still** key-string access `cfger.args['#4$%-var']`, as you may notice, dot-access doesn't support **ugly** variable name (`cfger.#4$%-var`, as variable name is invalid in python intepreter). 
     
-```toml
+```ini
 # ./test_cfg.ini
 # '#' denote comment line, the inline comment is also supported!
 
@@ -203,7 +203,7 @@ if __name__ == "__main__":
 There have two kind of way to prepare the arguments in easy-configer as we described. In practices, we consider the flatten arguments as global setup, and grouping the rest of arguments into the corresponding section for assigning it according to the subroutine.  
 
 Let's give a deep-learning example, suppose you have created a *hier_cfg.ini in work directory*
-```toml
+```ini
 root_dir = '/workspace'
 glb_seed = 42
 exp_id = '0001'
@@ -327,7 +327,7 @@ if __name__ == "__main__":
     breakpoint()
 ```
 > We write a special example `hier_cfg.ini`!!
-```toml
+```ini
 # nested-dict
 [secA] # test depth ((sub^4)-section under secA)
     lev = 1
@@ -347,7 +347,7 @@ Now you can access each `lev` :
 
 #### **4. Commmend-line Support**
 > We also take `hier_cfg.ini` as example!
-```toml
+```ini
 # hier_cfg.ini
 glb_var = 42@int
 [dataset]         
@@ -378,7 +378,7 @@ Like `omegaconf`, most of user expect to seperate the config based on their cate
 
 #### Now, we provide the thrid way : **sub-config**. you can import the sub-config in any depth of hierachical config by simply placing the `>` symbol at the beginning of line. Also note that sub-config doesn't allow you overwrite the declared argument by default, since dynamically overwrite the arguments made your config hard to trace..
 
-```toml
+```ini
 # ./base_cfg.ini
 glb_seed = 42@int
 [dataset]         
@@ -404,7 +404,7 @@ path = ['/data/kitti']@pyPath
 #### Also note that we still recommend you create several config instance and merge it in 2. way, if you want to merge it with overwriting manner. Instead of acting like omegaconf, it dynamically overwrite your config silently..
 > If you **still** want to overwrite the config (act like omegaconf), turn the flag allow_overwrite as True. i.e. `cfg.cfg_from_ini(..., allow_overwrite=True)`, `cfg.cfg_from_str(..., allow_overwrite=True)`. The sub-config will follow the flag setting to overwrite the config. Be careful of the order, the **imported sub-configs** are considered as **'default setup'**, the main config (which import sub-configs) setup will overwrite its.  
 
-```toml
+```ini
 # ./base_cfg.ini
 
 # note that the order between defined arguments and imported sub-config do affect the final value of arguments!
@@ -437,7 +437,7 @@ glb_seed = 42
 ```
 
 #### After dynamic loading :
-```toml
+```ini
 glb_seed = 42
 
 [dataset]       
