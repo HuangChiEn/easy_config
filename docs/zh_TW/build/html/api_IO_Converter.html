@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-TW" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IO_Converter &mdash; easy_configer v2.3.2 說明文件</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+      <link rel="stylesheet" href="_static/fonts.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/translations.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="genindex.html" />
+    <link rel="search" title="搜尋" href="search.html" />
+    <link rel="next" title="utils.Container" href="api_Container.html" />
+    <link rel="prev" title="Configer" href="api_Configer.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            easy_configer
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">內容目錄</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="About.html">關於此專案</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Installation.html">下載教學</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Quick.html">快速入門</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Usage.html">常用參考資訊</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Metainfo.html">套件相關資訊</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API 文件</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="api_Configer.html">Configer</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">IO_Converter</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id2">IO_Converter</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id3">__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">cnvt_cfg_to</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">cnvt_cfg_from</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api_Container.html">utils.Container</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_Type_Convertor.html">utils.Type_Convertor</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">easy_configer</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">IO_Converter</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/api_IO_Converter.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="io-converter">
+<h1>IO_Converter<a class="headerlink" href="#io-converter" title="本標頭的永久連結"></a></h1>
+<ul>
+<li><p><a class="reference external" href="#IO_Converter.IO_Converter">IO_Converter</a></p>
+<blockquote>
+<div><ul class="simple">
+<li><p><a class="reference external" href="#IO_Converter.IO_Converter.__init__">__init__</a></p></li>
+<li><p><a class="reference external" href="#IO_Converter.IO_Converter.cnvt_cfg_to">cnvt_cfg_to</a></p></li>
+<li><p><a class="reference external" href="#IO_Converter.IO_Converter.cnvt_cfg_from">cnvt_cfg_from</a></p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+<p><span class="raw-html-m2r"><a id="IO_Converter.IO_Converter"></a></span></p>
+<section id="id2">
+<h2>IO_Converter<a class="headerlink" href="#id2" title="本標頭的永久連結"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">IO_Converter</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>將 easy_config 實例轉換為其他常見的配置實例，反之亦然。
+注意：轉換後的結果可能會有所不同，這取決於目標配置的支持情況。
+例如，argparse 並未明確提供存儲層次結構配置的方法，因此轉換後的配置將會被扁平化(flatten)！</p>
+<p><span class="raw-html-m2r"><a id="IO_Converter.IO_Converter.__init__"></a></span></p>
+<section id="id3">
+<h3>__init__<a class="headerlink" href="#id3" title="本標頭的永久連結"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>轉換器的構造函數。在此，我們聲明了輸出/輸入分發器，用於將 easy_config 實例分派到指定的子程序中。</p>
+<p><span class="raw-html-m2r"><a id="IO_Converter.IO_Converter.cnvt_cfg_to"></a></span></p>
+</section>
+<section id="id4">
+<h3>cnvt_cfg_to<a class="headerlink" href="#id4" title="本標頭的永久連結"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">cnvt_cfg_to</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="n">target_cfg_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">cnvtr_kwarg</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>將 easy_configer 轉換為其他常見配置實例。</p>
+<p><strong>Arguments</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">cfg</span></code> <em>Configer</em> - easy_configer 實例。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">target_cfg_type</span></code> <em>str</em> - 支持的配置類型的字符串標籤，可以通過 <code class="docutils literal notranslate"><span class="pre">self.output_dispatcher.keys()</span></code> 查看。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cnvtr_kwarg</span></code> <code class="docutils literal notranslate"><span class="pre">**kwargs</span></code> - 其他關鍵字參數，將嘗試傳遞給轉換子程序。</p></li>
+</ul>
+<dl class="simple">
+<dt><strong>Returns</strong>:</dt><dd><p>任何類型，目標配置實例。</p>
+</dd>
+</dl>
+<p><span class="raw-html-m2r"><a id="IO_Converter.IO_Converter.cnvt_cfg_from"></a></span></p>
+</section>
+<section id="id5">
+<h3>cnvt_cfg_from<a class="headerlink" href="#id5" title="本標頭的永久連結"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">cnvt_cfg_from</span><span class="p">(</span><span class="n">other_cfg</span><span class="p">,</span> <span class="n">target_cfg_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">cnvtr_kwarg</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>將給定的常見配置實例轉換為 easy_configer 。</p>
+<p><strong>Arguments</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">other_cfg</span></code> <em>Any</em> - 任何支持的配置實例。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">target_cfg_type</span></code> <em>str</em> - 支持的配置類型的字符串標籤，可以通過 <code class="docutils literal notranslate"><span class="pre">self.input_dispatcher.keys()</span></code> 查看。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cnvtr_kwarg</span></code> <code class="docutils literal notranslate"><span class="pre">**kwargs</span></code> - 其他關鍵字參數，將嘗試傳遞給轉換子程序。</p></li>
+</ul>
+<dl class="simple">
+<dt><strong>Returns</strong>:</dt><dd><p>Configer。</p>
+</dd>
+</dl>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="api_Configer.html" class="btn btn-neutral float-left" title="Configer" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="api_Container.html" class="btn btn-neutral float-right" title="utils.Container" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版權所有 2024, JosefHuang。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

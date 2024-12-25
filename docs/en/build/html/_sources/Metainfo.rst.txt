@@ -8,13 +8,13 @@ Newly update features 🚀
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 #. 
-   Easy-configer pass all test-case, and v2.5.2 is the stable version.
+   v2.5.4 is basically stable, but we add more test case in this version (it's more stable now) ~
 
 #. 
-   Integrate argument intepolation with using ${cfg} notation
+   Apply ${cfg}, ${env} as argument and enviroment intepolation notation, respectively.
 
 #. 
-   Integrate enviroment variable intepolation with using ${cfg} notation
+   Apply AttributeDict container (it inherit pure python dict) to store non-flatten arguments!
 
 ----
 
@@ -22,18 +22,18 @@ TODO List 🔨
 ^^^^^^^^^^^^^^
 
 #. 
-   Better **config syntax** in easy-config ~
+   Apply AttributeDict for config instance
 
 .. 
 
-    next version released features v 2.6
+    next version released features v 3.0
 
 
 Bug Fixed 🐛
 ^^^^^^^^^^^^^^
 
-Due to safty policy, we rollback the feature "single line python code interpreter"..
-Hot-fix config overrided bug, add flag for support allow_override..
+Hot-fix AttributeDict to raise NoAttributeError,
+Hot-fix config overwrite bug, add flag for support allow_overwrite..
 
 ----
 

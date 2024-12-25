@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-TW" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>utils.Container &mdash; easy_configer v2.3.2 說明文件</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+      <link rel="stylesheet" href="_static/fonts.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/translations.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="genindex.html" />
+    <link rel="search" title="搜尋" href="search.html" />
+    <link rel="next" title="utils.Type_Convertor" href="api_Type_Convertor.html" />
+    <link rel="prev" title="IO_Converter" href="api_IO_Converter.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            easy_configer
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">內容目錄</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="About.html">關於此專案</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Installation.html">下載教學</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Quick.html">快速入門</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Usage.html">常用參考資訊</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Metainfo.html">套件相關資訊</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API 文件</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="api_Configer.html">Configer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_IO_Converter.html">IO_Converter</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">utils.Container</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id2">AttributeDict</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id3">__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">__getattribute__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">__getattr__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id6">set_attr_dict</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id7">__setattr__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id8">__setitem__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id9">__deepcopy__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id10">__getstate__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id11">__setstate__</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id12">Flag</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id13">__new__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id14">FLAGS</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api_Type_Convertor.html">utils.Type_Convertor</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">easy_configer</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">utils.Container</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/api_Container.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="utils-container">
+<h1>utils.Container<a class="headerlink" href="#utils-container" title="本標頭的永久連結"></a></h1>
+<ul class="simple">
+<li><p><a class="reference external" href="#utils.Container">utils.Container</a></p>
+<ul>
+<li><p><a class="reference external" href="#utils.Container.AttributeDict">AttributeDict</a></p>
+<ul>
+<li><p><a class="reference external" href="#utils.Container.AttributeDict.__init__">__init__</a></p></li>
+<li><p><a class="reference external" href="#utils.Container.AttributeDict.__getattribute__">__getattribute__</a></p></li>
+<li><p><a class="reference external" href="#utils.Container.AttributeDict.__getattr__">__getattr__</a></p></li>
+<li><p><a class="reference external" href="#utils.Container.AttributeDict.set_attr_dict">set_attr_dict</a></p></li>
+<li><p><a class="reference external" href="#utils.Container.AttributeDict.__setattr__">__setattr__</a></p></li>
+<li><p><a class="reference external" href="#utils.Container.AttributeDict.__setitem__">__setitem__</a></p></li>
+<li><p><a class="reference external" href="#utils.Container.AttributeDict.__deepcopy__">__deepcopy__</a></p></li>
+<li><p><a class="reference external" href="#utils.Container.AttributeDict.__getstate__">__getstate__</a></p></li>
+<li><p><a class="reference external" href="#utils.Container.AttributeDict.__setstate__">__setstate__</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference external" href="#utils.Container.Flag">Flag</a></p>
+<ul>
+<li><p><a class="reference external" href="#utils.Container.Flag.__new__">__new__</a></p></li>
+<li><p><a class="reference external" href="#utils.Container.Flag.FLAGS">FLAGS</a></p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><span class="raw-html-m2r"><a id="utils.Container.AttributeDict"></a></span></p>
+<section id="id2">
+<h2>AttributeDict<a class="headerlink" href="#id2" title="本標頭的永久連結"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">AttributeDict</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>這是一個類似字典的容器，用來存儲在配置中定義的嵌套參數。
+由於該容器繼承自 Python 原生的字典（基類），我們以非常簡單的方式將參數存儲在基類字典中： <code class="docutils literal notranslate"><span class="pre">dict[key]</span> <span class="pre">=</span> <span class="pre">value</span></code>，
+通過在子類中調用 <code class="docutils literal notranslate"><span class="pre">super().__setitem__(key,</span> <span class="pre">value)</span></code> 實現。
+此外，<code class="docutils literal notranslate"><span class="pre">self.__setattr__</span></code> 也會在內部調用 <code class="docutils literal notranslate"><span class="pre">super().__setitem__</span></code>！
+根據我們存儲參數的方式，我們可以通過非常簡單的方式來訪問參數 <code class="docutils literal notranslate"><span class="pre">self[key]``（即</span> <span class="pre">dict[key]）。</span>
+<span class="pre">另外，我們為實現</span> <span class="pre">``defaultdict</span></code> 功能構建了 getattr 保護機制。<code class="docutils literal notranslate"><span class="pre">self.__getitem__</span></code> 無需重寫，與基類相同。</p>
+<p><span class="raw-html-m2r"><a id="utils.Container.AttributeDict.__init__"></a></span></p>
+<section id="id3">
+<h3>__init__<a class="headerlink" href="#id3" title="本標頭的永久連結"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="n">init_dict</span><span class="o">=</span><span class="p">{})</span>
+</pre></div>
+</div>
+<p>Container 建構子。</p>
+<p><strong>Arguments</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">init_dict</span></code> <em>dict</em> - 通常，它將是 Configer 中解析後的組態值字典。默認為空字典。</p></li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<blockquote>
+<div><p>None.</p>
+</div></blockquote>
+<p><span class="raw-html-m2r"><a id="utils.Container.AttributeDict.__getattribute__"></a></span></p>
+</section>
+<section id="id4">
+<h3>__getattribute__<a class="headerlink" href="#id4" title="本標頭的永久連結"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__getattribute__</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>覆寫 <strong>getattribute</strong> 魔術方法(dunder method)。
+由於我們使用基類（dict）來存儲所有參數，因此不應該以任何方式使用 self.dict。</p>
+<dl class="simple">
+<dt>Raise:</dt><dd><p>當用戶嘗試訪問 <code class="docutils literal notranslate"><span class="pre">self.dict</span></code> 時，將引發 Runtime Error。</p>
+</dd>
+</dl>
+<p><span class="raw-html-m2r"><a id="utils.Container.AttributeDict.__getattr__"></a></span></p>
+</section>
+<section id="id5">
+<h3>__getattr__<a class="headerlink" href="#id5" title="本標頭的永久連結"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>覆寫 <strong>getattr</strong> 魔術方法(dunder method)，以靜默方式構建 「空字典」。
+這樣，我們可以在不定義其父字典的情況下，將值分配給特定的參數。
+注意：與 <code class="docutils literal notranslate"><span class="pre">defaultdict</span></code> 相同的行為，允許遞歸地使用 <code class="docutils literal notranslate"><span class="pre">self.__setattr__</span></code>。</p>
+<p><strong>Returns</strong>:</p>
+<blockquote>
+<div><p>AttributeDict, 返回的字典具有預定義的空字典，然後可以將特定參數更新到空字典中。</p>
+</div></blockquote>
+<p><span class="raw-html-m2r"><a id="utils.Container.AttributeDict.set_attr_dict"></a></span></p>
+</section>
+<section id="id6">
+<h3>set_attr_dict<a class="headerlink" href="#id6" title="本標頭的永久連結"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">set_attr_dict</span><span class="p">(</span><span class="n">raw_dict</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>將輸入的字典轉換為 AttributeDict 實例，並在內部調用 setitem 方法。</p>
+<p><strong>Arguments</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">raw_dict</span></code> <em>dict</em> - Python 原生字典，調用此方法後將轉換為 AttributeDict 實例。</p></li>
+</ul>
+<p><span class="raw-html-m2r"><a id="utils.Container.AttributeDict.__setattr__"></a></span></p>
+</section>
+<section id="id7">
+<h3>__setattr__<a class="headerlink" href="#id7" title="本標頭的永久連結"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__setattr__</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>覆寫 <strong>setattr</strong> 魔術方法(dunder method)，內部呼叫 <strong>setitem</strong> 方法。</p>
+<p><span class="raw-html-m2r"><a id="utils.Container.AttributeDict.__setitem__"></a></span></p>
+</section>
+<section id="id8">
+<h3>__setitem__<a class="headerlink" href="#id8" title="本標頭的永久連結"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>覆寫 <strong>setitem</strong> 魔術方法(dunder method)，將任何輸入值包裝在 AttributeDict 容器中。</p>
+<p><span class="raw-html-m2r"><a id="utils.Container.AttributeDict.__deepcopy__"></a></span></p>
+</section>
+<section id="id9">
+<h3>__deepcopy__<a class="headerlink" href="#id9" title="本標頭的永久連結"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">__deepcopy__</span><span class="p">(</span><span class="n">memo</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>支持 deepcopy，參考連結:<a class="reference external" href="https://stackoverflow.com/questions/49901590/python-using-copy-deepcopy-on-dotdict">https://stackoverflow.com/questions/49901590/python-using-copy-deepcopy-on-dotdict</a>。</p>
+<p><span class="raw-html-m2r"><a id="utils.Container.AttributeDict.__getstate__"></a></span></p>
+</section>
+<section id="id10">
+<h3>__getstate__<a class="headerlink" href="#id10" title="本標頭的永久連結"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">__getstate__</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>基本的序列化接口（例如 pickle）。返回序列化的 Python 對象。</p>
+<p><span class="raw-html-m2r"><a id="utils.Container.AttributeDict.__setstate__"></a></span></p>
+</section>
+<section id="id11">
+<h3>__setstate__<a class="headerlink" href="#id11" title="本標頭的永久連結"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">__setstate__</span><span class="p">(</span><span class="n">de_ser_self</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>基本的反序列化接口（例如 pickle）。接受反序列化的對象，並將其替換為默認的 self。</p>
+<p><span class="raw-html-m2r"><a id="utils.Container.Flag"></a></span></p>
+</section>
+</section>
+<section id="id12">
+<h2>Flag<a class="headerlink" href="#id12" title="本標頭的永久連結"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Flag</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>這是一個同步對象，用於在 Configer 中定義配置。它受到 TensorFlow 中 absl 旗標的啟發。
+雖然這個類在目前並不常用，但我們保留了這個類以保持與 easy_config 早期版本的兼容性。
+如果有必要，你仍然可以使用它。</p>
+<p><span class="raw-html-m2r"><a id="utils.Container.Flag.__new__"></a></span></p>
+<section id="id13">
+<h3>__new__<a class="headerlink" href="#id13" title="本標頭的永久連結"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>覆寫 <strong>new</strong> 魔法方法。<strong>new</strong> 用於在調用 <strong>init</strong> 之前創建類的實例，因此我們在此處設置單例護衛(singleton guard)，以實現單例設計模式。</p>
+<p><strong>Arguments</strong>:</p>
+<blockquote>
+<div><p><cite>*args, **kwargs</cite> : 將被傳遞給 FLAG_spec 實例，它是單例實例。</p>
+</div></blockquote>
+<p><strong>Returns</strong>:</p>
+<blockquote>
+<div><p>FLAG_spec，一個同步配置對象。</p>
+</div></blockquote>
+<p><span class="raw-html-m2r"><a id="utils.Container.Flag.FLAGS"></a></span></p>
+</section>
+<section id="id14">
+<h3>FLAGS<a class="headerlink" href="#id14" title="本標頭的永久連結"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@property</span>
+<span class="k">def</span> <span class="nf">FLAGS</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>用於訪問 FLAG_spec 對象的介面。</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="api_IO_Converter.html" class="btn btn-neutral float-left" title="IO_Converter" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="api_Type_Convertor.html" class="btn btn-neutral float-right" title="utils.Type_Convertor" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版權所有 2024, JosefHuang。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

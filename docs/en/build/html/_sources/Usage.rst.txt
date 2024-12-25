@@ -15,6 +15,7 @@ Let's give a deep-learning example ~
 
 .. code-block:: ini
 
+   root_dir = '/workspace'
    glb_seed = 42
    exp_id = '0001'
 
@@ -22,7 +23,7 @@ Let's give a deep-learning example ~
    # i.e. we can assign dict dataset to subroutine by `build_dataset(**cfg.dataset)`, just such easy!!
    [dataset]   
        service_port = 65536
-       path = '/data/kitti'
+       path = "${cfg.root_dir}/data/kitti"
        # of course, nested dict is also supported! it just the native python dictionary in dictionary!
        [dataset.loader]
            batch_size = 32
@@ -91,7 +92,7 @@ Thanks to *python format-string via ${...}* and  *customized register method `re
                service_port = 65536
 
                # Don't forgot to regist Path object first and the typename will be the given name!!
-               path = {'path':'/data/kitti'}@pyPath
+               path = ['/data/kitti']@pyPath
 
                [dataset.loader]
                    batch_size = 32
@@ -181,7 +182,7 @@ Now you can access each ``lev`` :
    glb_var = 42@int
    [dataset]         
        ds_type = None
-       path = {'root':'/data/kitti'}@Path
+       path = ['/data/kitti']@Path
        [dataset.loader]
            batch_size = 32@int
 
@@ -195,7 +196,7 @@ Update flatten argument and print out the helper information :raw-html-m2r:`<br>
 ``python quick_hier.py glb_var=404 -h``
 
 Especially update **non-flatten argument**\ , you can access any argument at any level by dot-access in commend-line!! (with combining any argument update). Now, try to change any nested argument :raw-html-m2r:`<br>`
-``python quick_hier.py dataset.ds_type="'kitti'" dataset.path="{'path':'/root/ds'}" dataset.loader.batch_size=48``
+``python quick_hier.py dataset.ds_type="'kitti'" dataset.path=['/root/ds'] dataset.loader.batch_size=48``
 
 ( Note that the commendline declaration for string is tricky, but currently we only support two way for that : 
     ``dataset.ds_type="'kitti'"`` or ``dataset.ds_type=kitti@str``\ , pick up one of you like ~ )
@@ -242,6 +243,62 @@ Also note that sub-config doesn't allow you override the declared argument by de
        # and yes, interpolation is still valid "after" the reference argument is declared!
            lay_seed = ${cfg.glb_seed}
 
+Also note that we still recommend you create several config instance and merge it in 2. way, if you want to merge it with overwriting manner. Instead of acting like omegaconf, it dynamically overwrite your config silently..
+
+..
+
+    If you **still** want to overwrite the config (act like omegaconf), turn the flag allow_overwrite as True. i.e. ``cfg.cfg_from_ini(..., allow_overwrite=True)``, ``cfg.cfg_from_str(..., allow_overwrite=True)``. The sub-config will follow the flag setting to overwrite the config. Be careful of the order, the **imported sub-configs** are considered as **'default setup'**, the main config (which import sub-configs) setup will overwrite its.  
+
+.. code-block:: ini
+        
+    # ./base_cfg.ini
+
+    # note that the order between defined arguments and imported sub-config do affect the final value of arguments!
+    glb_seed = 42
+
+    # import several default setup :
+    > ./config/ds_config.ini
+    > ./config/model_config.ini
+
+    [dataset]       
+        n_worker = 8
+
+    [model]
+        n_blk = 2
+
+    # ./config/ds_config.ini
+    [dataset]
+        n_worker = 1
+        path = ['/data/kitti']@pyPath
+        [dataset.loader]
+            batch_size = 32@int
+
+    # ./root/config/model_config.ini
+    [model]
+        mod_typ = 'resnet'
+        n_blk = 1
+        [model.optimizer]
+        # and yes, interpolation is still valid "after" the reference argument is declared!
+            lay_seed = ${cfg.glb_seed}
+
+After dynamic loading :
+
+.. code-block:: ini
+
+    glb_seed = 42
+
+    [dataset]       
+        n_worker = 8  # overwrited by base_cfg.ini
+        path = ['/data/kitti']@pyPath
+        [dataset.loader]
+            batch_size = 32@int
+
+    [model]
+        n_blk = 2 # overwrited by base_cfg.ini
+        mod_typ = 'resnet'
+        [model.optimizer]
+            lay_seed = 42
+            
 ----
 
 5. Config Operation ⛩️

@@ -11,7 +11,7 @@
 #. **透過 pypi 下載** :raw-html-m2r:`<br>`
     簡易的輸入 ``pip install easy_configer`` 指令於您的命令提示字元 (因為套件名稱衝突，在pypi是使用不同的套件名稱)
 #. **透過原始碼下載** :raw-html-m2r:`<br>`
-    從 github 克隆專案至本地端 : ``git clone repo-link`` 
+    從 github 克隆專案至本地端 : ``git clone https://github.com/HuangChiEn/easy_config.git`` 
     切換到克隆專案的根目錄，並輸入 ``pip install -e .``
 #. **import 語法** :raw-html-m2r:`<br>`
     不管您如何安裝套件，我們統一使用以下 ``from easy_configer.Configer import Configer`` 

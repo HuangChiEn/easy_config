@@ -9,7 +9,7 @@ import os
 project = 'easy_configer'
 copyright = '2024, JosefHuang'
 author = 'JosefHuang'
-release = 'v2.5.3'
+release = 'v2.5.5'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

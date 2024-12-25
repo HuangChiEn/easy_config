@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="jp" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>常用参考情报 &mdash; easy_configer v2.3.2 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+      <link rel="stylesheet" href="_static/fonts.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="パッケージ関連情報" href="Metainfo.html" />
+    <link rel="prev" title="クイックスタート" href="Quick.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            easy_configer
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="About.html">このプロジェクトについて</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Installation.html">ダウンロードの手順</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Quick.html">クイックスタート</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">常用参考情报</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id2">1. 階層化配置の定義方法 🖋️</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">2. 素早くすべての構成パラメータにアクセスできるようにします 🔓</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id4">3. コマンドラインのサポート ⌨️</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id5">4. サブコンフィグをロードします 🎎</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id6">5. コンフィグ運算子 ⛩️</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#io">6. IO変換機能 🐙</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#absl">7. Abslスタイルのフラグパラメータ 🏳️</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Metainfo.html">パッケージ関連情報</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">easy_configer</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">常用参考情报</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/Usage.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="id1">
+<h1>常用参考情报<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h1>
+<section id="id2">
+<h2>1. 階層化配置の定義方法 🖋️<a class="headerlink" href="#id2" title="Permalink to this heading"></a></h2>
+<p>Easy-configでは、2つのパラメータの準備方法があります：フラットパラメータを定義するか、複数のパラメータを階層化してグループ化することができます（2番目のレベルから）。
+ほとんどの場合、フラットパラメータをグローバル設定として定義し、残りのパラメータを対応する辞書に配置して、サブプロシージャに割り当てやすくします。
+ディープラーニングの例を挙げてみましょう。</p>
+<p><em>hier_cfg.ini あなたの作業ディレクトリに置いておきます</em></p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="na">glb_seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">42</span>
+<span class="na">exp_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;0001&#39;</span>
+
+<span class="c1"># we call &#39;...&#39; in [...] as section name,</span>
+<span class="c1"># i.e. we can assign dict dataset to subroutine by `build_dataset(**cfg.dataset)`, just such easy!!</span>
+<span class="k">[dataset]</span>
+<span class="w">    </span><span class="na">service_port</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">65536</span>
+<span class="w">    </span><span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;/data/kitti&#39;</span>
+<span class="w">    </span><span class="c1"># of course, nested dict is also supported! it just the native python dictionary in dictionary!</span>
+<span class="w">    </span><span class="k">[dataset.loader]</span>
+<span class="w">        </span><span class="na">batch_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">32</span>
+
+<span class="k">[model]</span>
+<span class="w">    </span><span class="k">[model.backbone]</span>
+<span class="w">        </span><span class="na">mod_typ</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;resnet&#39;</span>
+<span class="w">        </span><span class="k">[model.backbone.optimizer]</span>
+<span class="w">            </span><span class="na">lay_seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">42</span>
+
+<span class="k">[train_cfg]</span>
+<span class="w">    </span><span class="na">batch_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">32</span>
+<span class="w">    </span><span class="k">[train_cfg.opt]</span>
+<span class="w">        </span><span class="na">opt_typ</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;Adam&#39;</span>
+<span class="w">        </span><span class="na">lr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1e-4</span>
+<span class="w">        </span><span class="na">sched</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;cos_anneal&#39;</span>
+</pre></div>
+</div>
+<p>構成ファイルが定義されています， <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">quick_hier.py</span></code> を実行して、どのようにパラメータにアクセスするかを確認してみましょう。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">easy_configer.Configer</span> <span class="kn">import</span> <span class="n">Configer</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">cfger</span> <span class="o">=</span> <span class="n">Configer</span><span class="p">(</span><span class="n">cmd_args</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># omit cfg_from_str, hier-config also could be declared in str though ~</span>
+    <span class="n">cfger</span><span class="o">.</span><span class="n">cfg_from_ini</span><span class="p">(</span><span class="s2">&quot;./hier_cfg.ini&quot;</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="n">cfger</span><span class="o">.</span><span class="n">dataset</span><span class="p">)</span>
+    <span class="c1"># output nested dict : { &#39;service_port&#39;:65536, &#39;path&#39;:&#39;/data/kitti&#39;, &#39;loader&#39;:{&#39;batch_size&#39;:32} }</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;key-string access bz : </span><span class="si">{</span><span class="n">cfger</span><span class="o">.</span><span class="n">dataset</span><span class="p">[</span><span class="s1">&#39;loader&#39;</span><span class="p">][</span><span class="s1">&#39;batch_size&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="c1"># output - &quot;key-string access bz : 32&quot;</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;bz : </span><span class="si">{</span><span class="n">cfger</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">batch_size</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="c1"># output - &quot;dot-access bz : 32&quot;</span>
+
+    <span class="c1"># we usually conduct initialization such simple &amp; elegant!</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">build_dataset</span><span class="p">(</span><span class="o">**</span><span class="n">cfger</span><span class="o">.</span><span class="n">dataset</span><span class="p">)</span>
+    <span class="n">mod</span> <span class="o">=</span> <span class="n">build_model</span><span class="p">(</span><span class="o">**</span><span class="n">cfger</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
+    <span class="o">...</span> <span class="c1"># get torch Trainer</span>
+    <span class="n">Trainer</span><span class="p">(</span><span class="n">mod</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>構成ファイルの構文を改善することができますね。たとえば、 <code class="docutils literal notranslate"><span class="pre">batch_size</span></code> が <code class="docutils literal notranslate"><span class="pre">dataset.loader</span></code> と <code class="docutils literal notranslate"><span class="pre">train_cfg</span></code> の両方で2回定義されています。同様に、 <code class="docutils literal notranslate"><span class="pre">layer_seed</span></code> も同様です。
+また、path がPython文字列として定義されており、さらにPython標準パッケージのPathオブジェクトに変換する必要があります。カスタムデータ型を登録することは可能ですか？
+はい、これらの問題を優雅に解決することができます。パラメータの挿入を使用して最初の問題を解決し、2番目の問題を解決するためにカスタム登録を使用できます。</p>
+<p><em>記号$の設定挿入</em> とカスタム登録メソッド <code class="docutils literal notranslate"><span class="pre">regist_cnvtor</span></code> を使用して、問題を解決できます。</p>
+<blockquote>
+<div><p>現在、私たちは異なるネストされた辞書レベルの　<strong>任意のパラメータ</strong>　に対して挿入をサポートしています。さらに、bashの環境変数にアクセスするために　<strong>$Env</strong>　をサポートしています！</p>
+</div></blockquote>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># For convience, we define string-config!</span>
+<span class="k">def</span> <span class="nf">get_str_cfg</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39; # `export glb_seed=42` in bash!!</span>
+<span class="sd">        glb_seed = ${env.glb_seed}@int   # or ${env.glb_seed} for short</span>
+<span class="sd">        exp_id = &#39;0001&#39;</span>
+
+<span class="sd">        [dataset]</span>
+<span class="sd">            service_port = 65536</span>
+
+<span class="sd">            # Don&#39;t forgot to regist Path object first and the typename will be the given name!!</span>
+<span class="sd">            path = {&#39;path&#39;:&#39;/data/kitti&#39;}@pyPath</span>
+
+<span class="sd">            [dataset.loader]</span>
+<span class="sd">                batch_size = 32</span>
+<span class="sd">                secrete_seed = 55688</span>
+
+<span class="sd">        [model]</span>
+<span class="sd">            [model.backbone]</span>
+<span class="sd">                mod_typ = &#39;resnet&#39;</span>
+<span class="sd">                [model.backbone.optimizer]</span>
+<span class="sd">                    # aweason! but we can do more crazy stuff ~</span>
+<span class="sd">                     lay_seed = ${cfg.glb_seed}</span>
+<span class="sd">                     # &#39;cfg&#39; is used to access the config, feel free to access any arguments defined previsouly!!</span>
+<span class="sd">                     string_seed = &quot;The secrete string in data loader is ${cfg.dataset.loader.secrete_seed}!!&quot;</span>
+
+<span class="sd">        [train_cfg]</span>
+<span class="sd">            batch_size = ${cfg.dataset.loader.batch_size}</span>
+<span class="sd">            exp_id = &quot;${cfg.exp_id}&quot;  # or ${cfg.exp_id}@str, quote can not be omitted!</span>
+<span class="sd">            [train_cfg.opt]</span>
+<span class="sd">                opt_typ = &#39;Adam&#39;</span>
+<span class="sd">                lr = 1e-4</span>
+<span class="sd">                sched = &#39;cos_anneal&#39;</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+<span class="c1"># main_block</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
+    <span class="n">cfger</span> <span class="o">=</span> <span class="n">Configer</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;sample for arguments interpolation&quot;</span><span class="p">)</span>
+    <span class="n">cfger</span><span class="o">.</span><span class="n">regist_cnvtor</span><span class="p">(</span><span class="s2">&quot;pyPath&quot;</span><span class="p">,</span> <span class="n">Path</span><span class="p">)</span>  <span class="c1"># regist customer class &#39;Path&#39;</span>
+
+    <span class="n">cfg_str</span> <span class="o">=</span> <span class="n">get_str_cfg</span><span class="p">()</span>
+    <span class="n">cfger</span><span class="o">.</span><span class="n">cfg_from_str</span><span class="p">(</span><span class="n">cfg_str</span><span class="p">)</span>
+    <span class="c1"># do whatever you want to do!</span>
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="id3">
+<h2>2. 素早くすべての構成パラメータにアクセスできるようにします 🔓<a class="headerlink" href="#id3" title="Permalink to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">easy_configer&gt;=v2.4.0</span></code> では、セクションの下で宣言された各引数は、<code class="docutils literal notranslate"><span class="pre">AttributeDict``と呼ばれる特別な辞書オブジェクトに格納されます（これはネイティブな</span> <span class="pre">Python</span> <span class="pre">の</span> <span class="pre">``dict</span></code> から継承しています）。これは、ネストされたオブジェクトにドット演算子でアクセスできる新しいコンテナです。
+<code class="docutils literal notranslate"><span class="pre">AttributeDict</span></code> についての唯一の落とし穴は、その <code class="docutils literal notranslate"><span class="pre">__dict__</span></code> プロパティにアクセスしてはいけないことです。これは無効化されています。
+簡単なブレーク‵<cite>ポイントを設定して、 ``easy_configer.utils.Container.AttributeDict`</cite> がパラメータのアクセスをどのぐらいにサポートしているかを体験してみましょう。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">easy_configer.Configer</span> <span class="kn">import</span> <span class="n">Configer</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">cfger</span> <span class="o">=</span> <span class="n">Configer</span><span class="p">()</span>
+    <span class="n">cfger</span><span class="o">.</span><span class="n">cfg_from_ini</span><span class="p">(</span><span class="s2">&quot;./hier_cfg.ini&quot;</span><span class="p">)</span>
+    <span class="nb">breakpoint</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>組態ファイルを作成しましょう、　<code class="docutils literal notranslate"><span class="pre">hier_cfg.ini</span></code>!!</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># nested-dict</span>
+<span class="p">[</span><span class="n">secA</span><span class="p">]</span> <span class="c1"># test depth ((sub^4)-section under secA)</span>
+    <span class="n">lev</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="p">[</span><span class="n">secA</span><span class="o">.</span><span class="n">secB</span><span class="p">]</span>
+        <span class="n">lev</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="p">[</span><span class="n">secA</span><span class="o">.</span><span class="n">secB</span><span class="o">.</span><span class="n">secC</span><span class="p">]</span>
+            <span class="n">lev</span> <span class="o">=</span> <span class="mi">3</span>
+            <span class="p">[</span><span class="n">secA</span><span class="o">.</span><span class="n">secB</span><span class="o">.</span><span class="n">secC</span><span class="o">.</span><span class="n">secD</span><span class="p">]</span>
+                <span class="n">lev</span> <span class="o">=</span> <span class="mi">4</span>
+</pre></div>
+</div>
+<p>各階層の <code class="docutils literal notranslate"><span class="pre">lev</span></code> 変数にアクセスできるようにします :</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">(pdb)</span> <span class="pre">cfger.secA.lev</span></code>, 出力 <code class="docutils literal notranslate"><span class="pre">lev</span> <span class="pre">:</span> <span class="pre">1</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">(pdb)</span> <span class="pre">cfger['secA'].secB['lev']</span></code>, 出力 <code class="docutils literal notranslate"><span class="pre">lev</span> <span class="pre">:</span> <span class="pre">2</span></code>, 続く..</p></li>
+<li><p>最もクレイジーな例を示します ~ <code class="docutils literal notranslate"><span class="pre">(pdb)</span> <span class="pre">cfger.secA.['secB'].secC['secD'].lev</span></code>, 出力 <code class="docutils literal notranslate"><span class="pre">lev</span> <span class="pre">:</span> <span class="pre">4</span></code></p></li>
+</ol>
+</section>
+<hr class="docutils" />
+<section id="id4">
+<h2>3. コマンドラインのサポート ⌨️<a class="headerlink" href="#id4" title="Permalink to this heading"></a></h2>
+<blockquote>
+<div><p>同様に <code class="docutils literal notranslate"><span class="pre">hier_cfg.ini</span></code> を例として!</p>
+</div></blockquote>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="c1"># hier_cfg.ini</span>
+<span class="na">glb_var</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">42@int</span>
+<span class="k">[dataset]</span>
+<span class="w">    </span><span class="na">ds_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">None</span>
+<span class="w">    </span><span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">{&#39;root&#39;:&#39;/data/kitti&#39;}@Path</span>
+<span class="w">    </span><span class="k">[dataset.loader]</span>
+<span class="w">        </span><span class="na">batch_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">32@int</span>
+
+<span class="c1"># Hier-Cell cfg written by Josef-Huang..</span>
+</pre></div>
+</div>
+<p>Python　で実行してヘルプ情報を出力します <span class="raw-html-m2r"><br></span>
+<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">quick_hier.py</span> <span class="pre">-h</span></code></p>
+<p>非階層なパラメータを更新して、ヘルプ情報を出力します <span class="raw-html-m2r"><br></span>
+<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">quick_hier.py</span> <span class="pre">glb_var=404</span> <span class="pre">-h</span></code></p>
+<p>特に、 <strong>階層なパラメータ</strong>，について、
+コマンドラインで任意のレベルのパラメータにアクセスし、パラメータを更新できます。現在、任意のネストされたパラメータを変更してみてください。<span class="raw-html-m2r"><br></span>
+<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">quick_hier.py</span> <span class="pre">dataset.ds_type=&quot;'kitti'&quot;</span> <span class="pre">dataset.path=&quot;{'path':'/root/ds'}&quot;</span> <span class="pre">dataset.loader.batch_size=48</span></code></p>
+<dl class="simple">
+<dt>( 文字列の宣言は少し複雑ですが、現時点では2つの方法のみをサポートしています：</dt><dd><p><code class="docutils literal notranslate"><span class="pre">dataset.ds_type=&quot;'kitti'&quot;</span></code> あるいは <code class="docutils literal notranslate"><span class="pre">dataset.ds_type=kitti&#64;str</span></code>、一つ選んでください ~ )</p>
+</dd>
+</dl>
+</section>
+<hr class="docutils" />
+<section id="id5">
+<h2>4. サブコンフィグをロードします 🎎<a class="headerlink" href="#id5" title="Permalink to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">omegaconf</span></code>　のように、多くのユーザーは、構成ファイルを型に基づいて分割し、実行時に動的にマージすることを期待しています。
+これは合理的な要求ですが、以前のバージョンのeasy-configでは、構成ファイルを型に基づいて分割し、実行時に動的に結合することができましたが、これには制限がありました：</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">cfg_from_ini</span></code> を2回呼び出すことができましたが。例えば、 <code class="docutils literal notranslate"><span class="pre">cfg.cfg_from_ini('./base_cfg')</span> <span class="pre">;</span> <span class="pre">cfg.cfg_from_ini('./override_cfg')</span></code>。しかし、これは設定が明確にロードされていないため、可読性が良くないです。</p></li>
+<li><p>設定のマージを使用することもできましたが。例えば、 <code class="docutils literal notranslate"><span class="pre">new_cfg</span> <span class="pre">=</span> <span class="pre">base_cfg</span> <span class="pre">|</span> <span class="pre">override_cfg</span></code>。しかし、数多くの設定をマージする場合には優雅な解決策ではありませんでした。</p></li>
+</ol>
+<p>現在、新しい方法　<strong>sub-config</strong>　を提供します。サブ構成を導入するために、行の先頭に簡単に　<code class="docutils literal notranslate"><span class="pre">&gt;</span></code>　記号を置くことができるようになりました。
+また、サブコンフィグでは、デフォルトでは宣言された引数をオーバーライドすることはできません。これは、引数を動的にオーバーライドするとコンフィグの追跡が困難になるためです。</p>
+<blockquote>
+<div><p>設定をオーバーライドしたい場合は、フラグ <code class="docutils literal notranslate"><span class="pre">allow_override</span></code> を <code class="docutils literal notranslate"><span class="pre">True</span></code> に設定してください。例えば、<code class="docutils literal notranslate"><span class="pre">cfg.cfg_from_ini(...,</span> <span class="pre">allow_override=True)</span></code> や <code class="docutils literal notranslate"><span class="pre">cfg.cfg_from_str(...,</span> <span class="pre">allow_override=True)</span></code> のように指定します。
+サブコンフィグは、フラグの設定に従って設定をオーバーライドするか、<code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code> を発生させます。</p>
+</div></blockquote>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="c1"># ./base_cfg.ini</span>
+<span class="na">glb_seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">42@int</span>
+<span class="k">[dataset]</span>
+<span class="w">    </span><span class="na">&gt; ./config/ds_config.ini</span>
+
+<span class="k">[model]</span>
+<span class="w">    </span><span class="na">&gt; ./root/config/model_config.ini</span>
+
+<span class="c1"># ./config/ds_config.ini</span>
+<span class="na">ds_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">None</span>
+<span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">{&#39;root&#39;:&#39;/data/kitti&#39;}@Path</span>
+<span class="k">[dataset.loader]</span>
+<span class="w">    </span><span class="na">batch_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">32@int</span>
+
+<span class="c1"># ./root/config/model_config.ini</span>
+<span class="k">[model.backbone]</span>
+<span class="w">    </span><span class="na">mod_typ</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;resnet&#39;</span>
+<span class="w">    </span><span class="k">[model.backbone.optimizer]</span>
+<span class="w">    </span><span class="c1"># and yes, interpolation is still valid &quot;after&quot; the reference argument is declared!</span>
+<span class="w">        </span><span class="na">lay_seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${cfg.glb_seed}</span>
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="id6">
+<h2>5. コンフィグ運算子 ⛩️<a class="headerlink" href="#id6" title="Permalink to this heading"></a></h2>
+<p>コンフィグ運算子は、動的構成システムの中核的な技術の1つです。
+以下の例では、マージ構成システムが印象的な階層的なマージ機能を提供していることが示されています。</p>
+<blockquote>
+<div><p>例えば、cfg_a cfg_aの変数はcfg_bで置き換えることができます。ただし、それらは同じセクションブロック内に配置され、
+同じ名前の変数　<code class="docutils literal notranslate"><span class="pre">ghyu.opop.add</span></code>　を持つ必要があります。異なる名前空間は、それらの変数の値を安全に保持します。
+その故に、　<code class="docutils literal notranslate"><span class="pre">ghyu.opop.add</span></code>　の値は67になり、　<code class="docutils literal notranslate"><span class="pre">ghyu.opop.tueo.inpo</span></code>　の値はフラットパラメータinpoを参照して46になります。</p>
+</div></blockquote>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">easy_configer.Configer</span> <span class="kn">import</span> <span class="n">Configer</span>
+
+<span class="k">def</span> <span class="nf">build_cfg_text_a</span><span class="p">():</span>
+    <span class="k">return</span> <span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">    # Initial config file :</span>
+<span class="s1">    inpo = 46@int</span>
+<span class="s1">    [test]</span>
+<span class="s1">        mrg_var_tst = [1, 3, 5]@list</span>
+<span class="s1">        [test.ggap]</span>
+<span class="s1">            gtgt = haha@str</span>
+
+<span class="s1">    [ghyu]</span>
+<span class="s1">        [ghyu.opop]</span>
+<span class="s1">            add = 32@int</span>
+<span class="s1">            [ghyu.opop.tueo]</span>
+<span class="s1">                salt = $</span><span class="si">{cfg.inpo}</span>
+
+<span class="s1">    # Cell cfg written by Josef-Huang..</span>
+<span class="s1">    &#39;&#39;&#39;</span>
+
+<span class="k">def</span> <span class="nf">build_cfg_text_b</span><span class="p">():</span>
+    <span class="k">return</span> <span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">    # Initial config file :</span>
+<span class="s1">    inop = 32@int</span>
+<span class="s1">    [test]</span>
+<span class="s1">        mrg_var_tst = [1, 3, 5]@list</span>
+<span class="s1">        [test.ggap]</span>
+<span class="s1">            gtgt = overrides@str</span>
+<span class="s1">            [test.ggap.conf]</span>
+<span class="s1">                secert = 42@int</span>
+
+<span class="s1">    [ghyu]</span>
+<span class="s1">        [ghyu.opop]</span>
+<span class="s1">            add = 67@int</span>
+<span class="s1">            div = 1e-4@float</span>
+
+<span class="s1">    [new]</span>
+<span class="s1">        [new.new]</span>
+<span class="s1">            newsec = wpeo@str</span>
+<span class="s1">    # Cell cfg written by Josef-Huang..</span>
+<span class="s1">    &#39;&#39;&#39;</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">cfg_a</span> <span class="o">=</span> <span class="n">Configer</span><span class="p">(</span><span class="n">cmd_args</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">cfg_a</span><span class="o">.</span><span class="n">cfg_from_str</span><span class="p">(</span><span class="n">build_cfg_text_a</span><span class="p">())</span>
+
+
+    <span class="n">cfg_b</span> <span class="o">=</span> <span class="n">Configer</span><span class="p">()</span>
+    <span class="n">cfg_b</span><span class="o">.</span><span class="n">cfg_from_str</span><span class="p">(</span><span class="n">build_cfg_text_b</span><span class="p">())</span>
+
+    <span class="c1"># default, override falg is turn off ~</span>
+    <span class="n">cfg_a</span><span class="o">.</span><span class="n">merge_conf</span><span class="p">(</span><span class="n">cfg_b</span><span class="p">,</span> <span class="n">override</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># `cfg_b = cfg_b | cfg_a`, operator support, warn to decrease the read-ability...</span>
+    <span class="c1"># cfg_a will override the argument of cfg_b which share the identitical variable name in cfg_b!</span>
+    <span class="c1"># operator support : `cfg_b |= cfg_a` == `cfg_b = cfg_b | cfg_a`</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+<p><strong>その他の機能</strong></p>
+</section>
+<section id="io">
+<h2>6. IO変換機能 🐙<a class="headerlink" href="#io" title="Permalink to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">easy_configer</span></code> 型の設定を他の設定インスタンスに変換するには、IO コンバータを提供しています。IO コンバータは、いくつかのよく知られた設定タイプをサポートしています。
+以下の例のように、適切な引数を指定してメソッドを呼び出すだけで簡単に利用できます。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">TableConfig</span><span class="p">:</span>
+    <span class="n">rows</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">DatabaseConfig</span><span class="p">:</span>
+    <span class="n">table_cfg</span><span class="p">:</span> <span class="n">TableConfig</span> <span class="o">=</span> <span class="n">TableConfig</span><span class="p">()</span>
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">ModelConfig</span><span class="p">:</span>
+    <span class="n">data_source</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TableConfig</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">ServerConfig</span><span class="p">:</span>
+    <span class="n">db</span><span class="p">:</span> <span class="n">DatabaseConfig</span> <span class="o">=</span> <span class="n">DatabaseConfig</span><span class="p">()</span>
+    <span class="n">model</span><span class="p">:</span> <span class="n">ModelConfig</span> <span class="o">=</span> <span class="n">ModelConfig</span><span class="p">()</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">easy_configer.IO_Converter</span> <span class="kn">import</span> <span class="n">IO_Converter</span>
+
+    <span class="c1"># first import the IO_converter</span>
+    <span class="kn">from</span> <span class="nn">easy_config.IO_Converter</span> <span class="kn">import</span> <span class="n">IO_Converter</span>
+    <span class="n">cnvt</span> <span class="o">=</span> <span class="n">IO_Converter</span><span class="p">()</span>
+
+    <span class="c1"># convert easy_config instance into the argparse instance</span>
+    <span class="n">argp_cfg</span> <span class="o">=</span> <span class="n">cnvt</span><span class="o">.</span><span class="n">cnvt_cfg_to</span><span class="p">(</span><span class="n">cfger</span><span class="p">,</span> <span class="s1">&#39;argparse&#39;</span><span class="p">)</span>
+
+    <span class="n">uargp_cfg</span> <span class="o">=</span> <span class="n">cnvt</span><span class="o">.</span><span class="n">cnvt_cfg_to</span><span class="p">(</span><span class="n">cfger</span><span class="p">,</span> <span class="s1">&#39;argparse&#39;</span><span class="p">,</span> <span class="n">parse_arg</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">argp_cfg</span> <span class="o">=</span> <span class="n">uargp_cfg</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+    <span class="c1">## convert config INTO..</span>
+    <span class="c1"># convert easy_config instance into the omegaconf instance</span>
+    <span class="n">ome_cfg</span> <span class="o">=</span> <span class="n">cnvt</span><span class="o">.</span><span class="n">cnvt_cfg_to</span><span class="p">(</span><span class="n">cfger</span><span class="p">,</span> <span class="s1">&#39;omegaconf&#39;</span><span class="p">)</span>
+
+    <span class="c1"># convert easy_config instance into the &quot;yaml string&quot;</span>
+    <span class="n">yaml_cfg</span> <span class="o">=</span> <span class="n">cnvt</span><span class="o">.</span><span class="n">cnvt_cfg_to</span><span class="p">(</span><span class="n">cfger</span><span class="p">,</span> <span class="s1">&#39;yaml&#39;</span><span class="p">)</span>
+
+    <span class="c1"># convert easy_config instance into the &quot;dict&quot;</span>
+    <span class="n">yaml_cfg</span> <span class="o">=</span> <span class="n">cnvt</span><span class="o">.</span><span class="n">cnvt_cfg_to</span><span class="p">(</span><span class="n">cfger</span><span class="p">,</span> <span class="s1">&#39;dict&#39;</span><span class="p">)</span>
+
+    <span class="c1">## convert into easy-config FROM..</span>
+    <span class="c1"># argparse, omegaconf, yaml, dict ... is supported</span>
+    <span class="n">ez_cfg</span> <span class="o">=</span> <span class="n">cnvt</span><span class="o">.</span><span class="n">cnvt_cfg_from</span><span class="p">(</span><span class="n">argp_cfg</span><span class="p">,</span> <span class="s1">&#39;omegaconf&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Especially, it support &quot;dataclass&quot;!</span>
+    <span class="n">ds_cfg</span> <span class="o">=</span> <span class="n">ServerConfig</span><span class="p">()</span>
+    <span class="n">ez_cfg</span> <span class="o">=</span> <span class="n">cnvt</span><span class="o">.</span><span class="n">cnvt_cfg_from</span><span class="p">(</span><span class="n">ds_cfg</span><span class="p">,</span> <span class="s1">&#39;dataclass&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="absl">
+<h2>7. Abslスタイルのフラグパラメータ 🏳️<a class="headerlink" href="#absl" title="Permalink to this heading"></a></h2>
+<blockquote>
+<div><p>同じ構成ファイルに再宣言することなく、異なるPythonファイルで同じ構成ファイルにアクセスできる機能があります。
+同じ作業ディレクトリに utils.py というファイルを作成しました。</p>
+</div></blockquote>
+<p><code class="docutils literal notranslate"><span class="pre">main.py</span></code>を実行したとします :</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">easy_configer.Configer</span> <span class="kn">import</span> <span class="n">Configer</span>
+<span class="kn">from</span> <span class="nn">utils</span> <span class="kn">import</span> <span class="n">get_var_from_flag</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+   <span class="n">cfg</span> <span class="o">=</span> <span class="n">Configer</span><span class="p">()</span>
+   <span class="n">cfg</span><span class="o">.</span><span class="n">cfg_from_str</span><span class="p">(</span><span class="s2">&quot;var = 32&quot;</span><span class="p">)</span>
+
+   <span class="c1"># both should output 32 ~</span>
+   <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;var from main : </span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">var</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+   <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;var from flag : </span><span class="si">{</span><span class="w"> </span><span class="n">get_var_from_flag</span><span class="p">()</span><span class="w"> </span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">get_var_from_flag</span></code> 関数が別のファイルにある場合、その関数に入るとします。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">easy_configer.Configer</span> <span class="kn">import</span> <span class="n">Configer</span>
+
+<span class="k">def</span> <span class="nf">get_n_blk_from_flag</span><span class="p">():</span>
+    <span class="n">new_cfger</span> <span class="o">=</span> <span class="n">Configer</span><span class="p">()</span>
+    <span class="n">flag</span> <span class="o">=</span> <span class="n">new_cfger</span><span class="o">.</span><span class="n">get_cfg_flag</span><span class="p">()</span>
+    <span class="c1"># test to get the pre-defined &#39;var&#39;</span>
+    <span class="k">return</span> <span class="n">flag</span><span class="o">.</span><span class="n">var</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="Quick.html" class="btn btn-neutral float-left" title="クイックスタート" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Metainfo.html" class="btn btn-neutral float-right" title="パッケージ関連情報" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, JosefHuang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
