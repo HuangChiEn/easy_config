@@ -1,6 +1,8 @@
 # Project description
 #### easy_configer version : 2.5.6
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/HuangChiEn/easy_config/main.yaml?branch=master&event=push&style=for-the-badge&label=unittest&color=green)
+[![PyPI version](https://badge.fury.io/py/easy-configer.svg?icon=si%3Apython)](https://badge.fury.io/py/easy-configer)
+[![Documentation](https://img.shields.io/badge/documentation-link-blue.svg)](https://easy-configer.readthedocs.io/)
 
 ![easy-configer logo](https://raw.githubusercontent.com/HuangChiEn/easy_config/master/assets/logo.png)
 

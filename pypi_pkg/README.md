@@ -1,12 +1,15 @@
 # Project description
 #### easy_configer version : 2.5.6
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/HuangChiEn/easy_config/main.yaml?branch=master&event=push&style=for-the-badge&label=unittest&color=green)
+[![PyPI version](https://badge.fury.io/py/easy-configer.svg?icon=si%3Apython)](https://badge.fury.io/py/easy-configer)
+[![Documentation](https://img.shields.io/badge/documentation-link-blue.svg)](https://easy-configer.readthedocs.io/)
 
 ![easy-configer logo](https://raw.githubusercontent.com/HuangChiEn/easy_config/master/assets/logo.png)
 
 ---
 ### Package demo ~
-🚧 temporary not avaliable, because we plain to insert demo video directly..
+https://github.com/user-attachments/assets/1d6f43a4-f621-433c-a6c0-d267c7b32399
+> The demo video only cover basic functionality of easy_configer, more examples plz refer the doc below..
 
 ---
 
