@@ -47,7 +47,10 @@
               <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">このプロジェクトについて</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#id2">序文 ✨</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id3">開発の背景について 📝</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">開発の背景について 📝</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#easy-configer">🙋‍♂️ なぜ easy_configer ?</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="Installation.html">ダウンロードの手順</a></li>
@@ -95,6 +98,8 @@
 </section>
 <section id="id3">
 <h2>開発の背景について 📝<a class="headerlink" href="#id3" title="Permalink to this heading"></a></h2>
+<section id="easy-configer">
+<h3>🙋‍♂️ なぜ easy_configer ?<a class="headerlink" href="#easy-configer" title="Permalink to this heading"></a></h3>
 <p>大規模なプロジェクトでの複雑な業務ロジックを制御するために、多くのパラメータが必要とされます。
 そして、このツールが使いやすくなることで、ユーザーがこれらのパラメータを簡単に制御できることが期待されています。
 現在、多くのパッケージがこの機能を提供していますが、完全な解決策は見当たらないと述べています。
@@ -116,25 +121,44 @@
 <span class="o">...</span>
 <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
 <span class="n">args</span><span class="o">.</span><span class="n">lucky_num</span>
+
+<span class="c1">## Omegaconf</span>
+<span class="kn">from</span> <span class="nn">omegaconf</span> <span class="kn">import</span> <span class="n">OmegaConf</span>
+<span class="n">conf</span> <span class="o">=</span> <span class="n">OmegaConf</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;source/example.yaml&#39;</span><span class="p">)</span>
+<span class="n">conf</span><span class="o">.</span><span class="n">player</span><span class="o">.</span><span class="n">height</span>
 </pre></div>
 </div>
+<p>omegaconf　以外のほとんどの設定ツールは、設定引数を読み込んでアクセスするために冗長な構文が多くあります。
+しかし、「omegaconf」にはいくつかの欠点もあります：</p>
+<ol class="arabic simple">
+<li><p>依存関係が多すぎる（バージョンの互換性が問題になる可能性がある！）</p></li>
+<li><p>動的な設定読み込みシステムが追跡しづらい（どの設定が私のデフォルト設定を上書きしたのかが分かりづらい）</p></li>
+<li><p>ネイティブではないコンテナ（Mappableオブジェクトが適用されるため、さらに変換するにはto_containerを適用する必要がある）</p></li>
+</ol>
 <p>これを受けて、私はこれらの問題に対処する新しい解決策を提案します。
 easy_configerには、以下の特長が含まれます：</p>
 <ol class="arabic simple">
+<li><p>ゼロ依存関係！！（他の設定ツールインスタンスに変換したい場合を除く）</p></li>
+<li><p>柔軟な適用 <code class="code docutils literal notranslate"><span class="pre">allow_overwrite=False</span></code> を設定すれば、上書きされた引数を簡単に検出できます。</p></li>
+<li><p>当社のコンテナは純粋なPythonの辞書を継承！ほとんどの辞書メソッドもそのまま使用可能です。</p></li>
+</ol>
+<p>私のソリューションは、以下の属性にも対応しています：</p>
+<ol class="arabic simple">
 <li><p><strong>階層的なコンフィグ　(多層次的字典結構)</strong></p></li>
-<li><p><strong>複数の設定ファイルを受け入れ、動的な読み込みをサポート</strong></p></li>
-<li><p><strong>カスタムデータ型のサポート（キーワードパラメータによってクラスを初期化します）</strong></p></li>
-<li><p><strong>コマンドラインで任意の設定値を更新できます。その値の階層に関係なく</strong></p></li>
-<li><p><strong>abslスタイルのフラグ機能をサポート</strong></p></li>
+<li><p><strong>複数の設定ファイルを受け入れ、動的な読み込みをサポート (omegaconfみたいです)</strong></p></li>
+<li><p><strong>カスタムデータ型のサポート（キーワード、リスト パラメータによってクラスを初期化します）</strong></p></li>
+<li><p><strong>コマンドラインで任意の設定値を作って更新できます。その値の階層に関係なく</strong></p></li>
+<li><p><strong>abslスタイルのフラグ機能をサポート (一度定義して、どこでも使えます)</strong></p></li>
 </ol>
 <p>また、解決策は以下の機能もサポートしています：</p>
 <ul class="simple">
 <li><p>どんなパラメータでもドット演算子を使用してアクセスできます（辞書内の辞書のパラメータでも）</p></li>
 <li><p>行内での &quot;#&quot; を使用したコメントアウトが可能です</p></li>
 <li><p>シングルラインでコンフィグのパラメータ補間をサポートします！！</p></li>
-<li><p>easy_configを他の設定パッケージ（omegaconf、argparse、...などのサードパーティパッケージ）のコンフィグに変換することが可能です</p></li>
+<li><p>easy_configを他の設定パッケージのコンフィグに変換することが可能です (omegaconf、argparse、...などのサードパーティパッケージ)</p></li>
 <li><p>ダイナミックに多層的なコンフィグをオーバーロードをシステムをサポートします ~</p></li>
 </ul>
+</section>
 </section>
 </section>
 

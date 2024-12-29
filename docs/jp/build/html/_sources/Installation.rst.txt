@@ -12,7 +12,7 @@
     コマンドプロンプトで簡単に　``pip install easy_configer``　コマンドを入力します（パッケージ名の衝突のため、pypiでは異なるパッケージ名が使用されます）
     
 #. **ソースコードでビルド** :raw-html-m2r:`<br>`
-    GitHubからプロジェクトをクローンしてローカルに取得します： ``git clone repo-link`` 
+    GitHubからプロジェクトをクローンしてローカルに取得します： ``git clone https://github.com/HuangChiEn/easy_config.git`` 
     クローンしたプロジェクトのルートディレクトリに移動し　``pip install -e .``　を入力します。
 
 #. **importの構文** :raw-html-m2r:`<br>`

@@ -9,7 +9,7 @@ import os
 project = 'easy_configer'
 copyright = '2024, JosefHuang'
 author = 'JosefHuang'
-release = 'v2.3.2'
+release = 'v2.5.5'
 language = 'zh_TW'  
 
 # -- General configuration ---------------------------------------------------

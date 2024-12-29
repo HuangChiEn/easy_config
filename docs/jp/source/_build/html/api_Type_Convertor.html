@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="jp" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>utils.Type_Convertor &mdash; easy_configer v2.3.2 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+      <link rel="stylesheet" href="_static/fonts.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="utils.Container" href="api_Container.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            easy_configer
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">コンテンツ</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="About.html">このプロジェクトについて</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Installation.html">ダウンロードの手順</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Quick.html">クイックスタート</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Usage.html">常用参考情报</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Metainfo.html">パッケージ関連情報</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API ドキュメント</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="api_Configer.html">Configer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_IO_Converter.html">IO_Converter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_Container.html">utils.Container</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">utils.Type_Convertor</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id2">Type_Convertor</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id3">__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">convert</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">regist_cnvtor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id6">regist_filter</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">easy_configer</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">utils.Type_Convertor</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/api_Type_Convertor.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="utils-type-convertor">
+<h1>utils.Type_Convertor<a class="headerlink" href="#utils-type-convertor" title="Permalink to this heading"></a></h1>
+<ul class="simple">
+<li><p><a class="reference external" href="#utils.Type_Convertor">utils.Type_Convertor</a></p>
+<ul>
+<li><p><a class="reference external" href="#utils.Type_Convertor.Type_Convertor">Type_Convertor</a></p>
+<ul>
+<li><p><a class="reference external" href="#utils.Type_Convertor.Type_Convertor.__init__">__init__</a></p></li>
+<li><p><a class="reference external" href="#utils.Type_Convertor.Type_Convertor.convert">convert</a></p></li>
+<li><p><a class="reference external" href="#utils.Type_Convertor.Type_Convertor.regist_cnvtor">regist_cnvtor</a></p></li>
+<li><p><a class="reference external" href="#utils.Type_Convertor.Type_Convertor.regist_filter">regist_filter</a></p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><span class="raw-html-m2r"><a id="utils.Type_Convertor.Type_Convertor"></a></span></p>
+<section id="id2">
+<h2>Type_Convertor<a class="headerlink" href="#id2" title="Permalink to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Type_Convertor</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>このヘルパークラスは、設定文字列を対応する型の値にパースすることを目的としています。
+セキュリティ上の問題に配慮して、<code class="docutils literal notranslate"><span class="pre">eval()</span></code> を使って危険なコードをパースすることを防止しています。その代わりに、ast.literal_eval()を使用してパース機能を制限しており、デフォルトの型変換ツールを自由に使用できます。</p>
+<p><span class="raw-html-m2r"><a id="utils.Type_Convertor.Type_Convertor.__init__"></a></span></p>
+<section id="id3">
+<h3>__init__<a class="headerlink" href="#id3" title="Permalink to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="n">typ_split_chr</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;@&#39;</span><span class="p">,</span> <span class="n">filter_split_chr</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39; | &#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>type convertor のコンストラクタ。</p>
+<p><strong>Arguments</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">typ_split_chr</span></code> <em>str, option</em> - 設定ファイル内で宣言文字列を分割するために使用される文字。例えば、<code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">=</span> <span class="pre">13&#64;int</span></code> のように、'a' は整数型データであり、<code class="docutils literal notranslate"><span class="pre">&#64;</span></code> は <code class="docutils literal notranslate"><span class="pre">typ_split_chr</span></code> です。デフォルト値は <code class="docutils literal notranslate"><span class="pre">&#64;</span></code>。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">filter_split_chr</span></code> <em>str, option</em> - 値文字列を分割して、解析された値に対する「後処理」を指定するための文字。例えば、<code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">=</span> <span class="pre">hello&#64;str</span> <span class="pre">|</span> <span class="pre">upper</span></code> のように、upper は後処理として 'a' を大文字に変換します。デフォルト値は <code class="docutils literal notranslate"><span class="pre">|</span></code>。</p></li>
+</ul>
+<p><span class="raw-html-m2r"><a id="utils.Type_Convertor.Type_Convertor.convert"></a></span></p>
+</section>
+<section id="id4">
+<h3>convert<a class="headerlink" href="#id4" title="Permalink to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="n">cfg_raw_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">tmp_cfg_node</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Arguments</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">cfg_raw_str</span></code> <em>str</em> - 設定ファイルで使用されるのと同じ構文で引数を宣言する文字列。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tmp_cfg_node</span></code> <em>AttributeDict</em> - 引数を補完するために使用されるコンテナ。設定に定義されたすべての引数が格納されます。デフォルトは <code class="docutils literal notranslate"><span class="pre">None</span></code>。</p></li>
+</ul>
+<p><span class="raw-html-m2r"><a id="utils.Type_Convertor.Type_Convertor.regist_cnvtor"></a></span></p>
+</section>
+<section id="id5">
+<h3>regist_cnvtor<a class="headerlink" href="#id5" title="Permalink to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">regist_cnvtor</span><span class="p">(</span><span class="n">type_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">cnvt_func</span><span class="p">:</span> <span class="nb">callable</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>カスタマイズしたクラスの登録を行います。</p>
+<p><strong>Arguments</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">type_name</span></code> <em>str</em> - 登録する関数の名前、すなわちカスタマイズしたクラスの名前。デフォルトは <code class="docutils literal notranslate"><span class="pre">None</span></code>。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cnvt_func</span></code> <em>callable</em> - 文字列オブジェクトをカスタムクラスのインスタンスに変換するための関数。デフォルトは <code class="docutils literal notranslate"><span class="pre">None</span></code>。</p></li>
+</ul>
+<p><span class="raw-html-m2r"><a id="utils.Type_Convertor.Type_Convertor.regist_filter"></a></span></p>
+</section>
+<section id="id6">
+<h3>regist_filter<a class="headerlink" href="#id6" title="Permalink to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">regist_filter</span><span class="p">(</span><span class="n">filter_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">filter_func</span><span class="p">:</span> <span class="nb">callable</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>後処理関数を登録します。</p>
+<p><strong>Arguments</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">type_name</span></code> <em>str</em> - 登録する関数の名前。デフォルトは <code class="docutils literal notranslate"><span class="pre">None</span></code>。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cnvt_func</span></code> <em>callable</em> - 文字列オブジェクトをカスタムクラスのインスタンスに変換するための後処理関数。デフォルトは <code class="docutils literal notranslate"><span class="pre">None</span></code>。</p></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="api_Container.html" class="btn btn-neutral float-left" title="utils.Container" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, JosefHuang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

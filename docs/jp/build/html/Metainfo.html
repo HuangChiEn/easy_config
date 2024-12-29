@@ -87,25 +87,25 @@
 <section id="id2">
 <h2>新機能 🚀<a class="headerlink" href="#id2" title="Permalink to this heading"></a></h2>
 <ol class="arabic simple">
-<li><p>すべてのテストケースを有効にする上に、v2.5.2は安定バージョンです</p></li>
-<li><p>${cfg}でコンフィグのパラメータ補間を機能します</p></li>
-<li><p>${env}で環境変数のパラメータ補間を機能します</p></li>
+<li><p>v2.5.4は安定バージョンですが、このバージョンではさらに多くのテストケースを追加しました（現在はより安定しています）~</p></li>
+<li><p>${cfg}と${env}でを引数として適用し、それぞれコンフィグのパラメータと環境の補完表記として使用します。</p></li>
+<li><p>AttributeDict　コンテナを適用します（これは純粋なPythonの辞書を継承しており）非フラットな引数を保存するために使用されます！</p></li>
 </ol>
 </section>
 <hr class="docutils" />
 <section id="todo">
 <h2>TODOリスト 🔨<a class="headerlink" href="#todo" title="Permalink to this heading"></a></h2>
 <ol class="arabic simple">
-<li><p>より良いeasy-config <strong>コンフィグの構文設計</strong>〜</p></li>
+<li><p>コンフィグのインスタンスには AttributeDict を適用します。</p></li>
 </ol>
 <blockquote>
-<div><p>次のバージョンリリースの機能 v 2.6</p>
+<div><p>次のバージョンリリースの機能 v 3.0</p>
 </div></blockquote>
 </section>
 <section id="id3">
 <h2>修正されたバグ 🐛<a class="headerlink" href="#id3" title="Permalink to this heading"></a></h2>
-<p>パケットの安全対策について、”シングルライン(一行)python実行”の機能をロールバックします
-静かにコンフィグをオーバライドするバッグをHot-fixしました、allow_overrideのフラグも付きました。</p>
+<p>AttributeDict にホットフィックスを適用し、NoAttributeError を発生させるようにしました。
+コンフィグのパラメータの上書きバグを修正し、allow_overwrite をサポートするフラグを追加しました。</p>
 </section>
 <hr class="docutils" />
 <section id="id4">

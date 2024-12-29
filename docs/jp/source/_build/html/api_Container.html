@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="jp" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>utils.Container &mdash; easy_configer v2.3.2 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+      <link rel="stylesheet" href="_static/fonts.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="utils.Type_Convertor" href="api_Type_Convertor.html" />
+    <link rel="prev" title="IO_Converter" href="api_IO_Converter.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            easy_configer
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">コンテンツ</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="About.html">このプロジェクトについて</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Installation.html">ダウンロードの手順</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Quick.html">クイックスタート</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Usage.html">常用参考情报</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Metainfo.html">パッケージ関連情報</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API ドキュメント</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="api_Configer.html">Configer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_IO_Converter.html">IO_Converter</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">utils.Container</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id2">AttributeDict</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id3">__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">__getattribute__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">__getattr__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id6">set_attr_dict</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id7">__setattr__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id8">__setitem__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id9">__deepcopy__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id10">__getstate__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id11">__setstate__</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id12">Flag</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id13">__new__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id14">FLAGS</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api_Type_Convertor.html">utils.Type_Convertor</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">easy_configer</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">utils.Container</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/api_Container.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="utils-container">
+<h1>utils.Container<a class="headerlink" href="#utils-container" title="Permalink to this heading"></a></h1>
+<ul class="simple">
+<li><p><a class="reference external" href="#utils.Container">utils.Container</a></p>
+<ul>
+<li><p><a class="reference external" href="#utils.Container.AttributeDict">AttributeDict</a></p>
+<ul>
+<li><p><a class="reference external" href="#utils.Container.AttributeDict.__init__">__init__</a></p></li>
+<li><p><a class="reference external" href="#utils.Container.AttributeDict.__getattribute__">__getattribute__</a></p></li>
+<li><p><a class="reference external" href="#utils.Container.AttributeDict.__getattr__">__getattr__</a></p></li>
+<li><p><a class="reference external" href="#utils.Container.AttributeDict.set_attr_dict">set_attr_dict</a></p></li>
+<li><p><a class="reference external" href="#utils.Container.AttributeDict.__setattr__">__setattr__</a></p></li>
+<li><p><a class="reference external" href="#utils.Container.AttributeDict.__setitem__">__setitem__</a></p></li>
+<li><p><a class="reference external" href="#utils.Container.AttributeDict.__deepcopy__">__deepcopy__</a></p></li>
+<li><p><a class="reference external" href="#utils.Container.AttributeDict.__getstate__">__getstate__</a></p></li>
+<li><p><a class="reference external" href="#utils.Container.AttributeDict.__setstate__">__setstate__</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference external" href="#utils.Container.Flag">Flag</a></p>
+<ul>
+<li><p><a class="reference external" href="#utils.Container.Flag.__new__">__new__</a></p></li>
+<li><p><a class="reference external" href="#utils.Container.Flag.FLAGS">FLAGS</a></p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><span class="raw-html-m2r"><a id="utils.Container.AttributeDict"></a></span></p>
+<section id="id2">
+<h2>AttributeDict<a class="headerlink" href="#id2" title="Permalink to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">AttributeDict</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>設定で定義されたネストされた引数を格納するための辞書のようなコンテナです。
+このコンテナは Python のネイティブ dict（基底クラス）を継承しているため、引数は基本的な辞書の方法で格納されます。
+具体的には、<code class="docutils literal notranslate"><span class="pre">dict[key]</span> <span class="pre">=</span> <span class="pre">value</span></code> という方法で格納され、サブクラス内で <code class="docutils literal notranslate"><span class="pre">super().__setitem__(key,</span> <span class="pre">value)</span></code> を呼び出します。
+また、<code class="docutils literal notranslate"><span class="pre">self.__setattr__</span></code> も内部で <code class="docutils literal notranslate"><span class="pre">super().__setitem__</span></code> を呼び出します。
+引数を格納する方法に基づき、引数には <code class="docutils literal notranslate"><span class="pre">self[key]``（つまり、dict[key]）でアクセスできます。</span>
+<span class="pre">さらに、``getattr</span></code> ガードを構築して、<code class="docutils literal notranslate"><span class="pre">defaultdict</span></code> 機能を実装します。
+<code class="docutils literal notranslate"><span class="pre">self.__getitem__</span></code> はオーバーライドする必要はありません、基本クラスと同じ動作をします。</p>
+<p><span class="raw-html-m2r"><a id="utils.Container.AttributeDict.__init__"></a></span></p>
+<section id="id3">
+<h3>__init__<a class="headerlink" href="#id3" title="Permalink to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="n">init_dict</span><span class="o">=</span><span class="p">{})</span>
+</pre></div>
+</div>
+<p>コンテナのコンストラクタ。</p>
+<p><strong>Arguments</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">init_dict</span></code> <em>dict</em> - 通常は Configer で解析された値の辞書。デフォルトは空の辞書。</p></li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<blockquote>
+<div><p>None.</p>
+</div></blockquote>
+<p><span class="raw-html-m2r"><a id="utils.Container.AttributeDict.__getattribute__"></a></span></p>
+</section>
+<section id="id4">
+<h3>__getattribute__<a class="headerlink" href="#id4" title="Permalink to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__getattribute__</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>getattribute</strong> の dunder メソッドをオーバーライドします。
+基本クラス（dict）を引数を格納するために使用しているため、<code class="docutils literal notranslate"><span class="pre">self.__dict__</span></code> は使用しないようにします。</p>
+<dl class="simple">
+<dt>Raise:</dt><dd><p>ユーザーが <code class="docutils literal notranslate"><span class="pre">self.__dict__</span></code> にアクセスしようとした場合、<code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code> を発生させます。</p>
+</dd>
+</dl>
+<p><span class="raw-html-m2r"><a id="utils.Container.AttributeDict.__getattr__"></a></span></p>
+</section>
+<section id="id5">
+<h3>__getattr__<a class="headerlink" href="#id5" title="Permalink to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>getattr</strong> の dunder メソッドをオーバーライドし、「空の辞書」を静かに構築します。
+これにより、親辞書を定義せずに特定の引数に値を割り当てることができます。
+<code class="docutils literal notranslate"><span class="pre">defaultdict</span></code> と同様の動作を提供し、再帰的に <code class="docutils literal notranslate"><span class="pre">self.__setattr__</span></code> を許可します。</p>
+<p><strong>Returns</strong>:</p>
+<blockquote>
+<div><p>AttributeDict, 空の辞書を持つ事前定義された辞書が返され、その後特定の引数を更新できます。</p>
+</div></blockquote>
+<p><span class="raw-html-m2r"><a id="utils.Container.AttributeDict.set_attr_dict"></a></span></p>
+</section>
+<section id="id6">
+<h3>set_attr_dict<a class="headerlink" href="#id6" title="Permalink to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">set_attr_dict</span><span class="p">(</span><span class="n">raw_dict</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>入力された辞書を AttributeDict インスタンスに変換し、内部で <code class="docutils literal notranslate"><span class="pre">__setitem__</span></code> を呼び出します。</p>
+<p><strong>Arguments</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">raw_dict</span></code> <em>dict</em> -  Python のネイティブ辞書。これが AttributeDict に変換されます。</p></li>
+</ul>
+<p><span class="raw-html-m2r"><a id="utils.Container.AttributeDict.__setattr__"></a></span></p>
+</section>
+<section id="id7">
+<h3>__setattr__<a class="headerlink" href="#id7" title="Permalink to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__setattr__</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>setattr</strong> の dunder メソッドをオーバーライドし、内部で <code class="docutils literal notranslate"><span class="pre">__setitem__</span></code> を呼び出します。</p>
+<p><span class="raw-html-m2r"><a id="utils.Container.AttributeDict.__setitem__"></a></span></p>
+</section>
+<section id="id8">
+<h3>__setitem__<a class="headerlink" href="#id8" title="Permalink to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>setitem</strong> の dunder メソッドをオーバーライドし、入力された値を AttributeDict コンテナでラップします。</p>
+<p><span class="raw-html-m2r"><a id="utils.Container.AttributeDict.__deepcopy__"></a></span></p>
+</section>
+<section id="id9">
+<h3>__deepcopy__<a class="headerlink" href="#id9" title="Permalink to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">__deepcopy__</span><span class="p">(</span><span class="n">memo</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>deepcopy をサポートします。詳細：<a class="reference external" href="https://stackoverflow.com/questions/49901590/python-using-copy-deepcopy-on-dotdict">https://stackoverflow.com/questions/49901590/python-using-copy-deepcopy-on-dotdict</a>。</p>
+<p><span class="raw-html-m2r"><a id="utils.Container.AttributeDict.__getstate__"></a></span></p>
+</section>
+<section id="id10">
+<h3>__getstate__<a class="headerlink" href="#id10" title="Permalink to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">__getstate__</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>基本的なシリアライズインターフェース（例えば、pickle）を提供します。シリアライズされた Python オブジェクトを返します。</p>
+<p><span class="raw-html-m2r"><a id="utils.Container.AttributeDict.__setstate__"></a></span></p>
+</section>
+<section id="id11">
+<h3>__setstate__<a class="headerlink" href="#id11" title="Permalink to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">__setstate__</span><span class="p">(</span><span class="n">de_ser_self</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>基本的なシリアライズインターフェース（例えば、pickle）を提供します。デシリアライズされたオブジェクトを受け取り、デフォルトの self をそれに置き換えます。</p>
+<p><span class="raw-html-m2r"><a id="utils.Container.Flag"></a></span></p>
+</section>
+</section>
+<section id="id12">
+<h2>Flag<a class="headerlink" href="#id12" title="Permalink to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Flag</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Configer 内で設定を定義するための同期オブジェクトです。TensorFlow の absl flag に触発されています。
+これは役立たないかもしれませんが、easy_config の初期バージョンとの互換性のためにこのクラスを保持しています。
+それでも使用することができます。</p>
+<p><span class="raw-html-m2r"><a id="utils.Container.Flag.__new__"></a></span></p>
+<section id="id13">
+<h3>__new__<a class="headerlink" href="#id13" title="Permalink to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>new の dunder メソッドをオーバーライドします。new はクラスを作成するために init を呼び出す前に使用されます。
+ここでシングルトンのガードを設定し、シングルトンデザインパターンを実装します。</p>
+<p><strong>Arguments</strong>:</p>
+<blockquote>
+<div><p><cite>*args, **kwargs</cite> : インスタンス（シングルトンインスタンス）に渡されます。</p>
+</div></blockquote>
+<p><strong>Returns</strong>:</p>
+<blockquote>
+<div><p>FLAG_spec, 設定の同期オブジェクト。</p>
+</div></blockquote>
+<p><span class="raw-html-m2r"><a id="utils.Container.Flag.FLAGS"></a></span></p>
+</section>
+<section id="id14">
+<h3>FLAGS<a class="headerlink" href="#id14" title="Permalink to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@property</span>
+<span class="k">def</span> <span class="nf">FLAGS</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>FLAG_spec オブジェクトにアクセスするためのインターフェース。</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="api_IO_Converter.html" class="btn btn-neutral float-left" title="IO_Converter" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="api_Type_Convertor.html" class="btn btn-neutral float-right" title="utils.Type_Convertor" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, JosefHuang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
