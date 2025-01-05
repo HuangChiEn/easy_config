@@ -42,7 +42,7 @@ Let's give a deep-learning example ~
            sched = 'cos_anneal'
 
 
-We have defined the config file, now let's see how to access any agruments! Execute ``python quick_hier.py`` in work directory*.
+We have defined the config file, now let's see how to access any agruments! Execute ``python quick_hier.py`` in work directory.
 
 .. code-block:: python
 
@@ -70,14 +70,15 @@ We have defined the config file, now let's see how to access any agruments! Exec
        Trainer(mod).fit(ds)
 
 
-However, the syntax of above config file could be improved, isn't it !? For example, the batch_size is defined twice under ``dataset.loader`` and ``train_cfg``\ , so as layer seed. Moreover, path is defined as python string, it need to be further converted by Path object in python standard package. Could we regist our customized data type for easy-config ?
+However, the syntax in config could be improved, isn't it !? For example, the batch_size is defined twice under ``dataset.loader`` and ``train_cfg``, so as layer seed.
+Moreover, path is defined as python string, it need to be further converted by Path object in python standard package. Could we regist our customized data type for easy-config ?
 Glade to say : Yes! it's possible to elegantly deal with above mentioned issue. We can solve the first issue by using argument interpolation, and solve the second issue by using the customized register!!
 
-Thanks to *python format-string via ${...}* and  *customized register method `regist_cnvtor`*. *See below example*
+Python **フォーマット文字列** ``${...}`` と **カスタマイズされた登録メソッド** ``regist_cnvtor`` に感謝します。 下記の例を参照してください :
 
 ..
 
-   Currently we support interpolation mechnaism to interpolate **ANY** arguemnts belonging the different level of nested dictionary by using **\${cfg}**. Moreover, we also support **\${env}** for accessing enviroment variables exported in bash!!
+   Currently we support interpolation mechnaism to interpolate **ANY** arguemnts even beloning to nested section by simply using **\${cfg}** notation. Moreover, we also support **\${env}** for accessing enviroment variables exported in bash!!
 
 
 .. code-block:: python
@@ -182,11 +183,9 @@ Now you can access each ``lev`` :
    glb_var = 42@int
    [dataset]         
        ds_type = None
-       path = ['/data/kitti']@Path
+       path = ['/data/kitti']@pyPath
        [dataset.loader]
            batch_size = 32@int
-
-   # Hier-Cell cfg written by Josef-Huang..
 
 
 Execute python program and print out the helper information :raw-html-m2r:`<br>`
@@ -206,19 +205,14 @@ Especially update **non-flatten argument**\ , you can access any argument at any
 4. Import Sub-Config 🎎
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Like ``omegaconf``\ , most of user expect to seperate the config based on their type and dynamically merge it in runtime. It's a rational requirement and the previous version of easy-config provide two way to conduct it, but both have it's limit : 
+Like ``omegaconf``\ , most of user expect to seperate the config based on their category and dynamically merge it in runtime. It's a rational requirement and the previous version of easy-config provide two way to conduct it, but both have it's limit : 
 
 
-#. you can call the ``cfg_from_ini`` twice, for example, ``cfg.cfg_from_ini('./base_cfg') ; cfg.cfg_from_ini('./override_cfg')``. But it's not explicitly load the config thus reducing readability.
+#. you can call the ``cfg_from_ini`` twice, for example, ``cfg.cfg_from_ini('./base_cfg', allow_overwrite=True) ; cfg.cfg_from_ini('./override_cfg', allow_overwrite=True)``. But it's not explicitly load the config thus reducing readability.
 #. you can use the config merging, for example, ``new_cfg = base_cfg | override_cfg``. But it's not elegant solution while you  have to merge several config..
 
 Now, we provide the thrid way : **sub-config**. you can import the sub-config in any depth of hierachical config by simply placing the ``>`` symbol at the beginning of line.
-Also note that sub-config doesn't allow you override the declared argument by default, since dynamically override the arguments made your config hard to trace..
-
-..
-
-   If you want to override the config, turn the flag ``allow_override`` as ``True``. i.e. ``cfg.cfg_from_ini(..., allow_override=True)``, ``cfg.cfg_from_str(..., allow_override=True)``.
-   The sub-config will follow the flag setting to override the config or raise the ``RuntimeError``.
+Also note that sub-config doesn't allow you override the declared **section** by default, since dynamically override the section is not necessary generally (also made your config hard to trace).
 
 .. code-block:: ini
 
@@ -232,7 +226,7 @@ Also note that sub-config doesn't allow you override the declared argument by de
 
    # ./config/ds_config.ini
    ds_type = None
-   path = {'root':'/data/kitti'}@Path
+   path = ['/data/kitti']@pyPath
    [dataset.loader]
        batch_size = 32@int
 
@@ -330,8 +324,6 @@ In the following example, you can see that the merging config system already pro
                add = 32@int
                [ghyu.opop.tueo]
                    salt = ${cfg.inpo}
-
-       # Cell cfg written by Josef-Huang..
        '''
 
    def build_cfg_text_b():
@@ -353,7 +345,6 @@ In the following example, you can see that the merging config system already pro
        [new]
            [new.new]
                newsec = wpeo@str
-       # Cell cfg written by Josef-Huang..
        '''
 
    if __name__ == "__main__":

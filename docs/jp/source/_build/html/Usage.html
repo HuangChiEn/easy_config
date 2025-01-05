@@ -97,18 +97,19 @@
 <h1>常用参考情报<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h1>
 <section id="id2">
 <h2>1. 階層化配置の定義方法 🖋️<a class="headerlink" href="#id2" title="Permalink to this heading"></a></h2>
-<p>Easy-configでは、2つのパラメータの準備方法があります：フラットパラメータを定義するか、複数のパラメータを階層化してグループ化することができます（2番目のレベルから）。
+<p>easy-configでは、2つのパラメータの準備方法があります：フラットパラメータを定義するか、複数のパラメータを階層化してグループ化することができます（2番目のレベルから）。
 ほとんどの場合、フラットパラメータをグローバル設定として定義し、残りのパラメータを対応する辞書に配置して、サブプロシージャに割り当てやすくします。
 ディープラーニングの例を挙げてみましょう。</p>
 <p><em>hier_cfg.ini あなたの作業ディレクトリに置いておきます</em></p>
-<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="na">glb_seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">42</span>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="na">root_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;/workspace&#39;</span>
+<span class="na">glb_seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">42</span>
 <span class="na">exp_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;0001&#39;</span>
 
 <span class="c1"># we call &#39;...&#39; in [...] as section name,</span>
 <span class="c1"># i.e. we can assign dict dataset to subroutine by `build_dataset(**cfg.dataset)`, just such easy!!</span>
 <span class="k">[dataset]</span>
 <span class="w">    </span><span class="na">service_port</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">65536</span>
-<span class="w">    </span><span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;/data/kitti&#39;</span>
+<span class="w">    </span><span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;${cfg.root_dir}/data/kitti&quot;</span>
 <span class="w">    </span><span class="c1"># of course, nested dict is also supported! it just the native python dictionary in dictionary!</span>
 <span class="w">    </span><span class="k">[dataset.loader]</span>
 <span class="w">        </span><span class="na">batch_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">32</span>
@@ -157,7 +158,7 @@
 はい、これらの問題を優雅に解決することができます。パラメータの挿入を使用して最初の問題を解決し、2番目の問題を解決するためにカスタム登録を使用できます。</p>
 <p><em>記号$の設定挿入</em> とカスタム登録メソッド <code class="docutils literal notranslate"><span class="pre">regist_cnvtor</span></code> を使用して、問題を解決できます。</p>
 <blockquote>
-<div><p>現在、私たちは異なるネストされた辞書レベルの　<strong>任意のパラメータ</strong>　に対して挿入をサポートしています。さらに、bashの環境変数にアクセスするために　<strong>$Env</strong>　をサポートしています！</p>
+<div><p>現在、私たちは補間メカニズムをサポートしており、 <code class="docutils literal notranslate"><span class="pre">${cfg}</span></code> 記法を使用することで、任意の 引数（ネストされたセクションに属するものも含む）を補間できます。さらに、 <code class="docutils literal notranslate"><span class="pre">${env}</span></code> を使用して、bashでエクスポートされた環境変数にアクセスすることもサポートしています！！</p>
 </div></blockquote>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># For convience, we define string-config!</span>
 <span class="k">def</span> <span class="nf">get_str_cfg</span><span class="p">():</span>
@@ -169,7 +170,7 @@
 <span class="sd">            service_port = 65536</span>
 
 <span class="sd">            # Don&#39;t forgot to regist Path object first and the typename will be the given name!!</span>
-<span class="sd">            path = {&#39;path&#39;:&#39;/data/kitti&#39;}@pyPath</span>
+<span class="sd">            path = [&#39;/data/kitti&#39;]@pyPath</span>
 
 <span class="sd">            [dataset.loader]</span>
 <span class="sd">                batch_size = 32</span>
@@ -249,11 +250,9 @@
 <span class="na">glb_var</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">42@int</span>
 <span class="k">[dataset]</span>
 <span class="w">    </span><span class="na">ds_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">None</span>
-<span class="w">    </span><span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">{&#39;root&#39;:&#39;/data/kitti&#39;}@Path</span>
+<span class="w">    </span><span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">[&#39;/data/kitti&#39;]@pyPath</span>
 <span class="w">    </span><span class="k">[dataset.loader]</span>
 <span class="w">        </span><span class="na">batch_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">32@int</span>
-
-<span class="c1"># Hier-Cell cfg written by Josef-Huang..</span>
 </pre></div>
 </div>
 <p>Python　で実行してヘルプ情報を出力します <span class="raw-html-m2r"><br></span>
@@ -278,11 +277,7 @@
 <li><p>設定のマージを使用することもできましたが。例えば、 <code class="docutils literal notranslate"><span class="pre">new_cfg</span> <span class="pre">=</span> <span class="pre">base_cfg</span> <span class="pre">|</span> <span class="pre">override_cfg</span></code>。しかし、数多くの設定をマージする場合には優雅な解決策ではありませんでした。</p></li>
 </ol>
 <p>現在、新しい方法　<strong>sub-config</strong>　を提供します。サブ構成を導入するために、行の先頭に簡単に　<code class="docutils literal notranslate"><span class="pre">&gt;</span></code>　記号を置くことができるようになりました。
-また、サブコンフィグでは、デフォルトでは宣言された引数をオーバーライドすることはできません。これは、引数を動的にオーバーライドするとコンフィグの追跡が困難になるためです。</p>
-<blockquote>
-<div><p>設定をオーバーライドしたい場合は、フラグ <code class="docutils literal notranslate"><span class="pre">allow_override</span></code> を <code class="docutils literal notranslate"><span class="pre">True</span></code> に設定してください。例えば、<code class="docutils literal notranslate"><span class="pre">cfg.cfg_from_ini(...,</span> <span class="pre">allow_override=True)</span></code> や <code class="docutils literal notranslate"><span class="pre">cfg.cfg_from_str(...,</span> <span class="pre">allow_override=True)</span></code> のように指定します。
-サブコンフィグは、フラグの設定に従って設定をオーバーライドするか、<code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code> を発生させます。</p>
-</div></blockquote>
+また、サブ設定ではデフォルトで宣言されたセクションの上書きを許可しないことに注意してください。一般的にセクションを動的に上書きする必要はないため（また、設定が追跡しづらくなるため）、上書きは許可されていません。</p>
 <div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="c1"># ./base_cfg.ini</span>
 <span class="na">glb_seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">42@int</span>
 <span class="k">[dataset]</span>
@@ -293,7 +288,7 @@
 
 <span class="c1"># ./config/ds_config.ini</span>
 <span class="na">ds_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">None</span>
-<span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">{&#39;root&#39;:&#39;/data/kitti&#39;}@Path</span>
+<span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">[&#39;/data/kitti&#39;]@pyPath</span>
 <span class="k">[dataset.loader]</span>
 <span class="w">    </span><span class="na">batch_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">32@int</span>
 
@@ -303,6 +298,57 @@
 <span class="w">    </span><span class="k">[model.backbone.optimizer]</span>
 <span class="w">    </span><span class="c1"># and yes, interpolation is still valid &quot;after&quot; the reference argument is declared!</span>
 <span class="w">        </span><span class="na">lay_seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${cfg.glb_seed}</span>
+</pre></div>
+</div>
+<p>また、設定を上書きする方法でマージしたい場合は、複数の設定インスタンスを作成し、2つの方法でマージすることを引き続きお勧めします。omegaconfのように、設定を静かに動的に上書きするのではなく、明示的に設定をマージする方法を推奨します。</p>
+<blockquote>
+<div><p>もしそれでも設定を上書きしたい場合（omegaconfのように動作させたい場合）、フラグ <code class="docutils literal notranslate"><span class="pre">allow_overwrite</span></code> をTrueに設定します。例： <code class="docutils literal notranslate"><span class="pre">cfg.cfg_from_ini(...,</span> <span class="pre">allow_overwrite=True)</span></code>, <code class="docutils literal notranslate"><span class="pre">cfg.cfg_from_str(...,</span> <span class="pre">allow_overwrite=True)</span></code>。サブ設定はこのフラグ設定に従い、設定を上書きします。順序に注意してください。インポートされたサブ設定は <strong>「デフォルトの設定」</strong> と見なされ、メイン設定（サブ設定をインポートする設定）がその設定を上書きします。</p>
+</div></blockquote>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="c1"># ./base_cfg.ini</span>
+
+<span class="c1"># note that the order between defined arguments and imported sub-config do affect the final value of arguments!</span>
+<span class="na">glb_seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">42</span>
+
+<span class="c1"># import several default setup :</span>
+<span class="na">&gt; ./config/ds_config.ini</span>
+<span class="na">&gt; ./config/model_config.ini</span>
+
+<span class="k">[dataset]</span>
+<span class="w">    </span><span class="na">n_worker</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">8</span>
+
+<span class="k">[model]</span>
+<span class="w">    </span><span class="na">n_blk</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2</span>
+
+<span class="c1"># ./config/ds_config.ini</span>
+<span class="k">[dataset]</span>
+<span class="w">    </span><span class="na">n_worker</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1</span>
+<span class="w">    </span><span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">[&#39;/data/kitti&#39;]@pyPath</span>
+<span class="w">    </span><span class="k">[dataset.loader]</span>
+<span class="w">        </span><span class="na">batch_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">32@int</span>
+
+<span class="c1"># ./root/config/model_config.ini</span>
+<span class="k">[model]</span>
+<span class="w">    </span><span class="na">mod_typ</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;resnet&#39;</span>
+<span class="w">    </span><span class="na">n_blk</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1</span>
+<span class="w">    </span><span class="k">[model.optimizer]</span>
+<span class="w">    </span><span class="c1"># and yes, interpolation is still valid &quot;after&quot; the reference argument is declared!</span>
+<span class="w">        </span><span class="na">lay_seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${cfg.glb_seed}</span>
+</pre></div>
+</div>
+<p>動的ロード後：</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="na">glb_seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">42</span>
+
+<span class="k">[dataset]</span>
+<span class="w">    </span><span class="na">n_worker</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">8</span><span class="w">  </span><span class="c1"># overwrited by base_cfg.ini</span>
+<span class="w">    </span><span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">[&#39;/data/kitti&#39;]@pyPath</span>
+<span class="w">    </span><span class="k">[dataset.loader]</span>
+<span class="w">        </span><span class="na">batch_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">32@int</span>
+
+<span class="k">[model]</span>
+<span class="w">    </span><span class="na">n_blk</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2</span><span class="w"> </span><span class="c1"># overwrited by base_cfg.ini</span>
+<span class="w">    </span><span class="na">mod_typ</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;resnet&#39;</span>
+<span class="w">    </span><span class="k">[model.optimizer]</span>
+<span class="w">        </span><span class="na">lay_seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">42</span>
 </pre></div>
 </div>
 </section>
@@ -332,8 +378,6 @@
 <span class="s1">            add = 32@int</span>
 <span class="s1">            [ghyu.opop.tueo]</span>
 <span class="s1">                salt = $</span><span class="si">{cfg.inpo}</span>
-
-<span class="s1">    # Cell cfg written by Josef-Huang..</span>
 <span class="s1">    &#39;&#39;&#39;</span>
 
 <span class="k">def</span> <span class="nf">build_cfg_text_b</span><span class="p">():</span>
@@ -355,7 +399,6 @@
 <span class="s1">    [new]</span>
 <span class="s1">        [new.new]</span>
 <span class="s1">            newsec = wpeo@str</span>
-<span class="s1">    # Cell cfg written by Josef-Huang..</span>
 <span class="s1">    &#39;&#39;&#39;</span>
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>

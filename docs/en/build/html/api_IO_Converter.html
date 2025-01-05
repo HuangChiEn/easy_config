@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>IO_Converter &mdash; easy_configer v2.5.3 documentation</title>
+  <title>IO_Converter &mdash; easy_configer v2.5.5 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -59,7 +59,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#id2">IO_Converter</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id3">__init__</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id4">cnvt_cfg_to</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id7">cnvt_cfg_from</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">cnvt_cfg_from</a></li>
 </ul>
 </li>
 </ul>
@@ -135,7 +135,7 @@ dispatch the easy_config instance into the indicated subroutine.</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">cfg</span></code> <em>Configer</em> - Easy_configer instance.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">target_cfg_type</span></code> <em>str</em> - A string tag of supported config type. It could be viewed by <code class="docutils literal notranslate"><span class="pre">self.output_dispatcher.keys()</span></code>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">cnvtr_kwarg</span></code> <a href="#id5"><span class="problematic" id="id6">*</span></a><code class="docutils literal notranslate"><span class="pre">**kwargs</span></code>* - Other keyword arguments attempt to pass to converter subroutine.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cnvtr_kwarg</span></code> **kwargs - Other keyword arguments attempt to pass to converter subroutine.</p></li>
 </ul>
 <dl class="simple">
 <dt><strong>Returns</strong>:</dt><dd><p>Any, the target config instance.</p>
@@ -143,8 +143,8 @@ dispatch the easy_config instance into the indicated subroutine.</p>
 </dl>
 <p><span class="raw-html-m2r"><a id="IO_Converter.IO_Converter.cnvt_cfg_from"></a></span></p>
 </section>
-<section id="id7">
-<h3>cnvt_cfg_from<a class="headerlink" href="#id7" title="Permalink to this heading"></a></h3>
+<section id="id5">
+<h3>cnvt_cfg_from<a class="headerlink" href="#id5" title="Permalink to this heading"></a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">cnvt_cfg_from</span><span class="p">(</span><span class="n">other_cfg</span><span class="p">,</span> <span class="n">target_cfg_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">cnvtr_kwarg</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -153,7 +153,7 @@ dispatch the easy_config instance into the indicated subroutine.</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">other_cfg</span></code> <em>Any</em> - Any supported config instance.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">target_cfg_type</span></code> <em>str</em> - A string tag of supported config type. It could be viewed by <code class="docutils literal notranslate"><span class="pre">self.input_dispatcher.keys()</span></code>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">cnvtr_kwarg</span></code> <a href="#id8"><span class="problematic" id="id9">*</span></a><code class="docutils literal notranslate"><span class="pre">**kwargs</span></code>* - Other keyword arguments attempt to pass to converter subroutine.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cnvtr_kwarg</span></code> **kwargs - Other keyword arguments attempt to pass to converter subroutine.</p></li>
 </ul>
 <dl class="simple">
 <dt><strong>Returns</strong>:</dt><dd><p>Configer.</p>

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>常用參考資訊 &mdash; easy_configer v2.3.2 說明文件</title>
+  <title>常用參考資訊 &mdash; easy_configer v2.5.5 說明文件</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -45,7 +45,8 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
-              <ul class="current">
+              <p class="caption" role="heading"><span class="caption-text">內容目錄</span></p>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="About.html">關於此專案</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Installation.html">下載教學</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Quick.html">快速入門</a></li>
@@ -60,6 +61,13 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="Metainfo.html">套件相關資訊</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API 文件</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api_Configer.html">Configer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_IO_Converter.html">IO_Converter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_Container.html">utils.Container</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_Type_Convertor.html">utils.Type_Convertor</a></li>
 </ul>
 
         </div>
@@ -97,12 +105,12 @@
 <div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="na">glb_seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">42</span>
 <span class="na">exp_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;0001&#39;</span>
 
-<span class="c1"># we call &#39;...&#39; in [...] as section name,</span>
-<span class="c1"># i.e. we can assign dict dataset to subroutine by `build_dataset(**cfg.dataset)`, just such easy!!</span>
+<span class="c1"># 我們將 [...] 中的 ... 稱為區段名稱，</span>
+<span class="c1"># 即我們可以通過 build_dataset(**cfg.dataset) 將字典數據集賦值給子程序，這麼簡單！！</span>
 <span class="k">[dataset]</span>
 <span class="w">    </span><span class="na">service_port</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">65536</span>
-<span class="w">    </span><span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;/data/kitti&#39;</span>
-<span class="w">    </span><span class="c1"># of course, nested dict is also supported! it just the native python dictionary in dictionary!</span>
+<span class="w">    </span><span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;${cfg.root_dir}/data/kitti&quot;</span>
+<span class="w">    </span><span class="c1"># 當然，嵌套字典也是支持的！它實際上就是繼承自 Python 原生的字典！</span>
 <span class="w">    </span><span class="k">[dataset.loader]</span>
 <span class="w">        </span><span class="na">batch_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">32</span>
 
@@ -148,9 +156,9 @@
 <p>然而，上面的配置文件的語法可以進行改進, 對吧! 例如 : <code class="docutils literal notranslate"><span class="pre">batch_size</span></code> 在 <code class="docutils literal notranslate"><span class="pre">dataset.loader</span></code> 和 <code class="docutils literal notranslate"><span class="pre">train_cfg</span></code> 下都被定義了兩次；同樣地, <code class="docutils literal notranslate"><span class="pre">layer_seed</span></code> 也是如此。
 此外，path 被定義為 Python 字符串，需要進一步通過 Python 標準包中的 Path 對象進行轉換。我們能夠註冊我們自定義的數據類型嗎？
 很高興地告訴您：是的！可以優雅地處理上述問題。我們可以通過使用參數插值來解決第一個問題，通過使用自定義註冊來解決第二個問題！</p>
-<p>使用 <em>$ 符號的配置插值</em> 以及 自定義的註冊方法 <code class="docutils literal notranslate"><span class="pre">regist_cnvtor</span></code>。</p>
+<p>感謝於 <em>Python 格式字符串</em> <code class="docutils literal notranslate"><span class="pre">${...}</span></code> 和 <em>自定義註冊方法</em> <code class="docutils literal notranslate"><span class="pre">regist_cnvtor</span></code>。 見下例 :</p>
 <blockquote>
-<div><p>目前我們支援對不同 nested-dictionary 層級的 <strong>任意參數</strong> 來進行插值；此外，我們也支援 <strong>$Env</strong> 來存取 bash 中的環境變數!!</p>
+<div><p>目前我們支持組態配置的插值機制，可以通過簡單使用 <code class="docutils literal notranslate"><span class="pre">${cfg}</span></code> 註記來插入 任何 參數，即使它屬於嵌套區段。此外，我們還支持 <code class="docutils literal notranslate"><span class="pre">${env}</span></code> 來訪問在 bash 中導出的環境變量！！</p>
 </div></blockquote>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># For convience, we define string-config!</span>
 <span class="k">def</span> <span class="nf">get_str_cfg</span><span class="p">():</span>
@@ -162,7 +170,7 @@
 <span class="sd">            service_port = 65536</span>
 
 <span class="sd">            # Don&#39;t forgot to regist Path object first and the typename will be the given name!!</span>
-<span class="sd">            path = {&#39;path&#39;:&#39;/data/kitti&#39;}@pyPath</span>
+<span class="sd">            path = [&#39;/data/kitti&#39;]@pyPath</span>
 
 <span class="sd">            [dataset.loader]</span>
 <span class="sd">                batch_size = 32</span>
@@ -242,11 +250,9 @@
 <span class="na">glb_var</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">42@int</span>
 <span class="k">[dataset]</span>
 <span class="w">    </span><span class="na">ds_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">None</span>
-<span class="w">    </span><span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">{&#39;root&#39;:&#39;/data/kitti&#39;}@Path</span>
+<span class="w">    </span><span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">[&#39;/data/kitti&#39;]@pyPath</span>
 <span class="w">    </span><span class="k">[dataset.loader]</span>
 <span class="w">        </span><span class="na">batch_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">32@int</span>
-
-<span class="c1"># Hier-Cell cfg written by Josef-Huang..</span>
 </pre></div>
 </div>
 <p>執行 Python 程序並打印出幫助信息 <span class="raw-html-m2r"><br></span>
@@ -269,11 +275,8 @@
 <li><p>您可以使用配置合併，例如 : <code class="docutils literal notranslate"><span class="pre">new_cfg</span> <span class="pre">=</span> <span class="pre">base_cfg</span> <span class="pre">|</span> <span class="pre">override_cfg</span></code>。但是當您需要合併多個配置時，這並不是一個優雅的解決方案…</p></li>
 </ol>
 <p>現在，我們提供了第三種方式 : <strong>sub-config</strong>。您可以通過在行首簡單地放置 <code class="docutils literal notranslate"><span class="pre">&gt;</span></code> 符號來在層次配置的任何階層導入子配置。
-請注意，sub-config 不允許您覆寫任何先前定義的組態值，所謂的動態合併或動態載入是指融合不重複的組態值，因為動態覆寫組態值一直是造成大型程式的組態配置難以追蹤的根本原因，也是各大組態工具吹噓的功能，很遺憾…</p>
-<blockquote>
-<div><p>雖然我不推薦，如果您要這個功能，可以透過啟用 allow_override 旗標來達成；例如. <code class="docutils literal notranslate"><span class="pre">cfg.cfg_from_ini(...,</span> <span class="pre">allow_override=True)</span></code>, <code class="docutils literal notranslate"><span class="pre">cfg.cfg_from_str(...,</span> <span class="pre">allow_override=True)</span></code>。
-這個設定雖然是套用在 <code class="docutils literal notranslate"><span class="pre">cfg.cfg_from_ini</span></code> 等方法，但 sub-config 的行為也會遵循此旗標的設定來覆寫組態值，或是拋出一個運行錯誤。</p>
-</div></blockquote>
+雖然動態覆寫組態值一直是造成大型程式的組態配置難以追蹤的根本原因，但我基本上也妥協了，很遺憾…
+然而，請注意 sub-config 預設不允許您覆寫任何先前定義的 <strong>區段</strong>，因為這通常沒有必要!</p>
 <div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="c1"># ./base_cfg.ini</span>
 <span class="na">glb_seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">42@int</span>
 <span class="k">[dataset]</span>
@@ -284,7 +287,7 @@
 
 <span class="c1"># ./config/ds_config.ini</span>
 <span class="na">ds_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">None</span>
-<span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">{&#39;root&#39;:&#39;/data/kitti&#39;}@Path</span>
+<span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">[&#39;/data/kitti&#39;]@pyPath</span>
 <span class="k">[dataset.loader]</span>
 <span class="w">    </span><span class="na">batch_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">32@int</span>
 
@@ -294,6 +297,60 @@
 <span class="w">    </span><span class="k">[model.backbone.optimizer]</span>
 <span class="w">    </span><span class="c1"># and yes, interpolation is still valid &quot;after&quot; the reference argument is declared!</span>
 <span class="w">        </span><span class="na">lay_seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${cfg.glb_seed}</span>
+</pre></div>
+</div>
+<p>還需要注意的是，我們仍然建議你創建多個配置實例並以組態合併的方式覆寫組態值，通常 <strong>顯性的</strong> 做這件事比隱性的完成來的好。
+與其像 omegaconf 那樣靜默地動態覆蓋你的配置，我們推薦使用顯式的合併方法來處理。</p>
+<blockquote>
+<div><p>雖然我不推薦，如果您想要如同omegaconf的功能，可以透過啟用 <code class="docutils literal notranslate"><span class="pre">allow_override</span></code> 旗標來達成；例如. <code class="docutils literal notranslate"><span class="pre">cfg.cfg_from_ini(...,</span> <span class="pre">allow_override=True)</span></code>, <code class="docutils literal notranslate"><span class="pre">cfg.cfg_from_str(...,</span> <span class="pre">allow_override=True)</span></code>。
+這個設定雖然是套用在 <code class="docutils literal notranslate"><span class="pre">cfg.cfg_from_ini</span></code> 等方法，但 sub-config 的行為也會遵循此旗標的設定來覆寫組態值，或是拋出一個運行錯誤。
+注意順序，導入的 <strong>子配置</strong> 被視為 <strong>「默認設置」</strong>，主配置（導入子配置的配置）將覆蓋它的設置。</p>
+</div></blockquote>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="c1"># ./base_cfg.ini</span>
+
+<span class="c1"># note that the order between defined arguments and imported sub-config do affect the final value of arguments!</span>
+<span class="na">glb_seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">42</span>
+
+<span class="c1"># import several default setup :</span>
+<span class="na">&gt; ./config/ds_config.ini</span>
+<span class="na">&gt; ./config/model_config.ini</span>
+
+<span class="k">[dataset]</span>
+<span class="w">    </span><span class="na">n_worker</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">8</span>
+
+<span class="k">[model]</span>
+<span class="w">    </span><span class="na">n_blk</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2</span>
+
+<span class="c1"># ./config/ds_config.ini</span>
+<span class="k">[dataset]</span>
+<span class="w">    </span><span class="na">n_worker</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1</span>
+<span class="w">    </span><span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">[&#39;/data/kitti&#39;]@pyPath</span>
+<span class="w">    </span><span class="k">[dataset.loader]</span>
+<span class="w">        </span><span class="na">batch_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">32@int</span>
+
+<span class="c1"># ./root/config/model_config.ini</span>
+<span class="k">[model]</span>
+<span class="w">    </span><span class="na">mod_typ</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;resnet&#39;</span>
+<span class="w">    </span><span class="na">n_blk</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1</span>
+<span class="w">    </span><span class="k">[model.optimizer]</span>
+<span class="w">    </span><span class="c1"># and yes, interpolation is still valid &quot;after&quot; the reference argument is declared!</span>
+<span class="w">        </span><span class="na">lay_seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${cfg.glb_seed}</span>
+</pre></div>
+</div>
+<p>經過動態載入後 :</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="na">glb_seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">42</span>
+
+<span class="k">[dataset]</span>
+<span class="w">    </span><span class="na">n_worker</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">8</span><span class="w">  </span><span class="c1"># overwrited by base_cfg.ini</span>
+<span class="w">    </span><span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">[&#39;/data/kitti&#39;]@pyPath</span>
+<span class="w">    </span><span class="k">[dataset.loader]</span>
+<span class="w">        </span><span class="na">batch_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">32@int</span>
+
+<span class="k">[model]</span>
+<span class="w">    </span><span class="na">n_blk</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2</span><span class="w"> </span><span class="c1"># overwrited by base_cfg.ini</span>
+<span class="w">    </span><span class="na">mod_typ</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;resnet&#39;</span>
+<span class="w">    </span><span class="k">[model.optimizer]</span>
+<span class="w">        </span><span class="na">lay_seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">42</span>
 </pre></div>
 </div>
 </section>
@@ -322,8 +379,6 @@
 <span class="s1">            add = 32@int</span>
 <span class="s1">            [ghyu.opop.tueo]</span>
 <span class="s1">                salt = $</span><span class="si">{cfg.inpo}</span>
-
-<span class="s1">    # Cell cfg written by Josef-Huang..</span>
 <span class="s1">    &#39;&#39;&#39;</span>
 
 <span class="k">def</span> <span class="nf">build_cfg_text_b</span><span class="p">():</span>
@@ -345,7 +400,6 @@
 <span class="s1">    [new]</span>
 <span class="s1">        [new.new]</span>
 <span class="s1">            newsec = wpeo@str</span>
-<span class="s1">    # Cell cfg written by Josef-Huang..</span>
 <span class="s1">    &#39;&#39;&#39;</span>
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>

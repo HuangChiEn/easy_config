@@ -40,10 +40,27 @@ Jupyter Notebook で開発環境用の easy_config を使用しているとし�
    x = 15
    print( f"Linear equation with x={x} : { lin_equ(x) }" )
 
+..
 
+    もし以前の設定を上書きしたい場合、``cfg.cfg_from_str`` を ``allow_overwrite=True`` フラグで2回適用する方法は推奨されません。
+    easy-configerでは、これを行う方法を2つ提供しています。標準的な方法は、2つの設定を宣言し、設定のマージ方法を適用して更新された設定を取得することです。
+    もう一つの方法は、omegaconfのように動的にサブ設定をインポートする方法ですが、 ``cfg.cfg_from_ini`` で ``allow_overwrite=True`` フラグを設定する必要があります。
 
-より大規模なプロジェクトでは、プログラムを制御するために設定ファイルを作成し、設定を追跡し、確認し、デバッグしやすくすることが一般的です。ここでは、まず、作業ディレクトリに ``test_cfg.ini`` という名前の設定ファイルを用意します。
-*easy-config ファイルには、2つのタイプのパラメータが存在します：フラットパラメータと階層化パラメータ*。フラットパラメータは1つのレベルにあり、ドット演算子を使用して簡単にアクセスできます。フラットパラメータ以外のすべての階層化パラメータは、Pythonの辞書オブジェクトに配置されるため、各パラメータに文字列でアクセスできます！
+Pythonで文字列設定を記述することは便利ですが、これは小規模なプロジェクトにのみ適しています。
+より大規模なプロジェクトでは、プログラムを制御するために設定ファイルを作成し、設定を追跡し、確認し、デバッグしやすくすることが一般的です。ここでは、まず、作業ディレクトリに ``test_cfg.ini`` という名前の設定ファイルを用意し、チャットボットとどのように連携するかを大まかに説明します。
+
+easy-configer では、設定ファイルに2種類の引数があります：フラットな引数と階層的な引数です。
+フラットな引数は、設定内で直接配置され、特定のセクションに属さない（つまり、最初のレベルに配置されます）。
+一方、階層的な引数は、セクション（例： ``[db_setup]`` ）に配置され、任意の深さを持つことができます。
+セクション内の引数は、純粋な Python の dict に似たコンテナ（ ``easy_configer.utils.Container.AttributeDict`` ）にラップされます。
+
+階層的な引数をネストされたセクションで形成するために、toml のような構文を使用してネストされたセクションを記述します（例： ``[bknd_srv.mod_params]`` は ``[bknd_srv]`` の親セクションに属します）。
+ネストされたセクション内の引数も、ネストされた ``AttributeDict`` にラップされます。さらに、ドット演算子を使ってすべての引数にアクセスできますが、純粋な Python の辞書のようにキー文字列を使用することをお勧めします。
+
+..
+
+    なお、引数にアクセスする推奨される方法は、依然として キー文字列アクセス ``cfger.args['#4$%-var']`` です。
+    ご覧のように、ドットアクセスは **不格好な変数名** （ ``cfger.#4$%-var`` ）をサポートしていません（変数名は Python インタプリタでは無効です）。
 
 .. code-block:: ini
 
@@ -58,9 +75,9 @@ Jupyter Notebook で開発環境用の easy_config を使用しているとし�
    # define 'hierachical' arguments :
    # the 'section' is the key of accessing dict value and could be defined as follows :
    [db_setup]
-       db_host = $serv_host
+       db_host = ${cfg.serv_host}:80@str
        # first `export mongo_port=5566` in your bash, then support os.env interpolation!
-       db_port = $Env.mongo_port  
+       db_port = ${env.mongo_port}   
        snap_shot = True
 
    # and then define second section for backend server..
@@ -72,13 +89,18 @@ Jupyter Notebook で開発環境用の easy_config を使用しているとし�
        [bknd_srv.mod_params]
            log_hist = False
            tempeture = 1e-4
-           model_mode = $bknd_srv.chat_mode  # hierachical args interpolation
+           model_mode = ${cfg.bknd_srv.chat_mode}  # hierachical args interpolation
 
 
 :raw-html-m2r:`<br>`
 
 現在、工作ディレクトリで ``python quick_start.py`` を実行することでチャットボットを起動できます (\ *quick_start.py はあなたの作業ディレクトリにあります*\ )!
 もちろん、コマンドラインから  ``python quick_start.py serv_port=7894`` を使用してパラメータ設定を上書きすることもできます。
+
+..
+
+    なお、コマンドラインからの引数の更新は自然に許可されていますが、セクションの上書きは許可されていません！
+    セクションを上書きしたい場合は、 ``allow_overwrite=True`` フラグを設定する必要があります。
 
 .. code-block:: python
 

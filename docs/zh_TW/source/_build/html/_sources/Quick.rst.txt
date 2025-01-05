@@ -38,10 +38,26 @@
    x = 15
    print( f"Linear equation with x={x} : { lin_equ(x) }" )
 
+..
 
+    如果你想覆蓋先前的組態配置，而呼叫了兩次 ``cfg.cfg_from_str`` 並設置 ``allow_overwrite=True`` 旗標，這雖方便卻不是推薦的方法。
+    在 easy-configer 中，我們提供了兩種方法來做到這一點。標準方法是 聲明兩個配置並應用配置合併 (config merging) 方法來獲取更新的配置。
+    另一種方法類似於 omegaconf 以動態方式導入子配置(sub-config)，不過你仍然需要在 ``cfg.cfg_from_ini`` 中設置 ``allow_overwrite=True`` 旗標。
 
-在較大型的項目中，我們可能會編寫一個配置文件來控制程序，使得配置更容易追蹤、檢查和調試。在這裡，我們首先在工作目錄中準備一個名為 ``test_cfg.ini`` 的配置文件。
-*對於 easy-config 文件，存在兩種類型的參數：扁平參數和階層化參數*。您可以看到，扁平參數位於第一層級，可以通過點運算符輕鬆訪問；除了扁平參數之外，所有階層化參數將被放置在 Python 字典對象中，因此可以通過字串訪問每個參數！
+雖然在 Python 中編寫字串組態非常方便，但它只適用於較小規模的項目。
+在較大型的項目中，我們可能會編寫一個配置文件來控制程序，使得配置更容易追蹤、檢查和調試。在這裡，我們首先在工作目錄中準備一個名為 ``test_cfg.ini`` 的配置文件，並概述我們如何在chatbot應用中使用這個組態。
+
+在 easy-configer 中，配置有兩種類型的參數：扁平參數和層級參數。你會發現，扁平參數直接放置在配置中，並不屬於任何特定的區段 (即位於第一層)。
+相對地，層級參數會被放置在區段中（例如 ``[db_setup]``），並且可以有任意深度，區段下的參數會被一個容器 (``easy_configer.utils.Container.AttributeDict``) 包裹，這個容器類似於 Python 中的 dict。
+
+為了在嵌套區段中形成層級參數，我們採用了類似 toml 的語法來描述嵌套區段（例如 ``[bknd_srv.mod_params]`` 屬於 ``[bknd_srv]`` 父區段內的子組態）。
+嵌套區段中的參數也會被嵌套的 ``AttributeDict`` 包裹。此外，你可以使用簡單的 點操作符 (dot-operator) 來訪問各種參數，但我們仍然建議你像純 Python 字典一樣使用鍵字符串 (key-string)。
+
+..
+    
+    請注意，推薦的訪問參數方式仍然是使用鍵字符串訪問 ``cfger.args['#4$%-var']``，正如你所注意到的，
+    點操作符無法支持 **醜陋的變數名稱** （例如 ``cfger.#4$%-var``，因為變數名在 Python 解釋器中是非法的）
+
 
 .. code-block:: ini
 
@@ -56,9 +72,9 @@
    # 定義階層化參數 :
    # 'section' 為存取字典值時所用的字串，並於以下定義 :
    [db_setup]
-       db_host = $serv_host
+       db_host = ${cfg.serv_host}:80@str
        # 請先於您的 bash 中執行 `export mongo_port=5566`, 我們支援對 os.env 的參數插值!
-       db_port = $Env.mongo_port  
+       db_port = ${env.mongo_port}
        snap_shot = True
 
    # 接著我們為後端 server 定義 第二個 section..
@@ -70,13 +86,20 @@
        [bknd_srv.mod_params]
            log_hist = False
            tempeture = 1e-4
-           model_mode = $bknd_srv.chat_mode  # 階層化參數插值
+           model_mode = ${cfg.bknd_srv.chat_mode}  # 階層化參數插值
 
 
 :raw-html-m2r:`<br>`
 
 現在，您可以通過在工作目錄中運行 ``python quick_start.py`` 來啟動聊天機器人 (\ *quick_start.py 在您的工作目錄中*\ )!
 當然，您也可以通過命令行使用 ``python quick_start.py serv_port=7894`` 來覆蓋參數設置。
+
+..
+
+    請注意，藉由命令列(commendline)更新參數是允許的，但卻不允許覆蓋區段！ 
+    如果你 **仍想** 覆蓋區段，你需要設置標誌 ``allow_overwrite=True``；但我們相當不建議，因為這代表當初組態所設定的區段配置有設計上的問題，
+    對於這種情形，我們寧可建議使用者 **調整** 區段配置的設計，而非用這種trick。
+
 
 .. code-block:: python
 

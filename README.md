@@ -379,7 +379,7 @@ Like `omegaconf`, most of user expect to seperate the config based on their cate
 1. you can call the `cfg_from_ini` twice, for example, `cfg.cfg_from_ini('./base_cfg') ; cfg.cfg_from_ini('./override_cfg', allow_overwrite=True)`. But it's not explicitly load the config thus reducing readability.
 2. you can use the config merging, for example, `new_cfg = base_cfg | override_cfg`. But it's not elegant solution while you have to merge several config..
 
-#### Now, we provide the thrid way : **sub-config**. you can import the sub-config in any depth of hierachical config by simply placing the `>` symbol at the beginning of line. Also note that sub-config doesn't allow you overwrite the declared argument by default, since dynamically overwrite the arguments made your config hard to trace..
+#### Now, we provide the thrid way : **sub-config**. you can import the sub-config in any depth of hierachical config by simply placing the `>` symbol at the beginning of line. Also note that sub-config doesn't allow you overwrite the section by default, since dynamically overwrite the section is not necessary generally (also made your config hard to trace).
 
 ```ini
 # ./base_cfg.ini
@@ -584,7 +584,7 @@ if __name__ == '__main__':
 ---
 
 #### **8. Absl style flag**
-easy_config also support that you can access the 'same' config file in different python file without re-declare the config. test_flag.py under the same work directory
+easy_config also support that you can access the 'same' config file in different python file without re-declare the config. utils.py under the same work directory
 
 Suppose you have executed `main.py`:
 ```python

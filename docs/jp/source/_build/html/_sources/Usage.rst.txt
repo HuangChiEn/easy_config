@@ -8,7 +8,7 @@
 1. 階層化配置の定義方法 🖋️
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Easy-configでは、2つのパラメータの準備方法があります：フラットパラメータを定義するか、複数のパラメータを階層化してグループ化することができます（2番目のレベルから）。
+easy-configでは、2つのパラメータの準備方法があります：フラットパラメータを定義するか、複数のパラメータを階層化してグループ化することができます（2番目のレベルから）。
 ほとんどの場合、フラットパラメータをグローバル設定として定義し、残りのパラメータを対応する辞書に配置して、サブプロシージャに割り当てやすくします。
 ディープラーニングの例を挙げてみましょう。
 
@@ -16,6 +16,7 @@ Easy-configでは、2つのパラメータの準備方法があります：フ�
 
 .. code-block:: ini
 
+   root_dir = '/workspace'
    glb_seed = 42
    exp_id = '0001'
 
@@ -23,7 +24,7 @@ Easy-configでは、2つのパラメータの準備方法があります：フ�
    # i.e. we can assign dict dataset to subroutine by `build_dataset(**cfg.dataset)`, just such easy!!
    [dataset]   
        service_port = 65536
-       path = '/data/kitti'
+       path = "${cfg.root_dir}/data/kitti"
        # of course, nested dict is also supported! it just the native python dictionary in dictionary!
        [dataset.loader]
            batch_size = 32
@@ -78,7 +79,7 @@ Easy-configでは、2つのパラメータの準備方法があります：フ�
 
 ..
 
-   現在、私たちは異なるネストされた辞書レベルの　**任意のパラメータ**　に対して挿入をサポートしています。さらに、bashの環境変数にアクセスするために　**$Env**　をサポートしています！
+   現在、私たちは補間メカニズムをサポートしており、 ``${cfg}`` 記法を使用することで、任意の 引数（ネストされたセクションに属するものも含む）を補間できます。さらに、 ``${env}`` を使用して、bashでエクスポートされた環境変数にアクセスすることもサポートしています！！
 
 
 .. code-block:: python
@@ -93,7 +94,7 @@ Easy-configでは、2つのパラメータの準備方法があります：フ�
                service_port = 65536
 
                # Don't forgot to regist Path object first and the typename will be the given name!!
-               path = {'path':'/data/kitti'}@pyPath
+               path = ['/data/kitti']@pyPath
 
                [dataset.loader]
                    batch_size = 32
@@ -183,11 +184,9 @@ Easy-configでは、2つのパラメータの準備方法があります：フ�
    glb_var = 42@int
    [dataset]         
        ds_type = None
-       path = {'root':'/data/kitti'}@Path
+       path = ['/data/kitti']@pyPath
        [dataset.loader]
            batch_size = 32@int
-
-   # Hier-Cell cfg written by Josef-Huang..
 
 
 Python　で実行してヘルプ情報を出力します :raw-html-m2r:`<br>`
@@ -215,12 +214,7 @@ Python　で実行してヘルプ情報を出力します :raw-html-m2r:`<br>`
 #. 設定のマージを使用することもできましたが。例えば、 ``new_cfg = base_cfg | override_cfg``。しかし、数多くの設定をマージする場合には優雅な解決策ではありませんでした。
 
 現在、新しい方法　**sub-config**　を提供します。サブ構成を導入するために、行の先頭に簡単に　``>``　記号を置くことができるようになりました。
-また、サブコンフィグでは、デフォルトでは宣言された引数をオーバーライドすることはできません。これは、引数を動的にオーバーライドするとコンフィグの追跡が困難になるためです。
-
-..
-
-   設定をオーバーライドしたい場合は、フラグ ``allow_override`` を ``True`` に設定してください。例えば、``cfg.cfg_from_ini(..., allow_override=True)`` や ``cfg.cfg_from_str(..., allow_override=True)`` のように指定します。
-   サブコンフィグは、フラグの設定に従って設定をオーバーライドするか、``RuntimeError`` を発生させます。
+また、サブ設定ではデフォルトで宣言されたセクションの上書きを許可しないことに注意してください。一般的にセクションを動的に上書きする必要はないため（また、設定が追跡しづらくなるため）、上書きは許可されていません。
 
 .. code-block:: ini
 
@@ -234,7 +228,7 @@ Python　で実行してヘルプ情報を出力します :raw-html-m2r:`<br>`
 
    # ./config/ds_config.ini
    ds_type = None
-   path = {'root':'/data/kitti'}@Path
+   path = ['/data/kitti']@pyPath
    [dataset.loader]
        batch_size = 32@int
 
@@ -244,6 +238,62 @@ Python　で実行してヘルプ情報を出力します :raw-html-m2r:`<br>`
        [model.backbone.optimizer]
        # and yes, interpolation is still valid "after" the reference argument is declared!
            lay_seed = ${cfg.glb_seed}
+
+また、設定を上書きする方法でマージしたい場合は、複数の設定インスタンスを作成し、2つの方法でマージすることを引き続きお勧めします。omegaconfのように、設定を静かに動的に上書きするのではなく、明示的に設定をマージする方法を推奨します。
+
+..
+
+   もしそれでも設定を上書きしたい場合（omegaconfのように動作させたい場合）、フラグ ``allow_overwrite`` をTrueに設定します。例： ``cfg.cfg_from_ini(..., allow_overwrite=True)``, ``cfg.cfg_from_str(..., allow_overwrite=True)``。サブ設定はこのフラグ設定に従い、設定を上書きします。順序に注意してください。インポートされたサブ設定は **「デフォルトの設定」** と見なされ、メイン設定（サブ設定をインポートする設定）がその設定を上書きします。
+
+.. code-block:: ini
+        
+    # ./base_cfg.ini
+
+    # note that the order between defined arguments and imported sub-config do affect the final value of arguments!
+    glb_seed = 42
+
+    # import several default setup :
+    > ./config/ds_config.ini
+    > ./config/model_config.ini
+
+    [dataset]       
+        n_worker = 8
+
+    [model]
+        n_blk = 2
+
+    # ./config/ds_config.ini
+    [dataset]
+        n_worker = 1
+        path = ['/data/kitti']@pyPath
+        [dataset.loader]
+            batch_size = 32@int
+
+    # ./root/config/model_config.ini
+    [model]
+        mod_typ = 'resnet'
+        n_blk = 1
+        [model.optimizer]
+        # and yes, interpolation is still valid "after" the reference argument is declared!
+            lay_seed = ${cfg.glb_seed}
+
+動的ロード後：
+
+.. code-block:: ini
+
+    glb_seed = 42
+
+    [dataset]       
+        n_worker = 8  # overwrited by base_cfg.ini
+        path = ['/data/kitti']@pyPath
+        [dataset.loader]
+            batch_size = 32@int
+
+    [model]
+        n_blk = 2 # overwrited by base_cfg.ini
+        mod_typ = 'resnet'
+        [model.optimizer]
+            lay_seed = 42
 
 ----
 
@@ -278,8 +328,6 @@ Python　で実行してヘルプ情報を出力します :raw-html-m2r:`<br>`
                add = 32@int
                [ghyu.opop.tueo]
                    salt = ${cfg.inpo}
-
-       # Cell cfg written by Josef-Huang..
        '''
 
    def build_cfg_text_b():
@@ -301,7 +349,6 @@ Python　で実行してヘルプ情報を出力します :raw-html-m2r:`<br>`
        [new]
            [new.new]
                newsec = wpeo@str
-       # Cell cfg written by Josef-Huang..
        '''
 
    if __name__ == "__main__":

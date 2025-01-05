@@ -19,12 +19,12 @@
    glb_seed = 42
    exp_id = '0001'
 
-   # we call '...' in [...] as section name,
-   # i.e. we can assign dict dataset to subroutine by `build_dataset(**cfg.dataset)`, just such easy!!
+   # 我們將 [...] 中的 ... 稱為區段名稱，
+   # 即我們可以通過 build_dataset(**cfg.dataset) 將字典數據集賦值給子程序，這麼簡單！！
    [dataset]   
        service_port = 65536
-       path = '/data/kitti'
-       # of course, nested dict is also supported! it just the native python dictionary in dictionary!
+       path = "${cfg.root_dir}/data/kitti"
+       # 當然，嵌套字典也是支持的！它實際上就是繼承自 Python 原生的字典！
        [dataset.loader]
            batch_size = 32
 
@@ -74,11 +74,11 @@
 此外，path 被定義為 Python 字符串，需要進一步通過 Python 標準包中的 Path 對象進行轉換。我們能夠註冊我們自定義的數據類型嗎？
 很高興地告訴您：是的！可以優雅地處理上述問題。我們可以通過使用參數插值來解決第一個問題，通過使用自定義註冊來解決第二個問題！
 
-使用 *$ 符號的配置插值* 以及 自定義的註冊方法 ``regist_cnvtor``。
+感謝於 *Python 格式字符串* ``${...}`` 和 *自定義註冊方法* ``regist_cnvtor``。 見下例 :
 
 ..
 
-   目前我們支援對不同 nested-dictionary 層級的 **任意參數** 來進行插值；此外，我們也支援 **$Env** 來存取 bash 中的環境變數!!
+   目前我們支持組態配置的插值機制，可以通過簡單使用 ``${cfg}`` 註記來插入 任何 參數，即使它屬於嵌套區段。此外，我們還支持 ``${env}`` 來訪問在 bash 中導出的環境變量！！
 
 
 .. code-block:: python
@@ -93,7 +93,7 @@
                service_port = 65536
 
                # Don't forgot to regist Path object first and the typename will be the given name!!
-               path = {'path':'/data/kitti'}@pyPath
+               path = ['/data/kitti']@pyPath
 
                [dataset.loader]
                    batch_size = 32
@@ -183,11 +183,9 @@
    glb_var = 42@int
    [dataset]         
        ds_type = None
-       path = {'root':'/data/kitti'}@Path
+       path = ['/data/kitti']@pyPath
        [dataset.loader]
            batch_size = 32@int
-
-   # Hier-Cell cfg written by Josef-Huang..
 
 
 執行 Python 程序並打印出幫助信息 :raw-html-m2r:`<br>`
@@ -213,12 +211,8 @@
 #. 您可以使用配置合併，例如 : ``new_cfg = base_cfg | override_cfg``。但是當您需要合併多個配置時，這並不是一個優雅的解決方案...
 
 現在，我們提供了第三種方式 : **sub-config**。您可以通過在行首簡單地放置 ``>`` 符號來在層次配置的任何階層導入子配置。
-請注意，sub-config 不允許您覆寫任何先前定義的組態值，所謂的動態合併或動態載入是指融合不重複的組態值，因為動態覆寫組態值一直是造成大型程式的組態配置難以追蹤的根本原因，也是各大組態工具吹噓的功能，很遺憾...
-
-..
-
-   雖然我不推薦，如果您要這個功能，可以透過啟用 allow_override 旗標來達成；例如. ``cfg.cfg_from_ini(..., allow_override=True)``, ``cfg.cfg_from_str(..., allow_override=True)``。
-   這個設定雖然是套用在 ``cfg.cfg_from_ini`` 等方法，但 sub-config 的行為也會遵循此旗標的設定來覆寫組態值，或是拋出一個運行錯誤。
+雖然動態覆寫組態值一直是造成大型程式的組態配置難以追蹤的根本原因，但我基本上也妥協了，很遺憾... 
+然而，請注意 sub-config 預設不允許您覆寫任何先前定義的 **區段**，因為這通常沒有必要!
 
 .. code-block:: ini
 
@@ -232,7 +226,7 @@
 
    # ./config/ds_config.ini
    ds_type = None
-   path = {'root':'/data/kitti'}@Path
+   path = ['/data/kitti']@pyPath
    [dataset.loader]
        batch_size = 32@int
 
@@ -242,6 +236,65 @@
        [model.backbone.optimizer]
        # and yes, interpolation is still valid "after" the reference argument is declared!
            lay_seed = ${cfg.glb_seed}
+
+還需要注意的是，我們仍然建議你創建多個配置實例並以組態合併的方式覆寫組態值，通常 **顯性的** 做這件事比隱性的完成來的好。
+與其像 omegaconf 那樣靜默地動態覆蓋你的配置，我們推薦使用顯式的合併方法來處理。
+
+..
+
+   雖然我不推薦，如果您想要如同omegaconf的功能，可以透過啟用 ``allow_override`` 旗標來達成；例如. ``cfg.cfg_from_ini(..., allow_override=True)``, ``cfg.cfg_from_str(..., allow_override=True)``。
+   這個設定雖然是套用在 ``cfg.cfg_from_ini`` 等方法，但 sub-config 的行為也會遵循此旗標的設定來覆寫組態值，或是拋出一個運行錯誤。
+   注意順序，導入的 **子配置** 被視為 **"默認設置"**，主配置（導入子配置的配置）將覆蓋它的設置。
+
+.. code-block:: ini
+        
+    # ./base_cfg.ini
+
+    # note that the order between defined arguments and imported sub-config do affect the final value of arguments!
+    glb_seed = 42
+
+    # import several default setup :
+    > ./config/ds_config.ini
+    > ./config/model_config.ini
+
+    [dataset]       
+        n_worker = 8
+
+    [model]
+        n_blk = 2
+
+    # ./config/ds_config.ini
+    [dataset]
+        n_worker = 1
+        path = ['/data/kitti']@pyPath
+        [dataset.loader]
+            batch_size = 32@int
+
+    # ./root/config/model_config.ini
+    [model]
+        mod_typ = 'resnet'
+        n_blk = 1
+        [model.optimizer]
+        # and yes, interpolation is still valid "after" the reference argument is declared!
+            lay_seed = ${cfg.glb_seed}
+
+經過動態載入後 :
+
+.. code-block:: ini
+
+    glb_seed = 42
+
+    [dataset]       
+        n_worker = 8  # overwrited by base_cfg.ini
+        path = ['/data/kitti']@pyPath
+        [dataset.loader]
+            batch_size = 32@int
+
+    [model]
+        n_blk = 2 # overwrited by base_cfg.ini
+        mod_typ = 'resnet'
+        [model.optimizer]
+            lay_seed = 42
 
 ----
 
@@ -275,8 +328,6 @@
                add = 32@int
                [ghyu.opop.tueo]
                    salt = ${cfg.inpo}
-
-       # Cell cfg written by Josef-Huang..
        '''
 
    def build_cfg_text_b():
@@ -298,7 +349,6 @@
        [new]
            [new.new]
                newsec = wpeo@str
-       # Cell cfg written by Josef-Huang..
        '''
 
    if __name__ == "__main__":

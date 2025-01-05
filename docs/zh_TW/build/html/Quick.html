@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>快速入門 &mdash; easy_configer v2.3.2 說明文件</title>
+  <title>快速入門 &mdash; easy_configer v2.5.5 說明文件</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -45,7 +45,8 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
-              <ul class="current">
+              <p class="caption" role="heading"><span class="caption-text">內容目錄</span></p>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="About.html">關於此專案</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Installation.html">下載教學</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">快速入門</a><ul>
@@ -54,6 +55,13 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="Usage.html">常用參考資訊</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Metainfo.html">套件相關資訊</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API 文件</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api_Configer.html">Configer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_IO_Converter.html">IO_Converter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_Container.html">utils.Container</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_Type_Convertor.html">utils.Type_Convertor</a></li>
 </ul>
 
         </div>
@@ -112,8 +120,21 @@
 <span class="nb">print</span><span class="p">(</span> <span class="sa">f</span><span class="s2">&quot;Linear equation with x=</span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2"> : </span><span class="si">{</span><span class="w"> </span><span class="n">lin_equ</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="si">}</span><span class="s2">&quot;</span> <span class="p">)</span>
 </pre></div>
 </div>
-<p>在較大型的項目中，我們可能會編寫一個配置文件來控制程序，使得配置更容易追蹤、檢查和調試。在這裡，我們首先在工作目錄中準備一個名為 <code class="docutils literal notranslate"><span class="pre">test_cfg.ini</span></code> 的配置文件。
-<em>對於 easy-config 文件，存在兩種類型的參數：扁平參數和階層化參數</em>。您可以看到，扁平參數位於第一層級，可以通過點運算符輕鬆訪問；除了扁平參數之外，所有階層化參數將被放置在 Python 字典對象中，因此可以通過字串訪問每個參數！</p>
+<blockquote>
+<div><p>如果你想覆蓋先前的組態配置，而呼叫了兩次 <code class="docutils literal notranslate"><span class="pre">cfg.cfg_from_str</span></code> 並設置 <code class="docutils literal notranslate"><span class="pre">allow_overwrite=True</span></code> 旗標，這雖方便卻不是推薦的方法。
+在 easy-configer 中，我們提供了兩種方法來做到這一點。標準方法是 聲明兩個配置並應用配置合併 (config merging) 方法來獲取更新的配置。
+另一種方法類似於 omegaconf 以動態方式導入子配置(sub-config)，不過你仍然需要在 <code class="docutils literal notranslate"><span class="pre">cfg.cfg_from_ini</span></code> 中設置 <code class="docutils literal notranslate"><span class="pre">allow_overwrite=True</span></code> 旗標。</p>
+</div></blockquote>
+<p>雖然在 Python 中編寫字串組態非常方便，但它只適用於較小規模的項目。
+在較大型的項目中，我們可能會編寫一個配置文件來控制程序，使得配置更容易追蹤、檢查和調試。在這裡，我們首先在工作目錄中準備一個名為 <code class="docutils literal notranslate"><span class="pre">test_cfg.ini</span></code> 的配置文件，並概述我們如何在chatbot應用中使用這個組態。</p>
+<p>在 easy-configer 中，配置有兩種類型的參數：扁平參數和層級參數。你會發現，扁平參數直接放置在配置中，並不屬於任何特定的區段 (即位於第一層)。
+相對地，層級參數會被放置在區段中（例如 <code class="docutils literal notranslate"><span class="pre">[db_setup]</span></code>），並且可以有任意深度，區段下的參數會被一個容器 (<code class="docutils literal notranslate"><span class="pre">easy_configer.utils.Container.AttributeDict</span></code>) 包裹，這個容器類似於 Python 中的 dict。</p>
+<p>為了在嵌套區段中形成層級參數，我們採用了類似 toml 的語法來描述嵌套區段（例如 <code class="docutils literal notranslate"><span class="pre">[bknd_srv.mod_params]</span></code> 屬於 <code class="docutils literal notranslate"><span class="pre">[bknd_srv]</span></code> 父區段內的子組態）。
+嵌套區段中的參數也會被嵌套的 <code class="docutils literal notranslate"><span class="pre">AttributeDict</span></code> 包裹。此外，你可以使用簡單的 點操作符 (dot-operator) 來訪問各種參數，但我們仍然建議你像純 Python 字典一樣使用鍵字符串 (key-string)。</p>
+<blockquote>
+<div><p>請注意，推薦的訪問參數方式仍然是使用鍵字符串訪問 <code class="docutils literal notranslate"><span class="pre">cfger.args['#4$%-var']</span></code>，正如你所注意到的，
+點操作符無法支持 <strong>醜陋的變數名稱</strong> （例如 <code class="docutils literal notranslate"><span class="pre">cfger.#4$%-var</span></code>，因為變數名在 Python 解釋器中是非法的）</p>
+</div></blockquote>
 <div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="c1"># ./test_cfg.ini</span>
 <span class="c1"># 以 &#39;#&#39; 開頭為 comment, 我們也支援 inline-comment了!</span>
 
@@ -125,9 +146,9 @@
 <span class="c1"># 定義階層化參數 :</span>
 <span class="c1"># &#39;section&#39; 為存取字典值時所用的字串，並於以下定義 :</span>
 <span class="k">[db_setup]</span>
-<span class="w">    </span><span class="na">db_host</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">$serv_host</span>
+<span class="w">    </span><span class="na">db_host</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${cfg.serv_host}:80@str</span>
 <span class="w">    </span><span class="c1"># 請先於您的 bash 中執行 `export mongo_port=5566`, 我們支援對 os.env 的參數插值!</span>
-<span class="w">    </span><span class="na">db_port</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">$Env.mongo_port</span>
+<span class="w">    </span><span class="na">db_port</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${env.mongo_port}</span>
 <span class="w">    </span><span class="na">snap_shot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
 
 <span class="c1"># 接著我們為後端 server 定義 第二個 section..</span>
@@ -139,12 +160,17 @@
 <span class="w">    </span><span class="k">[bknd_srv.mod_params]</span>
 <span class="w">        </span><span class="na">log_hist</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
 <span class="w">        </span><span class="na">tempeture</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1e-4</span>
-<span class="w">        </span><span class="na">model_mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">$bknd_srv.chat_mode</span><span class="w">  </span><span class="c1"># 階層化參數插值</span>
+<span class="w">        </span><span class="na">model_mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${cfg.bknd_srv.chat_mode}</span><span class="w">  </span><span class="c1"># 階層化參數插值</span>
 </pre></div>
 </div>
 <p><span class="raw-html-m2r"><br></span></p>
 <p>現在，您可以通過在工作目錄中運行 <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">quick_start.py</span></code> 來啟動聊天機器人 (<em>quick_start.py 在您的工作目錄中</em>)!
 當然，您也可以通過命令行使用 <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">quick_start.py</span> <span class="pre">serv_port=7894</span></code> 來覆蓋參數設置。</p>
+<blockquote>
+<div><p>請注意，藉由命令列(commendline)更新參數是允許的，但卻不允許覆蓋區段！
+如果你 <strong>仍想</strong> 覆蓋區段，你需要設置標誌 <code class="docutils literal notranslate"><span class="pre">allow_overwrite=True</span></code>；但我們相當不建議，因為這代表當初組態所設定的區段配置有設計上的問題，
+對於這種情形，我們寧可建議使用者 <strong>調整</strong> 區段配置的設計，而非用這種trick。</p>
+</div></blockquote>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
 
 <span class="c1"># main_block</span>

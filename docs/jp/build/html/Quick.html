@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>クイックスタート &mdash; easy_configer v2.3.2 documentation</title>
+  <title>クイックスタート &mdash; easy_configer v2.5.5 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -44,7 +44,8 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul class="current">
+              <p class="caption" role="heading"><span class="caption-text">コンテンツ</span></p>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="About.html">このプロジェクトについて</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Installation.html">ダウンロードの手順</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">クイックスタート</a><ul>
@@ -53,6 +54,13 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="Usage.html">常用参考情报</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Metainfo.html">パッケージ関連情報</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API ドキュメント</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api_Configer.html">Configer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_IO_Converter.html">IO_Converter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_Container.html">utils.Container</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_Type_Convertor.html">utils.Type_Convertor</a></li>
 </ul>
 
         </div>
@@ -113,8 +121,23 @@
 <span class="nb">print</span><span class="p">(</span> <span class="sa">f</span><span class="s2">&quot;Linear equation with x=</span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2"> : </span><span class="si">{</span><span class="w"> </span><span class="n">lin_equ</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="si">}</span><span class="s2">&quot;</span> <span class="p">)</span>
 </pre></div>
 </div>
-<p>より大規模なプロジェクトでは、プログラムを制御するために設定ファイルを作成し、設定を追跡し、確認し、デバッグしやすくすることが一般的です。ここでは、まず、作業ディレクトリに <code class="docutils literal notranslate"><span class="pre">test_cfg.ini</span></code> という名前の設定ファイルを用意します。
-<em>easy-config ファイルには、2つのタイプのパラメータが存在します：フラットパラメータと階層化パラメータ</em>。フラットパラメータは1つのレベルにあり、ドット演算子を使用して簡単にアクセスできます。フラットパラメータ以外のすべての階層化パラメータは、Pythonの辞書オブジェクトに配置されるため、各パラメータに文字列でアクセスできます！</p>
+<blockquote>
+<div><p>もし以前の設定を上書きしたい場合、<code class="docutils literal notranslate"><span class="pre">cfg.cfg_from_str</span></code> を <code class="docutils literal notranslate"><span class="pre">allow_overwrite=True</span></code> フラグで2回適用する方法は推奨されません。
+easy-configerでは、これを行う方法を2つ提供しています。標準的な方法は、2つの設定を宣言し、設定のマージ方法を適用して更新された設定を取得することです。
+もう一つの方法は、omegaconfのように動的にサブ設定をインポートする方法ですが、 <code class="docutils literal notranslate"><span class="pre">cfg.cfg_from_ini</span></code> で <code class="docutils literal notranslate"><span class="pre">allow_overwrite=True</span></code> フラグを設定する必要があります。</p>
+</div></blockquote>
+<p>Pythonで文字列設定を記述することは便利ですが、これは小規模なプロジェクトにのみ適しています。
+より大規模なプロジェクトでは、プログラムを制御するために設定ファイルを作成し、設定を追跡し、確認し、デバッグしやすくすることが一般的です。ここでは、まず、作業ディレクトリに <code class="docutils literal notranslate"><span class="pre">test_cfg.ini</span></code> という名前の設定ファイルを用意し、チャットボットとどのように連携するかを大まかに説明します。</p>
+<p>easy-configer では、設定ファイルに2種類の引数があります：フラットな引数と階層的な引数です。
+フラットな引数は、設定内で直接配置され、特定のセクションに属さない（つまり、最初のレベルに配置されます）。
+一方、階層的な引数は、セクション（例： <code class="docutils literal notranslate"><span class="pre">[db_setup]</span></code> ）に配置され、任意の深さを持つことができます。
+セクション内の引数は、純粋な Python の dict に似たコンテナ（ <code class="docutils literal notranslate"><span class="pre">easy_configer.utils.Container.AttributeDict</span></code> ）にラップされます。</p>
+<p>階層的な引数をネストされたセクションで形成するために、toml のような構文を使用してネストされたセクションを記述します（例： <code class="docutils literal notranslate"><span class="pre">[bknd_srv.mod_params]</span></code> は <code class="docutils literal notranslate"><span class="pre">[bknd_srv]</span></code> の親セクションに属します）。
+ネストされたセクション内の引数も、ネストされた <code class="docutils literal notranslate"><span class="pre">AttributeDict</span></code> にラップされます。さらに、ドット演算子を使ってすべての引数にアクセスできますが、純粋な Python の辞書のようにキー文字列を使用することをお勧めします。</p>
+<blockquote>
+<div><p>なお、引数にアクセスする推奨される方法は、依然として キー文字列アクセス <code class="docutils literal notranslate"><span class="pre">cfger.args['#4$%-var']</span></code> です。
+ご覧のように、ドットアクセスは <strong>不格好な変数名</strong> （ <code class="docutils literal notranslate"><span class="pre">cfger.#4$%-var</span></code> ）をサポートしていません（変数名は Python インタプリタでは無効です）。</p>
+</div></blockquote>
 <div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="c1"># ./test_cfg.ini</span>
 <span class="c1"># &#39;#&#39; denote comment line, the inline comment is also supported!</span>
 
@@ -126,9 +149,9 @@
 <span class="c1"># define &#39;hierachical&#39; arguments :</span>
 <span class="c1"># the &#39;section&#39; is the key of accessing dict value and could be defined as follows :</span>
 <span class="k">[db_setup]</span>
-<span class="w">    </span><span class="na">db_host</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">$serv_host</span>
+<span class="w">    </span><span class="na">db_host</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${cfg.serv_host}:80@str</span>
 <span class="w">    </span><span class="c1"># first `export mongo_port=5566` in your bash, then support os.env interpolation!</span>
-<span class="w">    </span><span class="na">db_port</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">$Env.mongo_port</span>
+<span class="w">    </span><span class="na">db_port</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${env.mongo_port}</span>
 <span class="w">    </span><span class="na">snap_shot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
 
 <span class="c1"># and then define second section for backend server..</span>
@@ -140,12 +163,16 @@
 <span class="w">    </span><span class="k">[bknd_srv.mod_params]</span>
 <span class="w">        </span><span class="na">log_hist</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
 <span class="w">        </span><span class="na">tempeture</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1e-4</span>
-<span class="w">        </span><span class="na">model_mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">$bknd_srv.chat_mode</span><span class="w">  </span><span class="c1"># hierachical args interpolation</span>
+<span class="w">        </span><span class="na">model_mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${cfg.bknd_srv.chat_mode}</span><span class="w">  </span><span class="c1"># hierachical args interpolation</span>
 </pre></div>
 </div>
 <p><span class="raw-html-m2r"><br></span></p>
 <p>現在、工作ディレクトリで <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">quick_start.py</span></code> を実行することでチャットボットを起動できます (<em>quick_start.py はあなたの作業ディレクトリにあります</em>)!
 もちろん、コマンドラインから  <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">quick_start.py</span> <span class="pre">serv_port=7894</span></code> を使用してパラメータ設定を上書きすることもできます。</p>
+<blockquote>
+<div><p>なお、コマンドラインからの引数の更新は自然に許可されていますが、セクションの上書きは許可されていません！
+セクションを上書きしたい場合は、 <code class="docutils literal notranslate"><span class="pre">allow_overwrite=True</span></code> フラグを設定する必要があります。</p>
+</div></blockquote>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
 
 <span class="c1"># main_block</span>
