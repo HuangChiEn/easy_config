@@ -92,9 +92,9 @@ intercept = 3@int
 '''
 
 # look's good, let's get the config!
-from easy_configer.Config import Config
+from easy_configer.Configer import Configer
 # `cmd_args=False` disable any commendline args 
-cfg = Config(description="math calculation config!", cmd_args=False)
+cfg = Configer(description="math calculation config!", cmd_args=False)
 cfg.cfg_from_str(cfg_str)
 
 # oh.. wait, could we do it more easier ?
