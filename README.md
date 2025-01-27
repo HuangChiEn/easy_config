@@ -7,6 +7,14 @@
 ![easy-configer logo](https://raw.githubusercontent.com/HuangChiEn/easy_config/master/assets/logo.png)
 
 ---
+
+### TODO list :
+0. Next version v3.0 is under development, stateless interface will be introduced as one of new features
+1. Known issue : commendline argument will not update sub_config arguments, will be fixed in v3.0
+2. Nested argument intepolation may be one of features in v3.0
+3. You can preview the v3.0 prototype of codebase under ./dev folder 
+
+---
 ### Package demo ~
 https://github.com/user-attachments/assets/1d6f43a4-f621-433c-a6c0-d267c7b32399
 > The demo video only cover basic functionality of easy_configer, more examples plz refer the doc below..
