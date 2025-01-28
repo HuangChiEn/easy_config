@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Common Usage &mdash; easy_configer v2.3.2 documentation</title>
+  <title>Common Usage &mdash; easy_configer v2.5.5 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -100,14 +100,15 @@
 <p>There have two kind of way to prepare the arguments in easy-config : we can either define flatten argument or groupping the multiple arguments in an hierachical manner (begin from second level). In most of time, we define the flatten argument as global setup, and arrange the rest of arguments into the corresponding dictionary for easy to assign it to the subroutine.
 Let’s give a deep-learning example ~</p>
 <p><em>hier_cfg.ini in work directory</em></p>
-<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="na">glb_seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">42</span>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="na">root_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;/workspace&#39;</span>
+<span class="na">glb_seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">42</span>
 <span class="na">exp_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;0001&#39;</span>
 
 <span class="c1"># we call &#39;...&#39; in [...] as section name,</span>
 <span class="c1"># i.e. we can assign dict dataset to subroutine by `build_dataset(**cfg.dataset)`, just such easy!!</span>
 <span class="k">[dataset]</span>
 <span class="w">    </span><span class="na">service_port</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">65536</span>
-<span class="w">    </span><span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;/data/kitti&#39;</span>
+<span class="w">    </span><span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;${cfg.root_dir}/data/kitti&quot;</span>
 <span class="w">    </span><span class="c1"># of course, nested dict is also supported! it just the native python dictionary in dictionary!</span>
 <span class="w">    </span><span class="k">[dataset.loader]</span>
 <span class="w">        </span><span class="na">batch_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">32</span>
@@ -126,7 +127,7 @@ Let’s give a deep-learning example ~</p>
 <span class="w">        </span><span class="na">sched</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;cos_anneal&#39;</span>
 </pre></div>
 </div>
-<p>We have defined the config file, now let’s see how to access any agruments! Execute <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">quick_hier.py</span></code> in work directory*.</p>
+<p>We have defined the config file, now let’s see how to access any agruments! Execute <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">quick_hier.py</span></code> in work directory.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">easy_configer.Configer</span> <span class="kn">import</span> <span class="n">Configer</span>
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
@@ -151,11 +152,12 @@ Let’s give a deep-learning example ~</p>
     <span class="n">Trainer</span><span class="p">(</span><span class="n">mod</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>However, the syntax of above config file could be improved, isn’t it !? For example, the batch_size is defined twice under <code class="docutils literal notranslate"><span class="pre">dataset.loader</span></code> and <code class="docutils literal notranslate"><span class="pre">train_cfg</span></code>, so as layer seed. Moreover, path is defined as python string, it need to be further converted by Path object in python standard package. Could we regist our customized data type for easy-config ?
+<p>However, the syntax in config could be improved, isn’t it !? For example, the batch_size is defined twice under <code class="docutils literal notranslate"><span class="pre">dataset.loader</span></code> and <code class="docutils literal notranslate"><span class="pre">train_cfg</span></code>, so as layer seed.
+Moreover, path is defined as python string, it need to be further converted by Path object in python standard package. Could we regist our customized data type for easy-config ?
 Glade to say : Yes! it’s possible to elegantly deal with above mentioned issue. We can solve the first issue by using argument interpolation, and solve the second issue by using the customized register!!</p>
-<p>Thanks to <em>python format-string via ${…}</em> and  <em>customized register method `regist_cnvtor`</em>. <em>See below example</em></p>
+<p>Python <strong>フォーマット文字列</strong> <code class="docutils literal notranslate"><span class="pre">${...}</span></code> と <strong>カスタマイズされた登録メソッド</strong> <code class="docutils literal notranslate"><span class="pre">regist_cnvtor</span></code> に感謝します。 下記の例を参照してください :</p>
 <blockquote>
-<div><p>Currently we support interpolation mechnaism to interpolate <strong>ANY</strong> arguemnts belonging the different level of nested dictionary by using <strong>${cfg}</strong>. Moreover, we also support <strong>${env}</strong> for accessing enviroment variables exported in bash!!</p>
+<div><p>Currently we support interpolation mechnaism to interpolate <strong>ANY</strong> arguemnts even beloning to nested section by simply using <strong>${cfg}</strong> notation. Moreover, we also support <strong>${env}</strong> for accessing enviroment variables exported in bash!!</p>
 </div></blockquote>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># For convience, we define string-config!</span>
 <span class="k">def</span> <span class="nf">get_str_cfg</span><span class="p">():</span>
@@ -167,7 +169,7 @@ Glade to say : Yes! it’s possible to elegantly deal with above mentioned issue
 <span class="sd">            service_port = 65536</span>
 
 <span class="sd">            # Don&#39;t forgot to regist Path object first and the typename will be the given name!!</span>
-<span class="sd">            path = {&#39;path&#39;:&#39;/data/kitti&#39;}@pyPath</span>
+<span class="sd">            path = [&#39;/data/kitti&#39;]@pyPath</span>
 
 <span class="sd">            [dataset.loader]</span>
 <span class="sd">                batch_size = 32</span>
@@ -247,11 +249,9 @@ We simple set a breakpoint to feel how flexible does <code class="docutils liter
 <span class="na">glb_var</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">42@int</span>
 <span class="k">[dataset]</span>
 <span class="w">    </span><span class="na">ds_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">None</span>
-<span class="w">    </span><span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">{&#39;root&#39;:&#39;/data/kitti&#39;}@Path</span>
+<span class="w">    </span><span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">[&#39;/data/kitti&#39;]@pyPath</span>
 <span class="w">    </span><span class="k">[dataset.loader]</span>
 <span class="w">        </span><span class="na">batch_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">32@int</span>
-
-<span class="c1"># Hier-Cell cfg written by Josef-Huang..</span>
 </pre></div>
 </div>
 <p>Execute python program and print out the helper information <span class="raw-html-m2r"><br></span>
@@ -259,7 +259,7 @@ We simple set a breakpoint to feel how flexible does <code class="docutils liter
 <p>Update flatten argument and print out the helper information <span class="raw-html-m2r"><br></span>
 <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">quick_hier.py</span> <span class="pre">glb_var=404</span> <span class="pre">-h</span></code></p>
 <p>Especially update <strong>non-flatten argument</strong>, you can access any argument at any level by dot-access in commend-line!! (with combining any argument update). Now, try to change any nested argument <span class="raw-html-m2r"><br></span>
-<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">quick_hier.py</span> <span class="pre">dataset.ds_type=&quot;'kitti'&quot;</span> <span class="pre">dataset.path=&quot;{'path':'/root/ds'}&quot;</span> <span class="pre">dataset.loader.batch_size=48</span></code></p>
+<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">quick_hier.py</span> <span class="pre">dataset.ds_type=&quot;'kitti'&quot;</span> <span class="pre">dataset.path=['/root/ds']</span> <span class="pre">dataset.loader.batch_size=48</span></code></p>
 <dl class="simple">
 <dt>( Note that the commendline declaration for string is tricky, but currently we only support two way for that :</dt><dd><p><code class="docutils literal notranslate"><span class="pre">dataset.ds_type=&quot;'kitti'&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">dataset.ds_type=kitti&#64;str</span></code>, pick up one of you like ~ )</p>
 </dd>
@@ -268,17 +268,13 @@ We simple set a breakpoint to feel how flexible does <code class="docutils liter
 <hr class="docutils" />
 <section id="import-sub-config">
 <h2>4. Import Sub-Config 🎎<a class="headerlink" href="#import-sub-config" title="Permalink to this heading"></a></h2>
-<p>Like <code class="docutils literal notranslate"><span class="pre">omegaconf</span></code>, most of user expect to seperate the config based on their type and dynamically merge it in runtime. It’s a rational requirement and the previous version of easy-config provide two way to conduct it, but both have it’s limit :</p>
+<p>Like <code class="docutils literal notranslate"><span class="pre">omegaconf</span></code>, most of user expect to seperate the config based on their category and dynamically merge it in runtime. It’s a rational requirement and the previous version of easy-config provide two way to conduct it, but both have it’s limit :</p>
 <ol class="arabic simple">
-<li><p>you can call the <code class="docutils literal notranslate"><span class="pre">cfg_from_ini</span></code> twice, for example, <code class="docutils literal notranslate"><span class="pre">cfg.cfg_from_ini('./base_cfg')</span> <span class="pre">;</span> <span class="pre">cfg.cfg_from_ini('./override_cfg')</span></code>. But it’s not explicitly load the config thus reducing readability.</p></li>
+<li><p>you can call the <code class="docutils literal notranslate"><span class="pre">cfg_from_ini</span></code> twice, for example, <code class="docutils literal notranslate"><span class="pre">cfg.cfg_from_ini('./base_cfg',</span> <span class="pre">allow_overwrite=True)</span> <span class="pre">;</span> <span class="pre">cfg.cfg_from_ini('./override_cfg',</span> <span class="pre">allow_overwrite=True)</span></code>. But it’s not explicitly load the config thus reducing readability.</p></li>
 <li><p>you can use the config merging, for example, <code class="docutils literal notranslate"><span class="pre">new_cfg</span> <span class="pre">=</span> <span class="pre">base_cfg</span> <span class="pre">|</span> <span class="pre">override_cfg</span></code>. But it’s not elegant solution while you  have to merge several config..</p></li>
 </ol>
 <p>Now, we provide the thrid way : <strong>sub-config</strong>. you can import the sub-config in any depth of hierachical config by simply placing the <code class="docutils literal notranslate"><span class="pre">&gt;</span></code> symbol at the beginning of line.
-Also note that sub-config doesn’t allow you override the declared argument by default, since dynamically override the arguments made your config hard to trace..</p>
-<blockquote>
-<div><p>If you want to override the config, turn the flag <code class="docutils literal notranslate"><span class="pre">allow_override</span></code> as <code class="docutils literal notranslate"><span class="pre">True</span></code>. i.e. <code class="docutils literal notranslate"><span class="pre">cfg.cfg_from_ini(...,</span> <span class="pre">allow_override=True)</span></code>, <code class="docutils literal notranslate"><span class="pre">cfg.cfg_from_str(...,</span> <span class="pre">allow_override=True)</span></code>.
-The sub-config will follow the flag setting to override the config or raise the <code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code>.</p>
-</div></blockquote>
+Also note that sub-config doesn’t allow you override the declared <strong>section</strong> by default, since dynamically override the section is not necessary generally (also made your config hard to trace).</p>
 <div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="c1"># ./base_cfg.ini</span>
 <span class="na">glb_seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">42@int</span>
 <span class="k">[dataset]</span>
@@ -289,7 +285,7 @@ The sub-config will follow the flag setting to override the config or raise the 
 
 <span class="c1"># ./config/ds_config.ini</span>
 <span class="na">ds_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">None</span>
-<span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">{&#39;root&#39;:&#39;/data/kitti&#39;}@Path</span>
+<span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">[&#39;/data/kitti&#39;]@pyPath</span>
 <span class="k">[dataset.loader]</span>
 <span class="w">    </span><span class="na">batch_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">32@int</span>
 
@@ -299,6 +295,57 @@ The sub-config will follow the flag setting to override the config or raise the 
 <span class="w">    </span><span class="k">[model.backbone.optimizer]</span>
 <span class="w">    </span><span class="c1"># and yes, interpolation is still valid &quot;after&quot; the reference argument is declared!</span>
 <span class="w">        </span><span class="na">lay_seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${cfg.glb_seed}</span>
+</pre></div>
+</div>
+<p>Also note that we still recommend you create several config instance and merge it in 2. way, if you want to merge it with overwriting manner. Instead of acting like omegaconf, it dynamically overwrite your config silently..</p>
+<blockquote>
+<div><p>If you <strong>still</strong> want to overwrite the config (act like omegaconf), turn the flag allow_overwrite as True. i.e. <code class="docutils literal notranslate"><span class="pre">cfg.cfg_from_ini(...,</span> <span class="pre">allow_overwrite=True)</span></code>, <code class="docutils literal notranslate"><span class="pre">cfg.cfg_from_str(...,</span> <span class="pre">allow_overwrite=True)</span></code>. The sub-config will follow the flag setting to overwrite the config. Be careful of the order, the <strong>imported sub-configs</strong> are considered as <strong>‘default setup’</strong>, the main config (which import sub-configs) setup will overwrite its.</p>
+</div></blockquote>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="c1"># ./base_cfg.ini</span>
+
+<span class="c1"># note that the order between defined arguments and imported sub-config do affect the final value of arguments!</span>
+<span class="na">glb_seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">42</span>
+
+<span class="c1"># import several default setup :</span>
+<span class="na">&gt; ./config/ds_config.ini</span>
+<span class="na">&gt; ./config/model_config.ini</span>
+
+<span class="k">[dataset]</span>
+<span class="w">    </span><span class="na">n_worker</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">8</span>
+
+<span class="k">[model]</span>
+<span class="w">    </span><span class="na">n_blk</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2</span>
+
+<span class="c1"># ./config/ds_config.ini</span>
+<span class="k">[dataset]</span>
+<span class="w">    </span><span class="na">n_worker</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1</span>
+<span class="w">    </span><span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">[&#39;/data/kitti&#39;]@pyPath</span>
+<span class="w">    </span><span class="k">[dataset.loader]</span>
+<span class="w">        </span><span class="na">batch_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">32@int</span>
+
+<span class="c1"># ./root/config/model_config.ini</span>
+<span class="k">[model]</span>
+<span class="w">    </span><span class="na">mod_typ</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;resnet&#39;</span>
+<span class="w">    </span><span class="na">n_blk</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1</span>
+<span class="w">    </span><span class="k">[model.optimizer]</span>
+<span class="w">    </span><span class="c1"># and yes, interpolation is still valid &quot;after&quot; the reference argument is declared!</span>
+<span class="w">        </span><span class="na">lay_seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">${cfg.glb_seed}</span>
+</pre></div>
+</div>
+<p>After dynamic loading :</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="na">glb_seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">42</span>
+
+<span class="k">[dataset]</span>
+<span class="w">    </span><span class="na">n_worker</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">8</span><span class="w">  </span><span class="c1"># overwrited by base_cfg.ini</span>
+<span class="w">    </span><span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">[&#39;/data/kitti&#39;]@pyPath</span>
+<span class="w">    </span><span class="k">[dataset.loader]</span>
+<span class="w">        </span><span class="na">batch_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">32@int</span>
+
+<span class="k">[model]</span>
+<span class="w">    </span><span class="na">n_blk</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2</span><span class="w"> </span><span class="c1"># overwrited by base_cfg.ini</span>
+<span class="w">    </span><span class="na">mod_typ</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;resnet&#39;</span>
+<span class="w">    </span><span class="k">[model.optimizer]</span>
+<span class="w">        </span><span class="na">lay_seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">42</span>
 </pre></div>
 </div>
 </section>
@@ -326,8 +373,6 @@ In the following example, you can see that the merging config system already pro
 <span class="s1">            add = 32@int</span>
 <span class="s1">            [ghyu.opop.tueo]</span>
 <span class="s1">                salt = $</span><span class="si">{cfg.inpo}</span>
-
-<span class="s1">    # Cell cfg written by Josef-Huang..</span>
 <span class="s1">    &#39;&#39;&#39;</span>
 
 <span class="k">def</span> <span class="nf">build_cfg_text_b</span><span class="p">():</span>
@@ -349,7 +394,6 @@ In the following example, you can see that the merging config system already pro
 <span class="s1">    [new]</span>
 <span class="s1">        [new.new]</span>
 <span class="s1">            newsec = wpeo@str</span>
-<span class="s1">    # Cell cfg written by Josef-Huang..</span>
 <span class="s1">    &#39;&#39;&#39;</span>
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>

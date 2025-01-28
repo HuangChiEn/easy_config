@@ -10,6 +10,35 @@
 About this project
 =====================
 
+🚧 TODO list :
+^^^^^^^^^^^^^^^^^^
+#.
+   Release known issue area in v2.5.6 and hot-fix in v2.6.
+
+#. 
+   Tag v2.6 as stable version.
+
+#.
+   Next version v3.0 is under development, stateless interface will be introduced as one of new features
+
+#.
+   Nested argument intepolation may be one of features in v3.0
+
+#. 
+   You can preview the v3.0 prototype of codebase under ./dev folder 
+
+
+🐞 Known issues : 
+^^^^^^^^^^^^^^^^^^^
+
+#.
+   allow_overwrite flag also allow you overwrite the entire section by a config value, most of case it should not a expected behavior (pitfall)
+
+#.
+   Commendline argument CAN NOT update the arguments in sub_config (bug)
+
+----
+
 Preface ✨
 ^^^^^^^^^^^^
 

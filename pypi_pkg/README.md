@@ -7,9 +7,21 @@
 ![easy-configer logo](https://raw.githubusercontent.com/HuangChiEn/easy_config/master/assets/logo.png)
 
 ---
-### Package demo ~
-https://github.com/user-attachments/assets/1d6f43a4-f621-433c-a6c0-d267c7b32399
-> The demo video only cover basic functionality of easy_configer, more examples plz refer the doc below..
+
+#### pypi v2.5.7 just update README.md..
+
+### 🚧 TODO list :
+0. Release known issue area in v2.5.6 and hot-fix in v2.6.
+1. Tag v2.6 as stable version.
+2. Next version v3.0 is under development, stateless interface will be introduced as one of new features
+3. Nested argument intepolation may be one of features in v3.0
+4. You can preview the v3.0 prototype of codebase under ./dev folder 
+
+---
+
+### 🐞 Known issues : 
+1. allow_overwrite flag also allow you overwrite the entire section by a config value, most of case it should not a expected behavior (pitfall)
+2. Commendline argument CAN NOT update the arguments in sub_config (bug)
 
 ---
 
@@ -45,8 +57,8 @@ And, of course the following attributes are supported :
 ---
 
 ### Newly update features 🚀
-0. v2.5.4 is basically stable, but we add more test case in this version (it's more stable now) ~
-1. Apply ${cfg}, ${env} as argument and enviroment intepolation notation, respectively.
+0. v2.5.4 is basically fine, but it still have several known issues, so we plane to release v2.6 as stable version.
+1. Apply \${cfg}, ${env} as argument and enviroment intepolation notation, respectively.
 2. Apply AttributeDict container (it inherit pure python dict) to store non-flatten arguments!
 
 ---
@@ -92,9 +104,9 @@ intercept = 3@int
 '''
 
 # look's good, let's get the config!
-from easy_configer.Config import Config
+from easy_configer.Configer import Configer
 # `cmd_args=False` disable any commendline args 
-cfg = Config(description="math calculation config!", cmd_args=False)
+cfg = Configer(description="math calculation config!", cmd_args=False)
 cfg.cfg_from_str(cfg_str)
 
 # oh.. wait, could we do it more easier ?
@@ -514,7 +526,7 @@ if __name__ == "__main__":
     cfg_b = Configer()
     cfg_b.cfg_from_str(build_cfg_text_b())
     
-    # default, overwrite falg is turn off ~
+    # default, overwrite flag is turn off ~
     cfg_a.merge_conf(cfg_b, overwrite=True)
 
     # `cfg_b = cfg_b | cfg_a`, operator support, warn to decrease the read-ability...

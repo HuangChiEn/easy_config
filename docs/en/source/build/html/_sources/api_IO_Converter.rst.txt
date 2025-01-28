@@ -54,7 +54,7 @@ Convert easy_configer 'to' the other common config instance.
 
 * ``cfg`` *Configer* - Easy_configer instance.
 * ``target_cfg_type`` *str* - A string tag of supported config type. It could be viewed by ``self.output_dispatcher.keys()``.
-* ``cnvtr_kwarg`` *\ ``**kwargs``\ * - Other keyword arguments attempt to pass to converter subroutine.
+* ``cnvtr_kwarg`` \*\*kwargs - Other keyword arguments attempt to pass to converter subroutine.
 
 **Returns**\ :
    Any, the target config instance.
@@ -75,7 +75,7 @@ Convert to easy_configer 'from' the given common config instance.
 
 * ``other_cfg`` *Any* - Any supported config instance.
 * ``target_cfg_type`` *str* - A string tag of supported config type. It could be viewed by ``self.input_dispatcher.keys()``.
-* ``cnvtr_kwarg`` *\ ``**kwargs``\ * - Other keyword arguments attempt to pass to converter subroutine.
+* ``cnvtr_kwarg`` \*\*kwargs - Other keyword arguments attempt to pass to converter subroutine.
 
 **Returns**\ :
   Configer.

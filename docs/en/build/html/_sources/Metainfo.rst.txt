@@ -8,7 +8,7 @@ Newly update features 🚀
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 #. 
-   v2.5.4 is basically stable, but we add more test case in this version (it's more stable now) ~
+   v2.5.4 is basically fine, but it still have several known issues, so we plane to release v2.6 as stable version.
 
 #. 
    Apply ${cfg}, ${env} as argument and enviroment intepolation notation, respectively.
@@ -17,17 +17,6 @@ Newly update features 🚀
    Apply AttributeDict container (it inherit pure python dict) to store non-flatten arguments!
 
 ----
-
-TODO List 🔨
-^^^^^^^^^^^^^^
-
-#. 
-   Apply AttributeDict for config instance
-
-.. 
-
-    next version released features v 3.0
-
 
 Bug Fixed 🐛
 ^^^^^^^^^^^^^^

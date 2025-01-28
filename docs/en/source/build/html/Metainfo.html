@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Meta information &mdash; easy_configer v2.3.2 documentation</title>
+  <title>Meta information &mdash; easy_configer v2.5.5 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -52,7 +52,6 @@
 <li class="toctree-l1"><a class="reference internal" href="Usage.html">Common Usage</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Meta information</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#newly-update-features">Newly update features 🚀</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#todo-list">TODO List 🔨</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#bug-fixed">Bug Fixed 🐛</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#simple-unittest">Simple Unittest 🧪</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#miscellnous">Miscellnous 🦠</a></li>
@@ -96,25 +95,16 @@
 <section id="newly-update-features">
 <h2>Newly update features 🚀<a class="headerlink" href="#newly-update-features" title="Permalink to this heading"></a></h2>
 <ol class="arabic simple">
-<li><p>Easy-configer pass all test-case, and v2.5.2 is the stable version.</p></li>
-<li><p>Integrate argument intepolation with using ${cfg} notation</p></li>
-<li><p>Integrate enviroment variable intepolation with using ${cfg} notation</p></li>
+<li><p>v2.5.4 is basically fine, but it still have several known issues, so we plane to release v2.6 as stable version.</p></li>
+<li><p>Apply ${cfg}, ${env} as argument and enviroment intepolation notation, respectively.</p></li>
+<li><p>Apply AttributeDict container (it inherit pure python dict) to store non-flatten arguments!</p></li>
 </ol>
 </section>
 <hr class="docutils" />
-<section id="todo-list">
-<h2>TODO List 🔨<a class="headerlink" href="#todo-list" title="Permalink to this heading"></a></h2>
-<ol class="arabic simple">
-<li><p>Better <strong>config syntax</strong> in easy-config ~</p></li>
-</ol>
-<blockquote>
-<div><p>next version released features v 2.6</p>
-</div></blockquote>
-</section>
 <section id="bug-fixed">
 <h2>Bug Fixed 🐛<a class="headerlink" href="#bug-fixed" title="Permalink to this heading"></a></h2>
-<p>Due to safty policy, we rollback the feature “single line python code interpreter”..
-Hot-fix config overrided bug, add flag for support allow_override..</p>
+<p>Hot-fix AttributeDict to raise NoAttributeError,
+Hot-fix config overwrite bug, add flag for support allow_overwrite..</p>
 </section>
 <hr class="docutils" />
 <section id="simple-unittest">

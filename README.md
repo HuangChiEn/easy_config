@@ -8,11 +8,18 @@
 
 ---
 
-### TODO list :
-0. Next version v3.0 is under development, stateless interface will be introduced as one of new features
-1. Known issue : commendline argument will not update sub_config arguments, will be fixed in v3.0
-2. Nested argument intepolation may be one of features in v3.0
-3. You can preview the v3.0 prototype of codebase under ./dev folder 
+### 🚧 TODO list :
+0. Release known issue area in v2.5.6 and hot-fix in v2.6.
+1. Tag v2.6 as stable version.
+2. Next version v3.0 is under development, stateless interface will be introduced as one of new features
+3. Nested argument intepolation may be one of features in v3.0
+4. You can preview the v3.0 prototype of codebase under ./dev folder 
+
+---
+
+### 🐞 Known issues : 
+1. allow_overwrite flag also allow you overwrite the entire section by a config value, most of case it should not a expected behavior (pitfall)
+2. Commendline argument CAN NOT update the arguments in sub_config (bug)
 
 ---
 ### Package demo ~
@@ -53,8 +60,8 @@ And, of course the following attributes are supported :
 ---
 
 ### Newly update features 🚀
-0. v2.5.4 is basically stable, but we add more test case in this version (it's more stable now) ~
-1. Apply ${cfg}, ${env} as argument and enviroment intepolation notation, respectively.
+0. v2.5.4 is basically fine, but it still have several known issues, so we plane to release v2.6 as stable version.
+1. Apply \${cfg}, ${env} as argument and enviroment intepolation notation, respectively.
 2. Apply AttributeDict container (it inherit pure python dict) to store non-flatten arguments!
 
 ---
@@ -522,7 +529,7 @@ if __name__ == "__main__":
     cfg_b = Configer()
     cfg_b.cfg_from_str(build_cfg_text_b())
     
-    # default, overwrite falg is turn off ~
+    # default, overwrite flag is turn off ~
     cfg_a.merge_conf(cfg_b, overwrite=True)
 
     # `cfg_b = cfg_b | cfg_a`, operator support, warn to decrease the read-ability...

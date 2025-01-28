@@ -39,10 +39,28 @@ Let's say we have an easy-config for development enviroment on jupyter notebook.
    x = 15
    print( f"Linear equation with x={x} : { lin_equ(x) }" )
 
+..
 
+    If you want to overwrite previous config, *apply twice* ``cfg.cfg_from_str`` with ``allow_overwrite=True`` flag IS NOT a recommended way. 
+    In easy-configer, we provide 2 way to do that. The standard way is *declaring 2 config and apply config merging method* to get the updated config. 
+    The other way is similar with omegaconf to import sub-config in dynamic manner,  however you still need to set flag ``allow_overwrite=True`` in ``cfg.cfg_from_ini``.
 
-In larger project, we may write a config file to control the program, so that the config will become easy to trace, check and debug. In here, we first prepare an config called ``test_cfg.ini`` in the working directory.
-*For easy-config file, there're two type of argument : flatten argument, hierachical argument.* You can see that flatten argument is placed in first shallow level, and the argument could be easily accessed by dot operator. Besides flatten argument, all of hierachical argument will be placed in python dict object, thus accessing each argument by key string! 
+Although writing a string config in python is convenient, it only suitable for the project in smaller scale. 
+In large project, we may write a config file to control the program, so that we will be easy to trace, check and debug the config. 
+We are going to prepare a sample config called ``test_cfg.ini`` in the working directory and describe how we work with chatbot roughly. 
+
+In easy-configer, there're two type of argument in config : flatten argument, hierachical argument. 
+You will see that the flatten arguments are directly placed in config and doesn't belong any section (namely in first level). 
+In contrast, the hierachical arguments will be placed in section (i.e. ``[db_setup]``) with any kind of depth, 
+the arguments under the section will be wrapped by a container (`easy_configer.utils.Container.AttributeDict`) similar with pure python ``dict``. 
+
+To form a hierachical argument in nested section, we apply toml-like syntax to describe the nested section (i.e. ``[bknd_srv.mod_params]`` is belong to ``[bknd_srv]`` parent section). 
+The arguments in nested section are also wrapped by nested AttributeDict. Besides you can access all kind of arguments by the simple dot-operator, however, we still recommend you to use key-string as pure python dict.
+
+..
+    
+    Note that the recommended way to access the argument is **still** key-string access ``cfger.args['#4$%-var']``, as you may notice, 
+    dot-access doesn't support **ugly** variable name (``cfger.#4$%-var``, as variable name is invalid in python intepreter). 
 
 .. code-block:: ini
 
@@ -57,9 +75,9 @@ In larger project, we may write a config file to control the program, so that th
    # define 'hierachical' arguments :
    # the 'section' is the key of accessing dict value and could be defined as follows :
    [db_setup]
-       db_host = $serv_host
+       db_host = ${cfg.serv_host}:80@str
        # first `export mongo_port=5566` in your bash, then support os.env interpolation!
-       db_port = $Env.mongo_port  
+       db_port = ${env.mongo_port}   
        snap_shot = True
 
    # and then define second section for backend server..
@@ -71,13 +89,18 @@ In larger project, we may write a config file to control the program, so that th
        [bknd_srv.mod_params]
            log_hist = False
            tempeture = 1e-4
-           model_mode = $bknd_srv.chat_mode  # hierachical args interpolation
+           model_mode = ${cfg.bknd_srv.chat_mode}  # hierachical args interpolation
 
 
 :raw-html-m2r:`<br>`
 
 Now, we're free to launch the chatbot via ``python quick_start.py`` (\ *quick_start.py in work directory*\ )!
 However, you can also override the arguemnts via commendline ``python quick_start.py serv_port=7894``
+
+..
+
+    Note that **update argument** from commendline is naturally permitted, but overwrite **the section** IS NOT! 
+    If you also want to overwrite the section, you need to set flag ``allow_overwrite=True``. 
 
 .. code-block:: python
 
