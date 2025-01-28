@@ -86,6 +86,19 @@ class AttributeDict(dict):
         ''' Basic serialized interface (i.e. pickle). Accept de-serielized object, replace default self into it. '''
         self = de_ser_self
 
+    def tree_view(self):
+        # we don't apply IO_Converter to prevent circular import!
+        def to_dict(ptr):
+            dct = {}
+            for k, v in ptr.items():
+                if isinstance(v, AttributeDict):
+                    v = to_dict(v)
+                dct[k] = v
+            return dct
+        pure_dct = to_dict(self)
+        import yaml
+        print(yaml.dump(pure_dct, default_flow_style=False))
+        
 
 class Flag(object):
     '''

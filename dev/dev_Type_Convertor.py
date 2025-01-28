@@ -53,7 +53,7 @@ class Type_Convertor(object):
         tuple_cnvt = partial(cnt_wrap, api_str=tuple_str)
         lst_cnvt = partial(cnt_wrap, api_str=lst_str)
 
-        # deal with bool(.) constructor feature, empty str regard as False
+        # deal with bool(.) constructor feature, 'False' str regard as True
         bool_cnvt = lambda val: False if val == 'False' else bool(val)
         
         # basic datatype, build-in container, collection

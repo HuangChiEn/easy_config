@@ -13,8 +13,6 @@ from .utils.Type_Convertor import Type_Convertor
 from .utils.Container import AttributeDict, Flag
 from .IO_Converter import IO_Converter
 
-from typing import List
-
 class Configer(object):
     '''
         The core module of easy_configer to implement the user configuration system.

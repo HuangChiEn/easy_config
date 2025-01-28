@@ -16,18 +16,15 @@ from .dev_Type_Convertor import Type_Convertor
 from .dev_IO_Converter import IO_Converter
 
 
-class Config_parser(object):
+class Parser(object):
     def __init__(self, cmd_args):
-        self.__cfg_cnvt = IO_Converter()
-        self.__split_chr = " = "
-        self.__flag = Flag().FLAGS
         self.__cmd_args = cmd_args
-        
+        self.__split_chr = " = "
         self.cnt_ptr = AttributeDict()
         self.__typ_cnvt = Type_Convertor()
 
     #  utils of config parser
-    def __preproc_cfgstr(self, cfg_str:str) -> str:
+    def _preproc_cfgstr(self, cfg_str:str) -> str:
         ''' preprocess the config string with strip the empty line and comments. '''
         # eliminate the line full of white-space without any text
         cfg_str = cfg_str.strip() 
@@ -37,7 +34,7 @@ class Config_parser(object):
         # strip inline comment's content with strip extra-whitespace
         return cfg_str.split('#')[0].strip()
 
-    def __get_sec(self, cfg_str:str) -> str:
+    def _get_sec(self, cfg_str:str) -> str:
         ''' get section name of config string. '''
         if '[' != cfg_str[0]:
             return ''
@@ -48,7 +45,7 @@ class Config_parser(object):
         sec_key_str = cfg_str[beg+1 : end].strip()
         return sec_key_str
     
-    def __idx_sec_parent_by_dot(self, sec_keys_str:str, allow_init:bool = False):  
+    def _idx_sec_parent_by_dot(self, sec_keys_str:str, allow_init:bool = False):  
         '''
             Core function to manage the hierachical config. 
             Store args is simple, just add it in dict. But dynamically search argument in specific section is non-trivial!
@@ -67,23 +64,15 @@ class Config_parser(object):
         # Before easy_configer 1.3.4 ver, all section is builded upon this level
         if len(sec_name_lst) == 1:
             return self.cnt_ptr, sec_keys_str
-            
-        root_key = sec_name_lst.pop(0)
-        if root_key not in self.cnt_ptr:
-            if not allow_init:
-                raise RuntimeError("The parent node '{0}' is not defined yet, " \
-                                    "it's invalid for directly made the child node '{1}'".format(root_key, sec_name_lst[0]))
-            self.cnt_ptr[root_key] = AttributeDict() 
-            
+
         ## Support toml like 'hierachical' format!!
-        #  dynamically search the hierachical section begin from the 'next layer' of self.__dict__
-        idx_sec = self.cnt_ptr[root_key]
+        #  dynamically search the hierachical section begin from the 'next layer' of self.cnt_ptr (container pointer)
+        idx_sec = self.cnt_ptr
         
-        #  keep the index point to the node "parent", since the child node will be init as dict!
+        #  omit the last search string to keep the final index point to the "parent" node, 
+        #  since the child node will be init as dict!
         for idx, sec in enumerate(sec_name_lst[:-1]):
-            # AttributeDict.get(.) will not trigger "defaultdict behavior"
-            tmp = idx_sec.get(sec, '__UNDEFINE_VAL')
-            if tmp == '__UNDEFINE_VAL':
+            if sec not in idx_sec:
                 if not allow_init:
                     raise RuntimeError("The parent node '{0}' is not defined yet, " \
                                         "it's invalid for directly made the child node '{1}'".format(sec, sec_name_lst[idx+1]))
@@ -92,7 +81,7 @@ class Config_parser(object):
 
         return idx_sec, sec_name_lst[-1]
 
-    def __get_declr_dict(self, cfg_str:str) -> dict : 
+    def _get_declr_dict(self, cfg_str:str) -> dict : 
         '''
             Parse the value string and return the value dict to main routine for updating the config. 
             
@@ -116,14 +105,14 @@ class Config_parser(object):
 
         return { var_name : var_val }
     
-    def args_from_cmd(self, allow_overwrite_sec=False) -> None:   
+    def args_from_cmd(self) -> None:   
         '''
             Update the arguments by commend line input string.
             Note that this method allow overwrite the pre-define config natively (with silent mode).
             ( Because commentline inputs are explicitly given by user, we don't need to warn that )
         '''
         # ' = ' -> '=', eliminate white space
-        cmd_sp_chr = self.split_char.strip()
+        cmd_sp_chr = self.__split_chr.strip()
 
         # filter out all non-argument
         cmd_arg_lst = [ arg for arg in sys.argv \
@@ -138,32 +127,31 @@ class Config_parser(object):
         for item in cmd_arg_lst:
             itm_lst = [ itm for itm in item.split(cmd_sp_chr) if itm != '']
             if len(itm_lst) != 2:
-                raise RuntimeError(f"Invalid commendline input : the split char '{cmd_sp_chr}' should only present once and the value should be given!")
+                raise RuntimeError("Invalid commendline input : the split char '{}' should only present once and the value should be given!".format(cmd_sp_chr))
             
             sec_keys_str, val_str = itm_lst
-            sec_ptr, sec_key = self.__idx_sec_parent_by_dot(sec_keys_str, allow_init=True)
+            sec_ptr, sec_key = self._idx_sec_parent_by_dot(sec_keys_str, allow_init=True)
             
             # For the section already exists, 
             # Prevent client argument easily overwrite the section..
             if sec_key in sec_ptr:
-                if isinstance(sec_ptr[sec_key], AttributeDict) and (not allow_overwrite_sec): 
-                    raise RuntimeError(
-                        f"Client argument {sec_keys_str} attempt to overwrite pre-defined section."
-                        "If you intend to do so, please set 'allow_overwrite_sec=True'."
-                    )
+                # ? overwrite section by a value is sick!
+                if isinstance(sec_ptr[sec_key], AttributeDict): 
+                    raise RuntimeError("Client argument {} attempt to overwrite pre-defined section.".format(sec_keys_str))
+                
             sec_ptr[sec_key] = self.__typ_cnvt.convert(val_str)
 
         if len(cmd_arg_lst) == 0:
             warnings.warn('Accept no client argument from commend line.')
         
     # core function of config parser
-    def cfg_parser(self, raw_cfg_text:str, allow_overwrite:bool) -> None:
+    def parsing_config(self, raw_cfg_text:str, allow_overwrite:bool) -> None:
         '''
             Core function to parse the raw config string line-by-line. It'll dispatch each line of config string 
             to the corresponding subroutine. Basically, subroutines is categorized into 3 types in order :
-            1. __preproc_cfgstr : to preprocess the config string by stripping empty line and comments.
-            2. __get_sec : get the section name, a kind of id to indicate the nested dict of hierachical config.
-            3. __get_declr_dict : parse the value string to get the value dictionary.
+            1. _preproc_cfgstr : to preprocess the config string by stripping empty line and comments.
+            2. _get_sec : get the section name, a kind of id to indicate the nested dict of hierachical config.
+            3. _get_declr_dict : parse the value string to get the value dictionary.
 
             Args:
                 raw_cfg_text (str): The raw config strings. It could event include comment.
@@ -180,48 +168,41 @@ class Config_parser(object):
             if key in container:
                 raise RuntimeError("Re-define Error : argument '{0}' is already defined.".format(key))
             
-        cur_sec_keys = ''
+        # initially, all arguments placed in first level
+        container = self.cnt_ptr
         for lin in raw_cfg_text.splitlines():
             # strip empty space and 'skip' empty line in cfgstr
-            cfg_str = self.__preproc_cfgstr(lin)
+            cfg_str = self._preproc_cfgstr(lin)
             if not cfg_str:
                 continue
 
             # get the section key of config string (if there exists)
-            sec_keys_str = self.__get_sec(cfg_str)
+            sec_keys_str = self._get_sec(cfg_str)
             if sec_keys_str:
-                cur_sec_keys = sec_keys_str
-                idx_sec_parent, idx_sec_key = self.__idx_sec_parent_by_dot(sec_keys_str)
+                idx_sec_parent, idx_sec_key = self._idx_sec_parent_by_dot(sec_keys_str)
                 # if sec hasn't defined yet, make a new container
                 if idx_sec_key not in idx_sec_parent.keys():
                     idx_sec_parent[idx_sec_key] = AttributeDict()
-            
+                # point to the container the following arguments belong to..
+                container = idx_sec_parent[idx_sec_key]
+                
             # parse variable assignment string
             else:
                 # parse the value string into dict
                 if cfg_str[0] == '>':
                     # import other .ini config as AttributeDict
                     sub_cfg_path = cfg_str.split('>')[-1].strip()
-                    val_dict = Configer.cfg_from_ini(sub_cfg_path, allow_overwrite, cmd_args=False)
+                    val_dict = Configer.cfg_from_ini(sub_cfg_path, allow_overwrite, self.__cmd_args)
                 else:
                     # normal value string, return pure dict
-                    val_dict = self.__get_declr_dict(cfg_str)
-                
-                container = None
-                # assign the val_dict into the corresponding section!
-                if cur_sec_keys != '':
-                    idx_sec_parent, idx_sec_key = self.__idx_sec_parent_by_dot(cur_sec_keys)
-                    container = idx_sec_parent[idx_sec_key]
-                # assign the val_dict as 'flatten' arguments
-                else: # Note that flatten args IS NOT AttributeDict!
-                    container = self.cnt_ptr
+                    val_dict = self._get_declr_dict(cfg_str)
                 
                 (not allow_overwrite) and chk_args_exists(val_dict, container)
                 container.update(val_dict)
                     
         # Update the namespace value via commend-line input 
         if self.__cmd_args:
-            self.args_from_cmd(allow_overwrite_sec=allow_overwrite)
+            self.args_from_cmd()
 
         return self.cnt_ptr
     
@@ -231,9 +212,15 @@ class Configer(object):
         The core module of easy_configer to implement the user configuration system.
     '''
     help_info = "Description : \n"
+    cfg_cnvt = IO_Converter()
 
     ## Main interface for configuration :         
     # Support string config in cell-based intereactive enviroment
+    @staticmethod
+    def cfg_from_cli(allow_overwrite_sec:bool=False):
+        parser = Parser(cmd_args=True)
+        parser.args_from_cmd()
+
     @staticmethod
     def cfg_from_str(raw_cfg_text:str, allow_overwrite:bool=False, cmd_args=False) -> None:
         ''' 
@@ -244,8 +231,8 @@ class Configer(object):
                 allow_overwrite (bool, optional): A flag allow overwrite config from the other source,
                     such as the other .ini config file, config string. Default to False.
         '''
-        builder = Config_builder(cmd_args)
-        return builder.cfg_parser(raw_cfg_text, allow_overwrite)
+        parser = Parser(cmd_args)
+        return parser.parsing_config(raw_cfg_text, allow_overwrite)
     
     # Load .ini config from the given path
     @staticmethod
