@@ -46,7 +46,7 @@ class ConfigerTestCase(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, 'Re-define Error') as cm:
             self.cfg1.cfg_from_str("i_var1 = -1")
 
-        # define new var in already defined section should be permitted!
+        # define new var in already defined section should be allowed!
         sl_cfg_str = 'new_var = 42'
         self.cfg1.cfg_from_str(f'''
             [secA]
@@ -232,11 +232,12 @@ class ConfigerTestCase(unittest.TestCase):
         self.sec_cfg = Configer(cmd_args=True)
         with self.assertRaisesRegex(RuntimeError, 'overwrite pre-defined section') as cm:
             self.sec_cfg.cfg_from_ini(self.init_cfg_path, allow_overwrite=False)
+
+        with self.assertRaisesRegex(RuntimeError, 'overwrite pre-defined section') as cm:        
+            # Note. we change unexpected behavior, now client args should not overwrite sec!
+            self.sec_cfg.cfg_from_ini(self.init_cfg_path, allow_overwrite=True)
         
-        # Note allow_overwrite, we still allow client args overwrite sec,
-        # while user can do all that want, hope you knowing why you're going to do that ~
-        self.sec_cfg.cfg_from_ini(self.init_cfg_path, allow_overwrite=True)
-        self.assertEqual(self.sec_cfg.sec1.sec2, None)
+        self.assertNotEqual(self.sec_cfg.sec1.sec2, None)
 
     def _simulate_cmd_args(self, lst_cmd, clear_all=False):
         import sys
@@ -256,6 +257,8 @@ class ConfigerTestCase(unittest.TestCase):
 
     def test_config_resolve(self):
         self.cfg1.cfg_from_ini(self.resolve_cfg_path)
+        self.assertEqual(self.cfg1.flat_var, self.cfg1.dup_var)
+
         self.assertEqual(self.cfg1.sec1.sec2.intp_var, '/root/workspace/tmp')
         self.assertEqual(self.cfg1.new_sec1.var, '/root/workspace/tmp/kkk')
         
@@ -281,6 +284,38 @@ class ConfigerTestCase(unittest.TestCase):
         # test regist filter
         self.assertEqual(self.cfg1.addtwo_var, self.cfg1.inp_var+2)
     
+
+class ConfigerIntegrateTestCase(unittest.TestCase):
+    
+    def setUp(self):
+        # init configer
+        self.cfg = Configer(cmd_args=True)
+        
+        # declare config we're going to test
+        self.resolve_cfg_path = 'test/test_properties/reslv_cfg.ini'
+        self.post_filter_cfg_path = 'test/test_properties/filter_cfg.ini'
+
+    def _simulate_cmd_args(self, lst_cmd, clear_all=False):
+        import sys
+        # remove all previous defined arguments..
+        sys.argv = [] if clear_all else sys.argv
+        sys.argv.extend(lst_cmd)
+
+    def test_cli_update_interpolation(self):
+        lst_cmd = [
+            'flat_var=HiHi@str',   
+            'sec1.sec2.num=-1',  
+        ]
+        self._simulate_cmd_args(lst_cmd)
+        self.cfg.cfg_from_ini(self.resolve_cfg_path)
+        
+        # test real-time commendline update for interpolation
+        self.assertEqual(self.cfg.dup_var, 'HiHi')
+        self.assertEqual(self.cfg.sec1.sec2.intp_var, "/root/HiHi/tmp")
+
+        self.assertEqual(self.cfg.sec1.sec2.num, -1)
+        self.assertEqual(self.cfg.sec1.sec2.num, self.cfg.new_sec1.new_num)
+
 
 if __name__ == '__main__':
     tests = ['test_parsing_config', 'test_regist_cls', 'test_merge_config', 'test_cmd_args']

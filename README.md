@@ -19,7 +19,7 @@
 
 ### 🐞 Known issues : 
 1. allow_overwrite flag also allow you overwrite the entire section by a config value, most of case it should not a expected behavior (pitfall)
-2. Commendline argument CAN NOT update the arguments in sub_config (bug)
+2. The intepolated arguments WILL NOT be updated by commendline argument (bug)
 
 ---
 ### Package demo ~

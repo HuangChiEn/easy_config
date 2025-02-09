@@ -2,7 +2,7 @@
 *.egg-info
 pypi_pkg/*
 .bkup/*
-tst.py
+dev_entry.py
 docs/en/md_bkup/*
 .vscode/*
 .demo/*

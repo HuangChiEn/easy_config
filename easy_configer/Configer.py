@@ -41,15 +41,108 @@ class Configer(object):
 
     ## Main interface for configuration : 
     # Support commendline config
-    def cfg_from_cli(self, allow_overwrite_sec=True) -> None:
+    def __get_args_from_cmd(self) -> dict:   
+        '''
+            Update the arguments by commend line input string.
+            Note that this method allow overwrite the pre-define config natively (with silent mode).
+            ( Because commentline inputs are explicitly given by user, we don't need to warn that )
+        '''
+        # ' = ' -> '=', eliminate white space
+        cmd_sp_chr = self.split_char.strip()
+
+        # print out helper document string
+        if "-h" in sys.argv or "--help" in sys.argv:
+            print(self.__help_info)
+
+        # filter out all non easy_config arguments
+        cmd_arg_lst = [ arg for arg in sys.argv \
+                            if cmd_sp_chr in arg ]
+        if len(cmd_arg_lst) == 0:
+            warnings.warn('Accept no client argument from commend line.')
+        
+        dct = {}
+        for item in cmd_arg_lst:
+            itm_lst = [ itm for itm in item.split(cmd_sp_chr) if itm != '']
+            if len(itm_lst) != 2:
+                raise RuntimeError(f"Invalid commendline input : the split char '{cmd_sp_chr}' should only present once and the value should be given!")
+            
+            sec_keys_str, val_str = itm_lst
+            dct[sec_keys_str] = val_str
+            
+        return dct
+    
+    def __update_container_from_cli(self, val_dict, is_subconfig, sec_prefix, cmd_args_dct):
+
+        def extract_dict_key_str(val_dict, is_subconfig) -> list:
+            # for subconfig, extract all hierachical keys (apply dot '.' to denote hierachical relation) 
+            def recur_extract_key(val_dict, prefix=''):
+                val_keys = []
+                # add dot access operator after section prefix string
+                prefix = '{}.'.format(prefix) if prefix else ''
+                for val_key, val in val_dict.items():
+                    val_prefix = "{0}{1}".format(prefix, val_key)
+                    if isinstance(val, AttributeDict):
+                        val_keys += recur_extract_key(val, val_prefix)
+                    else:
+                        val_keys.append(val_prefix)
+                return val_keys
+
+            # for normal val_dict, directly return the root key string
+            return recur_extract_key(val_dict, '') if is_subconfig else [ list(val_dict.keys())[0] ]
+
+        def index_dict_by_val_key(val_dict, key_str):
+            key_lst = key_str.split('.')
+            if len(key_lst) == 1:
+                return val_dict, key_lst[0]
+            # index-ing subconfig dict by given key string
+            for key in key_lst[:-1]:
+                val_dict = val_dict[key]
+            return val_dict, key_lst[-1]
+
+        # while all commendline args are updated!!
+        if not cmd_args_dct:
+            return val_dict, cmd_args_dct
+        
+        val_keys = extract_dict_key_str(val_dict, is_subconfig)
+        for val_key in val_keys:
+            sec_qry = "{0}.{1}".format(sec_prefix, val_key) if sec_prefix else val_key
+            for key in list(cmd_args_dct.keys()):
+                # found commendline update!
+                if sec_qry == key:
+                    val_str = cmd_args_dct[sec_qry]
+                    idx_dict, val_key = index_dict_by_val_key(val_dict, val_key)
+                    if isinstance(idx_dict[val_key], AttributeDict): 
+                        raise RuntimeError("Client argument attempt to overwrite pre-defined section '{}'. ".format(sec_qry))
+                    
+                    idx_dict[val_key] = self.__typ_cnvt.convert(val_str) 
+                    # reduce for-loop complexity  
+                    cmd_args_dct.pop(sec_qry)  
+        
+        return val_dict, cmd_args_dct
+
+    def __create_args_from_cli(self, cmd_args_dct:dict):
+        for sec_key_str, val_str in cmd_args_dct.items():
+            sec_ptr, sec_key = self.__idx_sec_parent_by_dot(sec_key_str, allow_init=True)
+            # Prevent client argument easily overwrite the section..
+            if sec_key in sec_ptr:
+                if isinstance(sec_ptr[sec_key], AttributeDict): 
+                    raise RuntimeError("Client argument attempt to overwrite pre-defined section '{}'. ".format(sec_key_str))                     
+            
+            sec_ptr[sec_key] = self.__typ_cnvt.convert(val_str)
+
+    def cfg_from_cli(self) -> None:
         ''' 
             Building config from the commendline input and only apply the arguments from commend-line.
             ( only recommend for very lightweight config ) 
         '''
         if not self.__cmd_args:
             warnings.warn("'cfg_from_cli' is called, the settings 'cmd_args=False' will be ignored!")
-        self.args_from_cmd(allow_overwrite_sec)
-            
+        cmd_args_dct = self.__get_args_from_cmd() 
+        # Note that this method overwrite original arguments without allow_overwrite flag protection,
+        # since commendline update directly comes from user, power comes from responsibility! 
+        self.__create_args_from_cli(cmd_args_dct)
+
+
     # Support string config in cell-based intereactive enviroment
     def cfg_from_str(self, raw_cfg_text:str, allow_overwrite:bool=False) -> None:
         ''' 
@@ -153,23 +246,11 @@ class Configer(object):
         # Before easy_configer 1.3.4 ver, all section is builded upon this level
         if len(sec_name_lst) == 1:
             return self.__dict__, sec_keys_str
-            
-        root_key = sec_name_lst.pop(0)
-        if root_key not in self.__dict__:
-            if not allow_init:
-                raise RuntimeError("The parent node '{0}' is not defined yet, " \
-                                    "it's invalid for directly made the child node '{1}'".format(root_key, sec_name_lst[0]))
-            self.__dict__[root_key] = AttributeDict() 
-            
-        ## Support toml like 'hierachical' format!!
-        #  dynamically search the hierachical section begin from the 'next layer' of self.__dict__
-        idx_sec = self.__dict__[root_key]
-        
+   
+        idx_sec = self.__dict__
         #  keep the index point to the node "parent", since the child node will be init as dict!
         for idx, sec in enumerate(sec_name_lst[:-1]):
-            # AttributeDict.get(.) will not trigger "defaultdict behavior"
-            tmp = idx_sec.get(sec, '__UNDEFINE_VAL')
-            if tmp == '__UNDEFINE_VAL':
+            if sec not in idx_sec:
                 if not allow_init:
                     raise RuntimeError("The parent node '{0}' is not defined yet, " \
                                         "it's invalid for directly made the child node '{1}'".format(sec, sec_name_lst[idx+1]))
@@ -228,6 +309,8 @@ class Configer(object):
                     sub_cfg_path (str): The path of interpolated config. The sub-config path 
                         is parsed from the .ini file with split '>' symbol.
             '''
+            # set cmd_args False to prevent commendline update occurs while parsing subconfig..
+            #   Instead, we apply commendline update while parsing MAIN config only!
             sub_cfg = Configer(cmd_args=False)
             sub_cfg.cfg_from_ini(sub_cfg_path)
             return self.__cfg_cnvt.cnvt_cfg_to(sub_cfg, 'dict', return_attr_dict=True)
@@ -237,89 +320,62 @@ class Configer(object):
             key = list(val_dict.keys())[0]
             if key in container:
                 raise RuntimeError("Re-define Error : argument '{0}' is already defined.".format(key))
+        
+        
             
-        cur_sec_keys = ''
+        # Update the namespace value via commend-line input in 'realtime'
+        # Note : if all arguments are post-update, it'll be TOO LATE for argument interpolation!
+        cmd_args_dct = self.__get_args_from_cmd() if self.__cmd_args else {}
+        
+        container = self.__dict__
+        sec_prefix = ''
         for lin in raw_cfg_text.splitlines():
             # strip empty space and 'skip' empty line in cfgstr
             cfg_str = self.__preproc_cfgstr(lin)
             if not cfg_str:
                 continue
-
-            # get the section key of config string (if there exists)
+            
+            # get the section key of config string, 
+            #   the config string is either section config or value config..
             sec_keys_str = self.__get_sec(cfg_str)
+            # 1. section config string
             if sec_keys_str:
-                cur_sec_keys = sec_keys_str
                 idx_sec_parent, idx_sec_key = self.__idx_sec_parent_by_dot(sec_keys_str)
                 # if sec hasn't defined yet, make a new container
                 if idx_sec_key not in idx_sec_parent.keys():
                     idx_sec_parent[idx_sec_key] = AttributeDict()
+                
+                container = idx_sec_parent[idx_sec_key]
+                sec_prefix = sec_keys_str
             
-            # parse variable assignment string
+            # 2. value config string
             else:
                 # parse the value string into value dict
                 if cfg_str[0] == '>':
                     # import other .ini config as value dict
                     sub_cfg_path = cfg_str.split('>')[-1].strip()
                     val_dict = parse_sub_config(sub_cfg_path)
+                    is_subconfig = True
                 else:
                     # normal value string
                     val_dict = self.__get_declr_dict(cfg_str)
-                
-                container = None
-                # assign the val_dict into the corresponding section!
-                if cur_sec_keys != '':
-                    idx_sec_parent, idx_sec_key = self.__idx_sec_parent_by_dot(cur_sec_keys)
-                    container = idx_sec_parent[idx_sec_key]
-                # assign the val_dict as 'flatten' arguments
-                else: # Note that flatten args IS NOT AttributeDict!
-                    container = self.__dict__
-                
+                    is_subconfig = False
+
                 (not allow_overwrite) and chk_args_exists(val_dict, container)
+                
+                # realtime update config value by the commendline argument
+                val_dict, cmd_args_dct = self.__update_container_from_cli(
+                    val_dict, 
+                    is_subconfig, 
+                    sec_prefix, 
+                    cmd_args_dct
+                )
                 container.update(val_dict)
-                    
-        # Update the namespace value via commend-line input 
-        if self.__cmd_args:
-            self.args_from_cmd(allow_overwrite_sec=allow_overwrite)
 
-    def args_from_cmd(self, allow_overwrite_sec=False) -> None:   
-        '''
-            Update the arguments by commend line input string.
-            Note that this method allow overwrite the pre-define config natively (with silent mode).
-            ( Because commentline inputs are explicitly given by user, we don't need to warn that )
-        '''
-        # ' = ' -> '=', eliminate white space
-        cmd_sp_chr = self.split_char.strip()
+        # create extra-arguments from commendline
+        if cmd_args_dct:
+            self.__create_args_from_cli(cmd_args_dct)
 
-        # filter out all non-argument
-        cmd_arg_lst = [ arg for arg in sys.argv \
-                            if cmd_sp_chr in arg]
-        
-        # print out helper document string
-        if "-h" in cmd_arg_lst:
-            cmd_arg_lst.remove("-h")
-            print(self.__help_info)
-
-        sec_ptr, sec_key = None, None 
-        for item in cmd_arg_lst:
-            itm_lst = [ itm for itm in item.split(cmd_sp_chr) if itm != '']
-            if len(itm_lst) != 2:
-                raise RuntimeError(f"Invalid commendline input : the split char '{cmd_sp_chr}' should only present once and the value should be given!")
-            
-            sec_keys_str, val_str = itm_lst
-            sec_ptr, sec_key = self.__idx_sec_parent_by_dot(sec_keys_str, allow_init=True)
-            
-            # For the section already exists, 
-            # Prevent client argument easily overwrite the section..
-            if sec_key in sec_ptr:
-                if isinstance(sec_ptr[sec_key], AttributeDict) and (not allow_overwrite_sec): 
-                    raise RuntimeError(
-                        f"Client argument {sec_keys_str} attempt to overwrite pre-defined section."
-                        "If you intend to do so, please set 'allow_overwrite_sec=True'."
-                    )
-            sec_ptr[sec_key] = self.__typ_cnvt.convert(val_str)
-
-        if len(cmd_arg_lst) == 0:
-            warnings.warn('Accept no client argument from commend line.')
 
     ## Configuration operator support :
     #  all of operator will be forced to return value!!
