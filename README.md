@@ -1,5 +1,5 @@
 # Project description
-#### easy_configer version : 2.5.6
+#### easy_configer version : 2.6.0
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/HuangChiEn/easy_config/main.yaml)
 [![PyPI version](https://badge.fury.io/py/easy-configer.svg?icon=si%3Apython)](https://badge.fury.io/py/easy-configer)
 [![Documentation](https://img.shields.io/badge/documentation-link-blue.svg)](https://easy-configer.readthedocs.io/)
@@ -9,8 +9,8 @@
 ---
 
 ### 🚧 TODO list :
-0. Release known issue area in v2.5.6 and hot-fix in v2.6.
-1. Tag v2.6 as stable version.
+0. Release known issue area in v2.6.0 and add more integration test..
+1. Tag v2.6.x as stable version.
 2. Next version v3.0 is under development, stateless interface will be introduced as one of new features
 3. Nested argument intepolation may be one of features in v3.0
 4. You can preview the v3.0 prototype of codebase under ./dev folder 
@@ -18,8 +18,7 @@
 ---
 
 ### 🐞 Known issues : 
-1. allow_overwrite flag also allow you overwrite the entire section by a config value, most of case it should not a expected behavior (pitfall)
-2. The intepolated arguments WILL NOT be updated by commendline argument (bug)
+None.. welcome to make a issue ~
 
 ---
 ### Package demo ~

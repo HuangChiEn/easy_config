@@ -1,5 +1,5 @@
 # Project description
-#### easy_configer version : 2.5.6
+#### easy_configer version : 2.6.0
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/HuangChiEn/easy_config/main.yaml)
 [![PyPI version](https://badge.fury.io/py/easy-configer.svg?icon=si%3Apython)](https://badge.fury.io/py/easy-configer)
 [![Documentation](https://img.shields.io/badge/documentation-link-blue.svg)](https://easy-configer.readthedocs.io/)
@@ -8,11 +8,9 @@
 
 ---
 
-#### pypi v2.5.7 just update README.md..
-
 ### 🚧 TODO list :
-0. Release known issue area in v2.5.6 and hot-fix in v2.6.
-1. Tag v2.6 as stable version.
+0. Release known issue area in v2.6.0 and add more integration test..
+1. Tag v2.6.x as stable version.
 2. Next version v3.0 is under development, stateless interface will be introduced as one of new features
 3. Nested argument intepolation may be one of features in v3.0
 4. You can preview the v3.0 prototype of codebase under ./dev folder 
@@ -20,8 +18,12 @@
 ---
 
 ### 🐞 Known issues : 
-1. allow_overwrite flag also allow you overwrite the entire section by a config value, most of case it should not a expected behavior (pitfall)
-2. Commendline argument CAN NOT update the arguments in sub_config (bug)
+None.. welcome to make a issue ~
+
+---
+### Package demo ~
+https://github.com/user-attachments/assets/1d6f43a4-f621-433c-a6c0-d267c7b32399
+> The demo video only cover basic functionality of easy_configer, more examples plz refer the doc below..
 
 ---
 
@@ -391,7 +393,7 @@ Like `omegaconf`, most of user expect to seperate the config based on their cate
 1. you can call the `cfg_from_ini` twice, for example, `cfg.cfg_from_ini('./base_cfg') ; cfg.cfg_from_ini('./override_cfg', allow_overwrite=True)`. But it's not explicitly load the config thus reducing readability.
 2. you can use the config merging, for example, `new_cfg = base_cfg | override_cfg`. But it's not elegant solution while you have to merge several config..
 
-#### Now, we provide the thrid way : **sub-config**. you can import the sub-config in any depth of hierachical config by simply placing the `>` symbol at the beginning of line. Also note that sub-config doesn't allow you overwrite the declared argument by default, since dynamically overwrite the arguments made your config hard to trace..
+#### Now, we provide the thrid way : **sub-config**. you can import the sub-config in any depth of hierachical config by simply placing the `>` symbol at the beginning of line. Also note that sub-config doesn't allow you overwrite the section by default, since dynamically overwrite the section is not necessary generally (also made your config hard to trace).
 
 ```ini
 # ./base_cfg.ini
@@ -596,7 +598,7 @@ if __name__ == '__main__':
 ---
 
 #### **8. Absl style flag**
-easy_config also support that you can access the 'same' config file in different python file without re-declare the config. test_flag.py under the same work directory
+easy_config also support that you can access the 'same' config file in different python file without re-declare the config. utils.py under the same work directory
 
 Suppose you have executed `main.py`:
 ```python
