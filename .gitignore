@@ -6,3 +6,6 @@ dev_entry.py
 docs/en/md_bkup/*
 .vscode/*
 .demo/*
+# script to test new features
+play.py
+play.ini

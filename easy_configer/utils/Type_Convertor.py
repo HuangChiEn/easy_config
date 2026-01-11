@@ -31,7 +31,8 @@ class Type_Convertor(object):
                 'a = hello@str | upper', the upper post-processor will turn a into HELLO string.
                 Default to ` | `.
         '''
-        self.__split_chr = typ_split_chr
+        # viewable for multiline parser
+        self._split_chr = typ_split_chr
         self.__filter_chr = filter_split_chr
         self.__env_vars = AttributeDict(os.environ)
 
@@ -66,51 +67,33 @@ class Type_Convertor(object):
             tmp_cfg_node (AttributeDict): The container, which is used to intepolate the argument, store all arguments defined in config.
                 Default to None.
         '''    
-        
-        def check_formation(formatted_str, raw_str):
-            if '{' in formatted_str:
-                raise RuntimeError(f"Format-string $'{raw_str}' failure, try to intepolate an undefined argument!")
-        
         def pre_interpret_val_str(val_str):
             beg_tkn, end_tkn = "${", "}"
+
             # early return the value-string without python interpreter symbol "${...}"
-            if beg_tkn not in val_str:
+            if (idx:=val_str.find(beg_tkn)) == -1:
                 return val_str
             
-            parsed_str = ""
-            idx = 0
-            while idx < len(val_str):
-                curr_tkn = val_str[ idx : idx+len(beg_tkn) ]
-                
-                if curr_tkn == beg_tkn:
-                    beg_idx = idx+len(beg_tkn)
-
-                    # offset present the length of python commend
-                    offset_idx = val_str[beg_idx:].find(end_tkn)
-                    if offset_idx == -1:
-                        raise RuntimeError("Missing closed '}' for the python pharse.")
-                    
-                    end_idx = beg_idx + offset_idx
-
-                    # keep '{' and '}' to form python format string by -1, +1 on both index
-                    format_string = val_str[beg_idx-1 : end_idx+1]
-                    
-                    # https://stackoverflow.com/questions/15197673/using-pythons-eval-vs-ast-literal-eval
-                    # Due to unsafty of eval(.), we only support argument intepolation by format-string
-                    formatted_str = format_string.format(cfg=tmp_cfg_node, env=self.__env_vars)
-                    
-                    # chk parsed results & append string for further type conversion
-                    check_formation(formatted_str, format_string)
-                    parsed_str += formatted_str
-                    
-                    # point to next char (one position right-shift of '}')
-                    idx = end_idx + 1
-
-                else:  
-                    parsed_str += val_str[idx]
-                    idx += 1
+            # keep '{'  to form python format string by -1 on begin index
+            parsed_str, unparsed_str = val_str[:idx], val_str[idx+len(beg_tkn)-1:]
+            # recursive calling for 2 case : 
+            #     1. "${..." + "...}_${...}", return  "${..." + "...}_ABC"
+            #     2. "${..." + "...${...}...}" return "${..." + "...ABC...}"
+            unparsed_str = pre_interpret_val_str(unparsed_str)
             
-            return parsed_str
+            if (end_idx:=unparsed_str.find(end_tkn)) == -1:
+                raise RuntimeError("Missing closed '}' for the python pharse.")
+            
+            # keep '}' to form python format string by +1 on ending index
+            format_string, rest_str = unparsed_str[:end_idx+1], unparsed_str[end_idx+1:]
+            try:
+                # https://stackoverflow.com/questions/15197673/using-pythons-eval-vs-ast-literal-eval
+                # Due to unsafty of eval(.), we only support argument intepolation by format-string
+                formatted_str = format_string.format(cfg=tmp_cfg_node, env=self.__env_vars)
+            except AttributeError:
+                raise RuntimeError(f"Format-string $'{format_string}' failure, try to intepolate an undefined argument!")
+            
+            return parsed_str + formatted_str + rest_str
 
         # record filter method(s)
         method_lst = []
@@ -121,14 +104,15 @@ class Type_Convertor(object):
             raw_val_str, *method_lst = token_lst
 
         # value string without declaring type
-        token_lst = raw_val_str.split(self.__split_chr)
+        token_lst = raw_val_str.split(self._split_chr)
         typ = ''
         if len(token_lst) == 1:
             raw_val_str = token_lst[0]
         else:
             raw_val_str, typ = token_lst
         
-        # pre-interpret python syntax ${...python_stuff..} in config-string
+        # pre-interpret argument interpolation ${...} in config-string
+        # due to saft policy, we do not naturally permit python code interpretation!
         val_str = pre_interpret_val_str(raw_val_str)
         var_val = None
         if typ in self.__customized_cnvtor.keys():
@@ -156,6 +140,8 @@ class Type_Convertor(object):
             var_val = self.__default_cnvtor[typ](stripped_val_str)
             
         # post-processing 'value filtering'
+        # pay attention about security issue while registering 'eval' filter!
+        #   it could allow you interpret python code though...
         for method_name in method_lst:
             try:
                 var_val = self.__filter_cnvtor[method_name](var_val)

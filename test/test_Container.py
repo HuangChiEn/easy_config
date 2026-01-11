@@ -51,6 +51,6 @@ class ConfigerTestCase(unittest.TestCase):
         
 
 if __name__ == '__main__':
-    tests = ['test_dict_methods']
+    tests = ['test_dict_methods', 'test_access_attr']
     suite = unittest.TestSuite(map(ConfigerTestCase, tests))
     unittest.main(verbosity=2)

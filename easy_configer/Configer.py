@@ -1,8 +1,10 @@
 import errno
+import io
 import os
 import sys
 from copy import deepcopy
 from pathlib import Path
+from typing import Union
 
 import warnings
 def warning_on_one_line(message, category, filename, lineno, file=None, line=None):
@@ -143,6 +145,83 @@ class Configer(object):
         self.__create_args_from_cli(cmd_args_dct)
 
 
+    def __remove_empty_comment_line(self, cfg_src:Union[str, io.IOBase]) -> str :
+        ''' preprocess config string, strip empty line or comment line. '''
+        # python str already deal with '\' symbol
+        if isinstance(cfg_src, str):
+            read_line = lambda x : x.splitlines()
+        elif isinstance(cfg_src, io.IOBase):
+            read_line = lambda x : x  # built-in iter
+        else:
+            raise RuntimeError("Unknow config source, should be text or _io.TextIOWrapper.")
+        
+        cfg_str_lines = []
+        for line in read_line(cfg_src):
+            chk_line = line.strip()
+            if len(chk_line) == 0 or chk_line[0] == '#': 
+                continue
+            # do strip & resume back, since .ini contains '\n'
+            cfg_str_lines.append(line.strip('\n'))
+        return "\n".join(cfg_str_lines)
+
+    def __multiple_line_str_wrapper(self, cfg_text: str):
+        ''' support the multi-line declaration in config file. '''
+        def get_obj_declaration(s):
+            for sym in ['{', '(', '[']:
+                if s.endswith(sym):
+                    return sym
+            return None     
+        
+        def obj_str_parser(cfg_iter, init_tag):
+            close_tag = {
+                '[': ']',
+                '{' : '}',
+                '(' : ')'
+            }
+            line = ''
+            tag_stk = [ close_tag[init_tag] ]
+            while True:
+                line += next(cfg_iter).strip() 
+                if obj_typ:=get_obj_declaration(line):
+                    # while parsing to the other new object definition, 
+                    #   it indicate user forgot to close the previous object definition, probably!
+                    if self.split_char in line and line[:-1].endswith(self.split_char):
+                        raise RuntimeError(f"Object definition is not closed : {tag_stk[-1]}, error line : {line}")
+                    tag_stk.append(close_tag[obj_typ])
+                # ends with closed symbol or type indicator exists!
+                elif line.endswith(tag_stk[-1]) or \
+                    ((typ_idx:=line.find(self.__typ_cnvt._split_chr)) != -1) and (line[typ_idx-1] == tag_stk[-1]):  
+                    tag_stk.pop(-1)
+                # ends with middle definition 
+                elif line.endswith(','):
+                    # strip space between ']   ,'
+                    line = line[:-1].rstrip() + ','
+                    if line[-2] == tag_stk[-1]:
+                        tag_stk.pop(-1)
+                    # else case be like '42,'
+            
+                if not tag_stk:
+                    break
+            
+            return line
+
+        # wrap to iterator!
+        cfg_iter = iter(cfg_text.splitlines())
+        for line in cfg_iter:
+            line = line.rstrip()
+            # automatic parsing multi-line objects definition
+            if obj_typ := get_obj_declaration(line):
+                line += obj_str_parser(cfg_iter, obj_typ)
+
+            # manuelly apply '\\', make sure it cover all lines of entire object!
+            elif line.endswith('\\'):
+                while line.endswith('\\'):
+                    # [:-1] strip out '\\'
+                    line = line[:-1] + next(cfg_iter).strip()
+
+            yield line
+     
+
     # Support string config in cell-based intereactive enviroment
     def cfg_from_str(self, raw_cfg_text:str, allow_overwrite:bool=False) -> None:
         ''' 
@@ -153,7 +232,9 @@ class Configer(object):
                 allow_overwrite (bool, optional): A flag allow overwrite config from the other source,
                     such as the other .ini config file, config string. Default to False.
         '''
-        self.__cfg_parser(raw_cfg_text, allow_overwrite)
+        raw_cfg_text = self.__remove_empty_comment_line(raw_cfg_text)
+        cfg_text = "\n".join([ line for line in self.__multiple_line_str_wrapper(raw_cfg_text) ])
+        self.__cfg_parser(cfg_text, allow_overwrite)
         # build the flag object 
         self.__flag.__dict__ = self.__dict__
     
@@ -174,23 +255,14 @@ class Configer(object):
             if not cfg_path.suffix == ".ini":
                 raise ValueError("The file extension should be 'ini', instead of '{0}'".format(cfg_path.suffix))
         
-        # take from : https://stackoverflow.com/questions/16480495/read-a-file-with-line-continuation-characters-in-python
-        def continuation_lines(fin):
-            ''' support the multi-line declaration in config file. '''
-            for line in fin:
-                line = line.rstrip('\n')
-                while line.endswith('\\'):
-                    line = line[:-1] + next(fin).rstrip('\n')
-                yield line
-
         try:
             # check config path validation
             cfg_path = Path(cfg_path)
             chk_src(cfg_path)
-
             with cfg_path.open('r') as cfg_ptr: 
-                raw_cfg_text = "\n".join([ line for line in continuation_lines(cfg_ptr) ])
-            
+                raw_cfg_text = self.__remove_empty_comment_line(cfg_ptr)
+                cfg_text = "\n".join([ line for line in self.__multiple_line_str_wrapper(raw_cfg_text) ])
+        
         except FileNotFoundError as fnf_err:
             print(fnf_err) ; raise
         except ValueError as val_err:
@@ -200,7 +272,7 @@ class Configer(object):
         except Exception as ex:
             print(ex) ; raise
         
-        self.__cfg_parser(raw_cfg_text, allow_overwrite)
+        self.__cfg_parser(cfg_text, allow_overwrite)
         # build the flag object 
         self.__flag.__dict__ = self.__dict__
     
@@ -208,11 +280,8 @@ class Configer(object):
     #  utils of config parser
     def __preproc_cfgstr(self, cfg_str:str) -> str:
         ''' preprocess the config string with strip the empty line and comments. '''
-        # eliminate the line full of white-space without any text
+        # also eliminate the indentation of white-space
         cfg_str = cfg_str.strip() 
-        # skip empty line and comment line 
-        if len(cfg_str) == 0 or cfg_str[0] == '#': 
-            return ''
         # strip inline comment's content with strip extra-whitespace
         return cfg_str.split('#')[0].strip()
 
@@ -320,9 +389,7 @@ class Configer(object):
             key = list(val_dict.keys())[0]
             if key in container:
                 raise RuntimeError("Re-define Error : argument '{0}' is already defined.".format(key))
-        
-        
-            
+          
         # Update the namespace value via commend-line input in 'realtime'
         # Note : if all arguments are post-update, it'll be TOO LATE for argument interpolation!
         cmd_args_dct = self.__get_args_from_cmd() if self.__cmd_args else {}

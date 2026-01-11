@@ -318,6 +318,7 @@ class ConfigerIntegrateTestCase(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    tests = ['test_parsing_config', 'test_regist_cls', 'test_merge_config', 'test_cmd_args']
+    # test_cli_update_interpolation
+    tests = ['test_parsing_config', 'test_regist_cls', 'test_merge_config', 'test_cmd_args', 'test_flag', 'test_config_resolve', 'test_filter']
     suite = unittest.TestSuite(map(ConfigerTestCase, tests))
     unittest.main(verbosity=2)
