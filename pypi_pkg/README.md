@@ -1,5 +1,5 @@
 # Project description
-#### easy_configer version : 2.6.0
+#### easy_configer version : 2.7.0
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/HuangChiEn/easy_config/main.yaml)
 [![PyPI version](https://badge.fury.io/py/easy-configer.svg?icon=si%3Apython)](https://badge.fury.io/py/easy-configer)
 [![Documentation](https://img.shields.io/badge/documentation-link-blue.svg)](https://easy-configer.readthedocs.io/)
@@ -9,11 +9,8 @@
 ---
 
 ### 🚧 TODO list :
-0. Release known issue area in v2.6.0 and add more integration test..
-1. Tag v2.6.x as stable version.
-2. Next version v3.0 is under development, stateless interface will be introduced as one of new features
-3. Nested argument intepolation may be one of features in v3.0
-4. You can preview the v3.0 prototype of codebase under ./dev folder 
+1. Next version v3.0 is under development, stateless interface will be introduced as one of new features
+2. You can preview the v3.0 prototype of codebase under ./dev folder 
 
 ---
 
@@ -54,19 +51,21 @@ And, of course the following attributes are supported :
 
 * support config conversion, feel free to use easy_config or the other config tools (omegaconf, argparse, ..., etc.)
 
-* support omegaconf-like dynamic config loading system ~
+* support omegaconf-like dynamic config loading/overwriting system ~
 
 ---
 
 ### Newly update features 🚀
-0. v2.5.4 is basically fine, but it still have several known issues, so we plane to release v2.6 as stable version.
-1. Apply \${cfg}, ${env} as argument and enviroment intepolation notation, respectively.
-2. Apply AttributeDict container (it inherit pure python dict) to store non-flatten arguments!
+0. v2.7.x series are the stable version. (2.7.0 release code, 2.7.1 release document)
+1. Add argument lambda functionality (just like lambda function transform argument in config parsing time).
+2. support multi-line object definition.
+3. Let `${env.var}` in slient mode as get method in dict.
+4. make package backward support python 3.6(+).
 
 ---
 
 ### Bug Fixed 🐛
-#### Hot-fix Container bug in v2.5.3, now it'll raise AttributeError while attribute doesn't exists..(fixed in v2.5.4)
+#### Hot-fix `${env.var}` raised error while it has not been exported in shell. I keep it slient and replace with `None`. 
 
 ---
 
