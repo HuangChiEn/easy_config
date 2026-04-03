@@ -28,7 +28,7 @@ def get_flag():
     return tmp_cfg.get_cfg_flag()
 
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field 
 from typing import Optional
 @dataclass
 class TableConfig:
@@ -36,7 +36,7 @@ class TableConfig:
 
 @dataclass
 class DatabaseConfig:
-    table_cfg: TableConfig = TableConfig()
+    table_cfg: TableConfig = field(default_factory=TableConfig)
 
 @dataclass
 class ModelConfig:
