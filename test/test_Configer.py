@@ -1,6 +1,4 @@
-import io
 import unittest
-import unittest.mock
 
 from easy_configer.Configer import Configer
 from easy_configer.utils.Container import AttributeDict
@@ -71,11 +69,13 @@ class ConfigerTestCase(unittest.TestCase):
         self.cfg1.cfg_from_ini(self.dtype_cfg_path, allow_overwrite=True)
         self.assertEqual(self.cfg1.i_var1, 42)
 
-        # test sub-config
+        # test erro raised by non-overwrite sub-config
         with self.assertRaisesRegex(RuntimeError, 'Re-define Error') as cm:
-            self.cfg3.cfg_from_ini(self.sub_cfg_path, debug_subconfig=True)
+            self.cfg3.cfg_from_ini(self.sub_cfg_path)
         
-        self.cfg4.cfg_from_ini(self.sub_cfg_path)
+        # test overwrite sub-config (same as dynamic config loading in omegaconf!)
+        # Note : `allow_overwrite=True` let overwrite from client arguments & subconfig
+        self.cfg4.cfg_from_ini(self.sub_cfg_path, allow_overwrite=True)
         self._test_subcfg(self.cfg4)
 
     def _test_dtype(self, cfg):
@@ -161,25 +161,24 @@ class ConfigerTestCase(unittest.TestCase):
         self.assertEqual(cfg.secA.secB.secC.secD.lev, 4)
 
     def _test_subcfg(self, cfg):
+        # assert default value had been overwrite
+        self.assertEqual('from_dummy', cfg.ori_var)
+
         ## Note : cfg is not AttributeDict, so we use __dict__ to test it 
-        # section in dummy sub-config 
-        breakpoint()
-        self.assertIn('secA', iter(cfg))
+        # section in recur_sub_cfg 
+        self.assertIn('recur_sec', iter(cfg))
         
         # The recommended way to load a sub-config :
-        #   define a new section for storing the sub-config to prevent section conflict!
-        # If you want to overwrite the original config, use "merge_conf(.)" instead!!
-        #   "implicitly" overwrite args is the main reason i didn't prefer to use omegaconf..
+        #   define a new section for storing the sub-config to prevent section conflict!!
+        # If you want to overwrite the original config by using subconfig mechanism, 
+        #   enable `allow_overwrite=True`
         self.assertIn('hier_sec', iter(cfg))
 
         # sub-config var 
         self.assertEqual(cfg.hier_sec.secA.secB.secC.lev, 3)
 
-        # testing nested sub-config
-        self.assertEqual(cfg.dummy.secA.var, cfg.secA.var)
-        breakpoint()
-        # testing config overriding
-        self.assertEqual(cfg.secA.ori_var, 'overrided')
+        # testing nested sub-config overwrite
+        self.assertEqual(cfg.overwrite_sec.ori_var, 'from_dummy')
         
     def test_regist_cls(self):
         self.cfg1.regist_cnvtor('tst_cls', Customized_Object)
@@ -308,7 +307,7 @@ class ConfigerTestCase(unittest.TestCase):
         self.assertEqual(self.cfg1.new_sec1.new_num, self.cfg1.sec1.sec2.num)
 
     def test_filter(self):
-        self.cfg1.regist_filter('addtwo', lambda x : x + 2)
+        self.cfg1.regist_lambda('addtwo', lambda x : x + 2)
         self.cfg1.cfg_from_ini(self.post_filter_cfg_path)
         
         # test string-type builtin post-processor

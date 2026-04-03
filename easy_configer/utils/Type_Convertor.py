@@ -17,7 +17,7 @@ class Type_Convertor(object):
         parse the harmful code by using eval(.). Instead, we constraint the parse capability
         by using ast.literal_eval(.), so feel free to use the default type converter. 
     '''
-    def __init__(self, typ_split_chr:str = '@', filter_split_chr:str = ' | '):
+    def __init__(self, typ_split_chr:str = '@', lambda_split_chr:str = ' | '):
         '''
         Constructor of type convertor. 
 
@@ -26,16 +26,18 @@ class Type_Convertor(object):
                 For example, 'a = 13@int' which means the argument 'a' is interger type data,
                 and the '@' is the typ_split_chr. Default to `@`.
 
-            filter_split_chr (str, option): The character is used to split the value string and 
+            lambda_split_chr (str, option): The character is used to split the value string and 
                 figure out the corresponding 'post-process' for the parsed value. For example, 
                 'a = hello@str | upper', the upper post-processor will turn a into HELLO string.
                 Default to ` | `.
         '''
         # viewable for multiline parser
         self._split_chr = typ_split_chr
-        self.__filter_chr = filter_split_chr
-        self.__env_vars = AttributeDict(os.environ)
-
+        self.__lambda_chr = lambda_split_chr
+        # os.environ in win is converted to uppercase, while linux is case sensitive
+        #   to better interpolate in config file, we force global env to lowercase!
+        self.__env_vars =  AttributeDict( init_dict={ k.lower(): v for k, v in os.environ.items() } )
+        
         # fundemental api-string supported in built-in 
         # i.e. "{{{}}}".format("'key':56")  ->  "{'key':56}", ast.literal_eval("{'key':56}") -> {'key':56}
         #      "{{{}}}".format("1, 2, 3")  ->  "{1, 2, 3}", ast.literal_eval("{1, 2, 3}") -> {1, 2, 3}
@@ -56,7 +58,7 @@ class Type_Convertor(object):
         self.__default_cnvtor = {"str":str, "int":int, "float":float, "bool":bool_cnvt,
                                     "dict":curly_braces_cnvt, "set":curly_braces_cnvt, "tuple":tuple_cnvt, "list":lst_cnvt}
         self.__customized_cnvtor = {}
-        self.__filter_cnvtor = {"upper":str.upper, "lower":str.lower, "strip":str.strip,
+        self.__lambda_cnvtor = {"upper":str.upper, "lower":str.lower, "strip":str.strip,
                                 "str":str, "int":int, "float":float, "bool":bool}
 
     def convert(self, cfg_raw_str:str, tmp_cfg_node = None):
@@ -89,6 +91,13 @@ class Type_Convertor(object):
             
             # keep '}' to form python format string by +1 on ending index
             format_string, rest_str = unparsed_str[:end_idx+1], unparsed_str[end_idx+1:]
+
+            # pre-set default value in global env variable
+            if '{env.' in format_string:
+                var_name = format_string[len('{env.'):-1]
+                # we respect default value in get method in dict
+                self.__env_vars[var_name] = self.__env_vars.get(var_name, None)
+                
             try:
                 # https://stackoverflow.com/questions/15197673/using-pythons-eval-vs-ast-literal-eval
                 # Due to unsafty of eval(.), we only support argument intepolation by format-string
@@ -99,9 +108,9 @@ class Type_Convertor(object):
             
             return parsed_str + formatted_str + rest_str
 
-        # record filter method(s)
+        # record lambda method(s)
         method_lst = []
-        token_lst = cfg_raw_str.split(self.__filter_chr)
+        token_lst = cfg_raw_str.split(self.__lambda_chr)
         if len(token_lst) == 1:
             raw_val_str = token_lst[0]
         else:
@@ -143,14 +152,14 @@ class Type_Convertor(object):
             stripped_val_str = re.sub(r"[\[\]\{\}\(\) ]", "", val_str)
             var_val = self.__default_cnvtor[typ](stripped_val_str)
             
-        # post-processing 'value filtering'
-        # pay attention about security issue while registering 'eval' filter!
-        #   it could allow you interpret python code though...
+        # post-processing 'lambda transform value'
+        # pay attention about security issue while registering 'eval' lambda!
+        #   it prohibited in most of case, you should not do it...
         for method_name in method_lst:
             try:
-                var_val = self.__filter_cnvtor[method_name](var_val)
+                var_val = self.__lambda_cnvtor[method_name](var_val)
             except KeyError:
-                kerr_msg = "The filter name '{}' haven't been registered yet!".format(method_name)
+                kerr_msg = "The lambda name '{}' haven't been registered yet!".format(method_name)
                 raise KeyError(kerr_msg) from None
         return var_val
     
@@ -172,20 +181,20 @@ class Type_Convertor(object):
         func_wrap = lambda *args, **kwargs : cnvt_func(*args, **kwargs)
         self.__customized_cnvtor[type_name] = func_wrap
 
-    def regist_filter(self, filter_name:str = None, filter_func:callable = None):
+    def regist_lambda(self, lambda_name:str, lambda_func:callable):
         '''
             Regist the postprocessing function. 
 
             Args:
-                type_name (str): Name of registered function, namely the name of customized class. Default to None.
+                lambda_name (str): Name of registered function, namely the name of customized lambda function. 
                 
-                cnvt_func (callable): The function for converting the string object into the customized class instance. Default to None.
+                lambda_func (callable): convert the object by lambda function. 
         '''
-        if not callable(filter_func):
+        if not callable(lambda_func):
             raise TypeError("The converter function is not callable.")
         
-        if not (isinstance(filter_name, str) and len(filter_name) > 0):
+        if not (isinstance(lambda_name, str) and len(lambda_name) > 0):
             raise RuntimeError("The cnvt_name should be given")
         
-        func_wrap = lambda var_val : filter_func(var_val)
-        self.__filter_cnvtor[filter_name] = func_wrap
+        func_wrap = lambda var_val : lambda_func(var_val)
+        self.__lambda_cnvtor[lambda_name] = func_wrap

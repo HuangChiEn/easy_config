@@ -72,24 +72,21 @@ class Configer(object):
             
         return dct
     
-    def __update_container_from_cli(self, val_dict, is_subconfig, sec_prefix, cmd_args_dct):
+    def __update_container_from_cli(self, val_dict, sec_prefix, cmd_args_dct):
 
-        def extract_dict_key_str(val_dict, is_subconfig) -> list:
-            # for subconfig, extract all hierachical keys (apply dot '.' to denote hierachical relation) 
-            def recur_extract_key(val_dict, prefix=''):
-                val_keys = []
-                # add dot access operator after section prefix string
-                prefix = '{}.'.format(prefix) if prefix else ''
-                for val_key, val in val_dict.items():
-                    val_prefix = "{0}{1}".format(prefix, val_key)
-                    if isinstance(val, AttributeDict):
-                        val_keys += recur_extract_key(val, val_prefix)
-                    else:
-                        val_keys.append(val_prefix)
-                return val_keys
+        # extract all hierachical keys in dict / subconfig (apply dot '.' to denote hierachical relation) 
+        def recur_extract_key(val_dict, prefix=''):
+            val_keys = []
+            # add dot access operator after section prefix string
+            prefix = '{}.'.format(prefix) if prefix else ''
+            for val_key, val in val_dict.items():
+                val_prefix = "{0}{1}".format(prefix, val_key)
+                if isinstance(val, AttributeDict):
+                    val_keys += recur_extract_key(val, val_prefix)
+                else:
+                    val_keys.append(val_prefix)
 
-            # for normal val_dict, directly return the root key string
-            return recur_extract_key(val_dict, '') if is_subconfig else [ list(val_dict.keys())[0] ]
+            return val_keys
 
         def index_dict_by_val_key(val_dict, key_str):
             key_lst = key_str.split('.')
@@ -104,7 +101,7 @@ class Configer(object):
         if not cmd_args_dct:
             return val_dict, cmd_args_dct
         
-        val_keys = extract_dict_key_str(val_dict, is_subconfig)
+        val_keys = recur_extract_key(val_dict, prefix='')  # prefix begin from root
         for val_key in val_keys:
             sec_qry = "{0}.{1}".format(sec_prefix, val_key) if sec_prefix else val_key
             for key in list(cmd_args_dct.keys()):
@@ -426,17 +423,12 @@ class Configer(object):
                     # normal value string
                     val_dict = self.__get_declr_dict(cfg_str)
                     is_subconfig = False
-                    (not allow_overwrite) and chk_args_exists(val_dict, container)
                 
-                if is_subconfig and debug_subconfig:
-                    breakpoint()
-                    chk_args_exists(val_dict, container)
-                    
+                (not allow_overwrite) and chk_args_exists(val_dict, container)   
                     
                 # realtime update config value by the commendline argument
                 val_dict, cmd_args_dct = self.__update_container_from_cli(
                     val_dict, 
-                    is_subconfig, 
                     sec_prefix, 
                     cmd_args_dct
                 )
@@ -595,22 +587,22 @@ class Configer(object):
         '''
         self.__typ_cnvt.regist_cnvtor(type_name, cnvt_func)
 
-    def regist_filter(self, filter_name:str = None, filter_func:callable = None):
+    def regist_lambda(self, lambda_name:str = None, lambda_func:callable = None):
         ''' 
         Declare the user customized function for post-processor. The registered converter can be used 
         to declare in the config file.
 
         Args:
-            filter_name (str): filter name used in config file. i.e. registered as 'dummy', 
+            lambda_name (str): lambda name used in config file. i.e. registered as 'dummy', 
                 then declare a post-processor will be `var = 42 | dummy`.
             
-            filter_func (callable): typically it's the function for post-processing the argument.
+            lambda_func (callable): typically it's the function for post-processing the argument.
                 For example, `lambda x : str(x)` is a simple string type convresion.
         
         Return:
             None. This registered method doesn't return any flag.
         '''
-        self.__typ_cnvt.regist_filter(filter_name, filter_func)
+        self.__typ_cnvt.regist_lambda(lambda_name, lambda_func)
     
     # show split character
     @property
