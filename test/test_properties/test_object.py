@@ -44,5 +44,5 @@ class ModelConfig:
 
 @dataclass
 class ServerConfig:
-    db: DatabaseConfig = DatabaseConfig()
-    model: ModelConfig = ModelConfig()
+    db: DatabaseConfig = field(default_factory=DatabaseConfig)
+    model: ModelConfig = field(default_factory=ModelConfig)
