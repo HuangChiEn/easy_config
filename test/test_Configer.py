@@ -15,6 +15,7 @@ class ConfigerTestCase(unittest.TestCase):
         self.cfg1 = Configer()
         self.cfg2 = Configer()
         self.cfg3 = Configer()
+        self.cfg4 = Configer()
         
         # declare config we're going to test
         self.dtype_cfg_path = 'test/test_properties/dtype_cfg.ini'   
@@ -29,11 +30,12 @@ class ConfigerTestCase(unittest.TestCase):
         self.post_filter_cfg_path = 'test/test_properties/filter_cfg.ini'
 
     def test_parsing_config(self):
-        # test dtype decleration
+        # test equivalent of string / file reading
+        #   get_cfg_str apply open, f_ptr.read into str
         cfg_str = get_cfg_str(self.dtype_cfg_path)
         self.cfg1.cfg_from_str(cfg_str)
         self.cfg2.cfg_from_ini(self.dtype_cfg_path)
-        
+        # test dtype decleration
         self._test_dtype(self.cfg1)
         self._test_dtype(self.cfg2)
         
@@ -65,55 +67,93 @@ class ConfigerTestCase(unittest.TestCase):
         sl_cfg_str = 'i_var1 = -1'
         self.cfg1.cfg_from_str(sl_cfg_str, allow_overwrite=True)
         self.assertEqual(self.cfg1.i_var1, int(sl_cfg_str.split('=')[-1]))
+
         self.cfg1.cfg_from_ini(self.dtype_cfg_path, allow_overwrite=True)
         self.assertEqual(self.cfg1.i_var1, 42)
 
         # test sub-config
         with self.assertRaisesRegex(RuntimeError, 'Re-define Error') as cm:
-            self.cfg3.cfg_from_ini(self.sub_cfg_path)
-
-        self.cfg3.cfg_from_ini(self.sub_cfg_path, allow_overwrite=True)
-        self._test_subcfg(self.cfg3)
+            self.cfg3.cfg_from_ini(self.sub_cfg_path, debug_subconfig=True)
+        
+        self.cfg4.cfg_from_ini(self.sub_cfg_path)
+        self._test_subcfg(self.cfg4)
 
     def _test_dtype(self, cfg):
+        # chk type
+        self.assertIsInstance(cfg.i_var1, int)
+        # chk value
         self.assertEqual(cfg.i_var1, 42)
+        # chk negative
         self.assertEqual(cfg.i_var_neg, -42)
+        # chk equivalent
         self.assertEqual(cfg.i_var1, cfg.i_var2)
 
+        self.assertIsInstance(cfg.f_var1, float)
         self.assertLess( (cfg.f_var1-cfg.f_var2),  1e-7)
 
+        self.assertIsInstance(cfg.s_var1, str)
         self.assertEqual(cfg.s_var1, 'test')
         self.assertEqual(cfg.s_var1, cfg.s_var2)
 
+        self.assertIsInstance(cfg.b_var1, bool)
         self.assertEqual(cfg.b_var1, True)
         self.assertEqual(cfg.b_var1, (not cfg.b_var2))
 
+        self.assertIsInstance(cfg.n_var, type(None))
         self.assertEqual(cfg.n_var, None)
 
+        self.assertIsInstance(cfg.l_var1, list)
         self.assertEqual(cfg.l_var1, [1, 3, 5])
         self.assertEqual(cfg.l_var1, cfg.l_var2)
 
+        self.assertIsInstance(cfg.t_var1, tuple)
         self.assertEqual(cfg.t_var1, (1, 3, 5))
         self.assertEqual(cfg.t_var1, cfg.t_var2)
 
+        self.assertIsInstance(cfg.st_var1, set)
         self.assertEqual(cfg.st_var1, {1, 3, 5})
         self.assertEqual(cfg.st_var1, cfg.st_var2)
 
+        self.assertIsInstance(cfg.d_var1, dict)
         self.assertEqual(cfg.d_var1, {'tst':42, 'kkk':-1})
         self.assertEqual(cfg.d_var1, cfg.d_var2)
+
+        # muti-line declaration
+        self.assertIsInstance(cfg.ml_var1, list)
+        self.assertEqual(cfg.ml_var1, cfg.ml_var2)
+        self.assertEqual(cfg.ml_var1, cfg.ml_var3)
+        self.assertEqual(cfg.ml_var1, cfg.ml_var4)
+
+        self.assertIsInstance(cfg.mt_var1, tuple)
+        self.assertIsInstance(cfg.ms_var1, set)
+        self.assertIsInstance(cfg.md_var1, dict)
+
+        # nested objects declaration in multiple line
+        self.assertEqual(cfg.nsl_var1, [[[1, 3, 5]]])
+        self.assertEqual(cfg.nsl_var2, [[1, 3, [5]]])
+        self.assertEqual(cfg.nsl_var3, [(1, 3, 5), {2, 4, 6}])
+        self.assertEqual(cfg.nsl_var4, [1, (3, 5), {2, 4}, 6])
+        self.assertEqual(cfg.nsd_var1, {'d_1':{'v_1':True, 'v_2':[1, 3, 5], 'v_3':(2, 4, 6)}})
 
     def _test_hier(self, cfg):
         ## Note : cfg is not AttributeDict, due to hist reason
         self.assertIsInstance(cfg, Configer)
+        self.assertIn('sec1', iter(cfg))
+        self.assertIn('secA', iter(cfg))
 
         # test hier-containers are AttributeDict!
         self.assertIsInstance(cfg.sec1, AttributeDict)
         self.assertIn('sec21', cfg.sec1)
         self.assertIn('sec22', cfg.sec1)
-       
         self.assertIsInstance(cfg.sec1.sec21, AttributeDict)
         self.assertIn('sec21_var', cfg.sec1.sec21)
-
+        # dot access
+        self.assertEqual(cfg.sec1.sec21.sec21_var, 42)
+        # dict key access
+        self.assertEqual(cfg['sec1']['sec21']['sec21_var'], 42)
+        # interleave access
+        self.assertEqual(cfg.sec1['sec21'].sec21_var, 42)
+        # depth test
         self.assertIn('secB', cfg.secA)
         self.assertIn('secC', cfg.secA.secB)
         self.assertIn('secD', cfg.secA.secB.secC)
@@ -123,6 +163,7 @@ class ConfigerTestCase(unittest.TestCase):
     def _test_subcfg(self, cfg):
         ## Note : cfg is not AttributeDict, so we use __dict__ to test it 
         # section in dummy sub-config 
+        breakpoint()
         self.assertIn('secA', iter(cfg))
         
         # The recommended way to load a sub-config :
@@ -136,7 +177,7 @@ class ConfigerTestCase(unittest.TestCase):
 
         # testing nested sub-config
         self.assertEqual(cfg.dummy.secA.var, cfg.secA.var)
-
+        breakpoint()
         # testing config overriding
         self.assertEqual(cfg.secA.ori_var, 'overrided')
         

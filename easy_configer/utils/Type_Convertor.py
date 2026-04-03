@@ -71,7 +71,9 @@ class Type_Convertor(object):
             beg_tkn, end_tkn = "${", "}"
 
             # early return the value-string without python interpreter symbol "${...}"
-            if (idx:=val_str.find(beg_tkn)) == -1:
+            #   don't use walrus operator, make it competible (< python 3.7)
+            idx = val_str.find(beg_tkn)
+            if idx == -1:
                 return val_str
             
             # keep '{'  to form python format string by -1 on begin index
@@ -81,7 +83,8 @@ class Type_Convertor(object):
             #     2. "${..." + "...${...}...}" return "${..." + "...ABC...}"
             unparsed_str = pre_interpret_val_str(unparsed_str)
             
-            if (end_idx:=unparsed_str.find(end_tkn)) == -1:
+            end_idx = unparsed_str.find(end_tkn)
+            if end_idx == -1:
                 raise RuntimeError("Missing closed '}' for the python pharse.")
             
             # keep '}' to form python format string by +1 on ending index
@@ -91,7 +94,8 @@ class Type_Convertor(object):
                 # Due to unsafty of eval(.), we only support argument intepolation by format-string
                 formatted_str = format_string.format(cfg=tmp_cfg_node, env=self.__env_vars)
             except AttributeError:
-                raise RuntimeError(f"Format-string $'{format_string}' failure, try to intepolate an undefined argument!")
+                # don't use f-string, make it competible (< python 3.7)
+                raise RuntimeError("Format-string $'{0}' failure, try to intepolate an undefined argument!".format(format_string))
             
             return parsed_str + formatted_str + rest_str
 
@@ -123,7 +127,7 @@ class Type_Convertor(object):
             elif isinstance(args, list):
                 var_val = self.__customized_cnvtor[typ](*args)
             else:  # invalid type of args is considered as default init  
-                warnings.warn("You're initialized class '{0}' with default arguments!".format(typ))
+                warnings.warn("Invalid type of args '{0}' is considered as default init, you're initialized class '{1}' with default arguments!".format(args, typ))
                 var_val = self.__customized_cnvtor[typ]()
         
         # bare string-value evaluator, instead of define '@type' at the end..

@@ -4,7 +4,6 @@ import os
 import sys
 from copy import deepcopy
 from pathlib import Path
-from typing import Union
 
 import warnings
 def warning_on_one_line(message, category, filename, lineno, file=None, line=None):
@@ -144,8 +143,8 @@ class Configer(object):
         # since commendline update directly comes from user, power comes from responsibility! 
         self.__create_args_from_cli(cmd_args_dct)
 
-
-    def __remove_empty_comment_line(self, cfg_src:Union[str, io.IOBase]) -> str :
+    # without Union type hint, make it support until python3.5
+    def __remove_empty_comment_line(self, cfg_src) -> str :
         ''' preprocess config string, strip empty line or comment line. '''
         # python str already deal with '\' symbol
         if isinstance(cfg_src, str):
@@ -223,7 +222,7 @@ class Configer(object):
      
 
     # Support string config in cell-based intereactive enviroment
-    def cfg_from_str(self, raw_cfg_text:str, allow_overwrite:bool=False) -> None:
+    def cfg_from_str(self, raw_cfg_text:str, allow_overwrite:bool=False, debug_subconfig:bool=False) -> None:
         ''' 
             Building config from the given config string.
 
@@ -234,12 +233,12 @@ class Configer(object):
         '''
         raw_cfg_text = self.__remove_empty_comment_line(raw_cfg_text)
         cfg_text = "\n".join([ line for line in self.__multiple_line_str_wrapper(raw_cfg_text) ])
-        self.__cfg_parser(cfg_text, allow_overwrite)
+        self.__cfg_parser(cfg_text, allow_overwrite, debug_subconfig)
         # build the flag object 
         self.__flag.__dict__ = self.__dict__
     
     # Load .ini config from the given path
-    def cfg_from_ini(self, cfg_path:str, allow_overwrite:bool=False) -> None:
+    def cfg_from_ini(self, cfg_path:str, allow_overwrite:bool=False, debug_subconfig:bool=False) -> None:
         '''
             Building config from the given .ini config file.
 
@@ -272,7 +271,7 @@ class Configer(object):
         except Exception as ex:
             print(ex) ; raise
         
-        self.__cfg_parser(cfg_text, allow_overwrite)
+        self.__cfg_parser(cfg_text, allow_overwrite, debug_subconfig)
         # build the flag object 
         self.__flag.__dict__ = self.__dict__
     
@@ -353,7 +352,7 @@ class Configer(object):
         return { var_name : var_val }
 
     # core function of config parser
-    def __cfg_parser(self, raw_cfg_text:str, allow_overwrite:bool) -> None:
+    def __cfg_parser(self, raw_cfg_text:str, allow_overwrite:bool, debug_subconfig:bool) -> None:
         '''
             Core function to parse the raw config string line-by-line. It'll dispatch each line of config string 
             to the corresponding subroutine. Basically, subroutines is categorized into 3 types in order :
@@ -418,18 +417,22 @@ class Configer(object):
             # 2. value config string
             else:
                 # parse the value string into value dict
-                if cfg_str[0] == '>':
+                if cfg_str.startswith('>'):
                     # import other .ini config as value dict
-                    sub_cfg_path = cfg_str.split('>')[-1].strip()
+                    sub_cfg_path = cfg_str[1:].strip()
                     val_dict = parse_sub_config(sub_cfg_path)
                     is_subconfig = True
                 else:
                     # normal value string
                     val_dict = self.__get_declr_dict(cfg_str)
                     is_subconfig = False
-
-                (not allow_overwrite) and chk_args_exists(val_dict, container)
+                    (not allow_overwrite) and chk_args_exists(val_dict, container)
                 
+                if is_subconfig and debug_subconfig:
+                    breakpoint()
+                    chk_args_exists(val_dict, container)
+                    
+                    
                 # realtime update config value by the commendline argument
                 val_dict, cmd_args_dct = self.__update_container_from_cli(
                     val_dict, 
